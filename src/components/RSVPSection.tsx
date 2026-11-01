@@ -3,7 +3,7 @@ import { ResponsiveBackground } from './ResponsiveBackground';
 import { Emph, Eyebrow } from './Emph';
 import { RSVPForm } from './RSVPForm';
 
-export function RSVPSection() {
+export function RSVPSection({ initialCode }: { initialCode?: string }) {
   const { rsvpCopy, links, confirmationPopup, rsvp, images } = wedding;
   return (
     <section className="rsvp-section" id="rsvp" aria-labelledby="rsvp-titulo">
@@ -35,6 +35,7 @@ export function RSVPSection() {
             giftListUrl={links.giftList}
             popup={{ ...confirmationPopup }}
             allowChanges={rsvp.allowChanges}
+            initialCode={initialCode}
           />
         </div>
       </div>

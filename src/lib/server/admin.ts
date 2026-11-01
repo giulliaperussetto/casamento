@@ -187,9 +187,9 @@ function csvCell(value: unknown): string {
   return /[;"\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 }
 
-export async function exportCsv(): Promise<string> {
+export async function exportCsv(origin = ''): Promise<string> {
   const invitations = await listInvitations('all');
-  const header = ['Convite', 'Código', 'Vagas de acompanhante', 'Ativo', 'Convidado', 'Papel', 'Telefone', 'Status', 'Respondido em', 'Não levará acompanhante', 'E-mail', 'Recado / restrições'];
+  const header = ['Convite', 'Código', 'Link do convite', 'Vagas de acompanhante', 'Ativo', 'Convidado', 'Papel', 'Telefone', 'Status', 'Respondido em', 'Não levará acompanhante', 'E-mail', 'Recado / restrições'];
   const lines = [header.join(';')];
   for (const inv of invitations) {
     for (const g of inv.guests) {
@@ -197,6 +197,7 @@ export async function exportCsv(): Promise<string> {
         [
           inv.label ?? '',
           inv.code ?? '',
+          inv.code && origin ? `${origin}/${inv.code}` : '',
           inv.max_guests - 1,
           inv.active ? 'Sim' : 'Não',
           g.full_name,

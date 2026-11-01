@@ -88,3 +88,8 @@
 
 .adm-contact { display: grid; gap: 4px; margin: 8px 0 0; padding: 10px 12px; background: #f9f6f2; border-radius: 6px; font-size: 14px; }
 @media (min-width: 700px) { .adm-guest { grid-template-columns: 1fr 170px 140px 110px auto; } }
+
+.adm-link { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 2px 0 8px; padding: 8px 10px; background: #f6f1ec; border-radius: 8px; }
+.adm-link__url { flex: 1 1 220px; min-width: 0; overflow-wrap: anywhere; font-size: 13px; color: var(--marsala); }
+.adm-btn--whats { background: #1f8f4e; border-color: #1f8f4e; color: #fff; }
+.adm-btn--whats:hover { background: #17733e; border-color: #17733e; }

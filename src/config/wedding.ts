@@ -54,6 +54,12 @@ export const wedding = {
     deadlineLabel: '16 de abril de 2027',
     /** Permite que o convidado altere uma resposta já enviada (até o prazo). */
     allowChanges: true,
+    /**
+     * Mensagem sugerida no botão "Enviar no WhatsApp" do painel.
+     * {nome} = primeiro nome do convidado · {link} = link personalizado do convite
+     */
+    whatsappMessage:
+      'Olá, {nome}! Com muito carinho, queremos você no nosso casamento, no dia 16 de maio de 2027. Seu convite já está aqui, é só confirmar sua presença: {link}',
   },
 
   theme: {

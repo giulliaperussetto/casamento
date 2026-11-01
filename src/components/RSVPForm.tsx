@@ -27,7 +27,7 @@ type Popup = {
   closeButton: string;
 };
 
-type Props = { successTitle: string; giftListUrl: string; popup: Popup; allowChanges: boolean };
+type Props = { successTitle: string; giftListUrl: string; popup: Popup; allowChanges: boolean; initialCode?: string };
 
 async function post<T>(url: string, body: unknown): Promise<T> {
   let res: Response;
@@ -60,10 +60,10 @@ function maskPhone(v: string): string {
 const emptyRows = (n: number, filled: Companion[]): Companion[] =>
   Array.from({ length: n }, (_, i) => ({ fullName: filled[i]?.fullName ?? '', phone: maskPhone(filled[i]?.phone ?? '') }));
 
-export function RSVPForm({ successTitle, giftListUrl, popup, allowChanges }: Props) {
+export function RSVPForm({ successTitle, giftListUrl, popup, allowChanges, initialCode }: Props) {
   const uid = useId();
   const [step, setStep] = useState<'form' | 'done'>('form');
-  const [code, setCode] = useState('');
+  const [code, setCode] = useState(initialCode ?? '');
   const [honeypot, setHoneypot] = useState('');
   const [inv, setInv] = useState<Invitation | null>(null);
   const [status, setStatus] = useState<Status>('pending');
@@ -101,17 +101,27 @@ export function RSVPForm({ successTitle, giftListUrl, popup, allowChanges }: Pro
     setNoCompanions(i.companionsDeclined);
   }
 
-  async function verify() {
+  // Link personalizado: verifica o código automaticamente ao abrir a página.
+  const autoVerified = useRef(false);
+  useEffect(() => {
+    if (initialCode && !autoVerified.current) {
+      autoVerified.current = true;
+      verify(initialCode, false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialCode]);
+
+  async function verify(value: string = code, focus = true) {
     setError(null);
-    if (!code.trim()) {
+    if (!value.trim()) {
       setError('Digite o código recebido no seu convite.');
       return;
     }
     setLoading('verify');
     try {
-      const data = await post<{ invitation: Invitation }>('/api/rsvp/verify', { code, website: honeypot });
+      const data = await post<{ invitation: Invitation }>('/api/rsvp/verify', { code: value, website: honeypot });
       load(data.invitation);
-      setTimeout(() => statusRef.current?.focus(), 0);
+      if (focus) setTimeout(() => statusRef.current?.focus(), 0);
     } catch (err) {
       setError((err as Error).message);
     } finally {
@@ -269,7 +279,7 @@ export function RSVPForm({ successTitle, giftListUrl, popup, allowChanges }: Pro
             Usar outro código
           </button>
         ) : (
-          <button type="button" className="link-btn" onClick={verify} disabled={loading === 'verify'}>
+          <button type="button" className="link-btn" onClick={() => verify()} disabled={loading === 'verify'}>
             {loading === 'verify' ? 'Verificando…' : 'Verificar meu convite'}
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" aria-hidden="true">
               <path d="M2 8h12M9 3l5 5-5 5" />
@@ -280,6 +290,11 @@ export function RSVPForm({ successTitle, giftListUrl, popup, allowChanges }: Pro
 
       <input className="hp" tabIndex={-1} autoComplete="off" aria-hidden="true" name="website" value={honeypot} onChange={(e) => setHoneypot(e.target.value)} />
 
+      {inv && initialCode && code === initialCode && !inv.alreadyResponded && inv.canSubmit && (
+        <p className="rsvp-notice">
+          Olá, {inv.primaryName.split(' ')[0]}! Seu convite já está aqui. É só preencher os dados abaixo e enviar.
+        </p>
+      )}
       {inv?.alreadyResponded && inv.canSubmit && (
         <p className="rsvp-notice">Você já respondeu a este convite. Se quiser, pode alterar sua resposta abaixo.</p>
       )}

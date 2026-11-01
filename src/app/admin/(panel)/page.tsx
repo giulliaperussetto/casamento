@@ -1,4 +1,6 @@
 import Link from 'next/link';
+import { headers } from 'next/headers';
+import { wedding } from '@/config/wedding';
 import { getStats, listInvitations, type StatusFilter } from '@/lib/server/admin';
 import {
   addCompanionAction,
@@ -36,6 +38,13 @@ export default async function AdminPage({
   const filter = (FILTERS.find((f) => f.key === sp.status)?.key ?? 'all') as StatusFilter;
   const q = (sp.q ?? '').slice(0, 80);
   const [stats, invitations] = await Promise.all([getStats(), listInvitations(filter, q)]);
+  const h = await headers();
+  const origin = `${h.get('x-forwarded-proto') ?? 'https'}://${h.get('x-forwarded-host') ?? h.get('host')}`;
+  const inviteLink = (code: string) => `${origin}/${code}`;
+  const whatsappHref = (code: string, name: string) =>
+    `https://wa.me/?text=${encodeURIComponent(
+      wedding.rsvp.whatsappMessage.replace('{nome}', name.split(' ')[0]).replace('{link}', inviteLink(code)),
+    )}`;
 
   return (
     <>
@@ -112,9 +121,25 @@ export default async function AdminPage({
                   </div>
                   <div className="adm-code">
                     <code>{inv.code ?? '(código indisponível)'}</code>
-                    {inv.code && <CopyButton value={inv.code} />}
+                    {inv.code && <CopyButton value={inv.code} label="Copiar código" />}
                   </div>
                 </div>
+                {inv.code && (
+                  <div className="adm-link">
+                    <a href={inviteLink(inv.code)} target="_blank" rel="noopener noreferrer" className="adm-link__url">
+                      {inviteLink(inv.code).replace(/^https?:\/\//, '')}
+                    </a>
+                    <CopyButton value={inviteLink(inv.code)} label="Copiar link" />
+                    <a
+                      className="adm-btn adm-btn--small adm-btn--whats"
+                      href={whatsappHref(inv.code, inv.guests.find((g) => g.guest_role === 'primary')?.full_name ?? '')}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Enviar no WhatsApp
+                    </a>
+                  </div>
+                )}
 
                 <table className="adm-table">
                   <thead>

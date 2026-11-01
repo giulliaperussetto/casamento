@@ -37,6 +37,8 @@ Tudo fica em **`src/config/wedding.ts`**: nomes, data, horário, local, link do 
 
 ## Ordem das seções
 
+Link personalizado por convite: `/CODIGO` abre o site com o código já verificado na confirmação. O painel mostra o link, com botões "Copiar link" e "Enviar no WhatsApp" (mensagem editável em `rsvp.whatsappMessage`).
+
 Hero (com menu) → Nossa história → O grande dia (programação, local e traje) → Dress code (foto dos padrinhos e madrinhas) → A festa → Nossa trilha (lista de músicas) → Sua missão → Presentes (carrossel) → Confirmação de presença → Dúvidas → Rodapé. Componentes em `src/components/`.
 
 Nos títulos do arquivo de configuração, o trecho entre `*asteriscos*` aparece em itálico de destaque (ex.: `'Um dia. *Uma vida inteira.*'`).
