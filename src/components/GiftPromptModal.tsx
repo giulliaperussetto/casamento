@@ -71,16 +71,14 @@ export function GiftPromptModal({ open, giftListUrl, first, second, onClose }: P
             <path d="M3 3l12 12M15 3L3 15" stroke="currentColor" strokeWidth="1.4" />
           </svg>
         </button>
-        <span className="ornament ornament--small" aria-hidden="true">
-          <span className="ornament__line" />✦<span className="ornament__line" />
-        </span>
+        <span className="modal__mark" aria-hidden="true">✦</span>
         <h2 className="modal__title" id="gift-title">{copy.title}</h2>
         <p className="modal__text" id="gift-text">{copy.text}</p>
         <div className="modal__actions">
-          <button ref={primaryBtn} type="button" className="btn btn--marsala" onClick={openList}>
+          <button ref={primaryBtn} type="button" className="btn-solid btn-solid--block" onClick={openList}>
             {copy.yes}
           </button>
-          <button type="button" className="btn btn--text" onClick={() => (step === 1 ? setStep(2) : close())}>
+          <button type="button" className="link-btn" onClick={() => (step === 1 ? setStep(2) : close())}>
             {copy.no}
           </button>
         </div>

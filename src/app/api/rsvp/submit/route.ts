@@ -12,7 +12,15 @@ export async function POST(req: Request) {
   }
   const parsed = submitSchema.safeParse(body);
   if (!parsed.success) {
-    return json({ error: 'Verifique as respostas: escolha uma opção para cada participante e informe nomes válidos.' }, 400);
+    const emailIssue = parsed.error.issues.some((i) => i.path[0] === 'email');
+    return json(
+      {
+        error: emailIssue
+          ? 'Informe um e-mail válido para que possamos falar com você.'
+          : 'Verifique as respostas: escolha uma opção para cada participante e informe nomes válidos.',
+      },
+      400,
+    );
   }
   try {
     return json(await submitRsvp(parsed.data));

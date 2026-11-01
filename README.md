@@ -9,7 +9,7 @@ Página única, estática na apresentação (sem animações de scroll, parallax
 ```bash
 npm install
 cp .env.example .env        # preencha as variáveis (veja abaixo)
-npm run db:migrate          # cria o schema "wedding" no banco
+npm run db:migrate          # cria o schema "wedding" no banco (ou cole os arquivos de supabase/migrations no SQL Editor, em ordem)
 npm run admin:create -- voces@email.com
 npm run dev                 # http://localhost:3000  ·  painel em /admin
 ```
@@ -37,7 +37,9 @@ Tudo fica em **`src/config/wedding.ts`**: nomes, data, horário, local, link do 
 
 ## Ordem das seções
 
-Hero → Alianças + mensagem → Nossa história → A celebração → Dress code → Cronograma (fundo de tecido) → Clima da festa → Playlist → Sua missão → RSVP → Perguntas frequentes → Rodapé. Componentes em `src/components/`.
+Hero (com menu) → O grande dia (programação, local e traje) → Dress code (foto dos padrinhos e madrinhas) → A festa + playlist → Presentes (carrossel) → Sua missão → Confirmação de presença → Dúvidas → Rodapé. Componentes em `src/components/`.
+
+Nos títulos do arquivo de configuração, o trecho entre `*asteriscos*` aparece em itálico de destaque (ex.: `'Um dia. *Uma vida inteira.*'`).
 
 ## RSVP — regras e segurança
 

@@ -151,6 +151,13 @@ export default async function AdminPage({
                   </tbody>
                 </table>
 
+                {(inv.contact_email || inv.guest_message) && (
+                  <p className="adm-contact">
+                    {inv.contact_email && <span>✉ {inv.contact_email}</span>}
+                    {inv.guest_message && <span>“{inv.guest_message}”</span>}
+                  </p>
+                )}
+
                 {inv.invitation_type === 'couple' && inv.guests.length < inv.max_guests && (
                   <form action={addCompanionAction} className="adm-inline">
                     <input type="hidden" name="invitationId" value={inv.id} />

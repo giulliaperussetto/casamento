@@ -85,3 +85,5 @@
 .adm-login { display: grid; place-items: center; padding: 16px; }
 .adm-login__card { width: min(100%, 380px); background: #fff; border: 1px solid #ebe5dd; border-radius: 12px; padding: 28px 24px; }
 .adm-login h1 { font: 500 28px var(--font-serif), Georgia, serif; color: var(--marsala); margin: 0 0 18px; }
+
+.adm-contact { display: grid; gap: 4px; margin: 8px 0 0; padding: 10px 12px; background: #f9f6f2; border-radius: 6px; font-size: 14px; }

@@ -19,6 +19,8 @@ export type AdminInvitation = {
   max_guests: number;
   allow_unnamed_companion: boolean;
   active: boolean;
+  contact_email: string | null;
+  guest_message: string | null;
   created_at: Date;
   updated_at: Date;
   guests: AdminGuest[];
@@ -31,7 +33,7 @@ export async function listInvitations(filter: StatusFilter = 'all', search = '')
   const term = `%${search.trim().toLowerCase()}%`;
   const rows = await sql<(Omit<AdminInvitation, 'code'> & { code_encrypted: string | null })[]>`
     select i.id, i.code_encrypted, i.label, i.invitation_type, i.max_guests, i.allow_unnamed_companion,
-           i.active, i.created_at, i.updated_at,
+           i.active, i.contact_email, i.guest_message, i.created_at, i.updated_at,
            coalesce(jsonb_agg(jsonb_build_object(
              'id', g.id, 'full_name', g.full_name, 'guest_role', g.guest_role, 'name_locked', g.name_locked,
              'attendance_status', g.attendance_status, 'responded_at', g.responded_at
@@ -180,7 +182,7 @@ function csvCell(value: unknown): string {
 
 export async function exportCsv(): Promise<string> {
   const invitations = await listInvitations('all');
-  const header = ['Convite', 'Código', 'Tipo', 'Ativo', 'Convidado', 'Papel', 'Status', 'Respondido em'];
+  const header = ['Convite', 'Código', 'Tipo', 'Ativo', 'Convidado', 'Papel', 'Status', 'Respondido em', 'E-mail', 'Recado / restrições'];
   const lines = [header.join(';')];
   for (const inv of invitations) {
     for (const g of inv.guests) {
@@ -194,6 +196,8 @@ export async function exportCsv(): Promise<string> {
           g.guest_role === 'primary' ? 'Principal' : 'Acompanhante',
           STATUS_LABEL[g.attendance_status],
           g.responded_at ? new Date(g.responded_at).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' }) : '',
+          inv.contact_email ?? '',
+          inv.guest_message ?? '',
         ]
           .map(csvCell)
           .join(';'),

@@ -121,12 +121,37 @@ const scenes = {
     ${label(w, h, 'FOTO PROVISÓRIA · FESTA')}`,
 };
 
+scenes.padrinhos = (w, h) => {
+  let figs = '';
+  const n = w > h ? 8 : 4;
+  for (let i = 0; i < n; i++) {
+    const x = (w / (n + 1)) * (i + 1);
+    const dress = i % 2 === 0;
+    const s = Math.min(w / n, h) * 0.5;
+    figs += dress
+      ? `<path d="M${x - s * 0.12} ${h * 0.32} L${x + s * 0.12} ${h * 0.32} L${x + s * 0.32} ${h * 0.92} L${x - s * 0.32} ${h * 0.92} Z" fill="#722F37" opacity="0.85"/><circle cx="${x}" cy="${h * 0.26}" r="${s * 0.1}" fill="#C79A82"/>`
+      : `<rect x="${x - s * 0.17}" y="${h * 0.32}" width="${s * 0.34}" height="${h * 0.6}" fill="#2B2224" opacity="0.9"/><circle cx="${x}" cy="${h * 0.26}" r="${s * 0.1}" fill="#C79A82"/>`;
+  }
+  return `
+    <defs><linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#EFE4D6"/><stop offset="1" stop-color="#C9B49C"/></linearGradient></defs>
+    <rect width="100%" height="100%" fill="url(#bg)"/>${figs}
+    ${label(w, h, 'FOTO PROVISÓRIA · PADRINHOS E MADRINHAS', 'rgba(74,25,34,0.55)')}`;
+};
+
+const giftTones = { tacas: ['#E9DCCB', '#B99B78'], jantar: ['#5A2430', '#2A1015'], aparelho: ['#F3ECE3', '#CDBBA6'], barco: ['#BFD3D6', '#5F8189'], cafeteira: ['#D8C3AE', '#6E4E3A'], cama: ['#EFE6DC', '#B79C8E'] };
+for (const [k, [a, b]] of Object.entries(giftTones)) {
+  scenes['gift-' + k] = (w, h) => `
+    <defs><radialGradient id="g" cx="0.5" cy="0.4" r="0.8"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></radialGradient></defs>
+    <rect width="100%" height="100%" fill="url(#g)"/>
+    <circle cx="${w / 2}" cy="${h * 0.46}" r="${w * 0.18}" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="2"/>
+    <path d="M${w / 2} ${h * 0.38} l${w * 0.03} ${w * 0.05} l${w * 0.05} ${w * 0.01} l-${w * 0.05} ${w * 0.02} l-${w * 0.03} ${w * 0.05} l-${w * 0.03} -${w * 0.05} l-${w * 0.05} -${w * 0.02} l${w * 0.05} -${w * 0.01} Z" fill="rgba(255,255,255,0.75)"/>
+    ${label(w, h, 'IMAGEM PROVISÓRIA', 'rgba(255,255,255,0.7)')}`;
+}
+
 const jobs = [
-  ['hero-desktop', 'hero', 2400, 1500], ['hero-mobile', 'hero', 1080, 1920],
-  ['rings-desktop', 'rings', 2400, 1400], ['rings-mobile', 'rings', 1080, 1350],
-  ['story', 'story', 1200, 1500],
+  ['padrinhos-desktop', 'padrinhos', 2400, 1030], ['padrinhos-mobile', 'padrinhos', 1080, 1350],
+  ...Object.keys(giftTones).map((k) => ['presente-' + k, 'gift-' + k, 800, 1000]),
   ['celebration-desktop', 'celebration', 1600, 1800], ['celebration-mobile', 'celebration', 1080, 1300],
-  ['fabric-desktop', 'fabric', 2400, 1600], ['fabric-mobile', 'fabric', 1080, 2200],
   ['party-desktop', 'party', 2400, 1500], ['party-mobile', 'party', 1080, 1920],
 ];
 

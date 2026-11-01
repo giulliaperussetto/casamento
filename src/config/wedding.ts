@@ -2,56 +2,52 @@
  * ============================================================================
  *  CONTEÚDO DO SITE — edite apenas este arquivo para personalizar o casamento.
  * ============================================================================
- *  • Textos, datas, local, links, cronograma, dress code e FAQ.
+ *  • Textos, datas, local, links, cronograma, dress code, presentes e FAQ.
  *  • Imagens: coloque os arquivos em /public/images e altere os caminhos.
  *    Cada imagem aceita uma versão para desktop e outra para celular, além do
  *    enquadramento (object-position) específico de cada uma.
  *  • Cores: altere a paleta em `theme` (aplicada como variáveis CSS).
+ *  • Trechos entre *asteriscos* nos títulos aparecem em itálico de destaque.
  */
 
 export type ResponsiveImage = {
-  /** Imagem para telas grandes (paisagem). */
   desktop: string;
-  /** Imagem para celular (retrato). Se omitida, usa a de desktop. */
   mobile?: string;
   alt: string;
-  /** Enquadramento no desktop, ex.: "center", "50% 30%". */
   positionDesktop?: string;
-  /** Enquadramento no celular. */
   positionMobile?: string;
 };
 
 export const wedding = {
   couple: {
-    first: 'Helena',
+    first: 'Marina',
     second: 'Gabriel',
+    monogram: ['M', 'G'],
   },
 
   /** Data/hora da cerimônia em horário de Brasília. */
   date: {
-    iso: '2027-05-22T16:00:00-03:00',
-    day: '22',
-    month: 'Maio',
-    year: '2027',
-    long: '22 de maio de 2027',
-    time: '16h',
+    iso: '2026-11-14T16:30:00-03:00',
+    label: '14 de novembro · 2026',
+    long: '14 de novembro de 2026',
   },
 
   venue: {
-    name: 'Villa Serena Eventos',
-    address: 'Estrada das Hortênsias, 1200 — Gramado, RS',
-    mapsUrl: 'https://maps.google.com/?q=Estrada+das+Hortensias+1200+Gramado+RS',
+    name: 'Espaço Jardim das Oliveiras',
+    city: 'Campinas, São Paulo',
+    mapsUrl: 'https://maps.google.com/?q=Espa%C3%A7o+Jardim+das+Oliveiras+Campinas',
   },
 
   links: {
     playlist: 'https://open.spotify.com/',
+    /** Link da lista de presentes (usado no carrossel e nos popups após o RSVP). */
     giftList: 'https://example.com/lista-de-presentes',
   },
 
   rsvp: {
-    /** Prazo exibido no FAQ e aplicado no servidor (após o prazo, respostas são bloqueadas). */
-    deadlineIso: '2027-04-22T23:59:59-03:00',
-    deadlineLabel: '22 de abril de 2027',
+    /** Prazo exibido no site e aplicado no servidor (após o prazo, respostas são bloqueadas). */
+    deadlineIso: '2026-11-07T23:59:59-03:00',
+    deadlineLabel: '7 de novembro de 2026',
     /** Permite que o convidado altere uma resposta já enviada (até o prazo). */
     allowChanges: true,
   },
@@ -59,46 +55,35 @@ export const wedding = {
   theme: {
     white: '#FFFFFF',
     warmWhite: '#FAF8F5',
+    sand: '#F4EFEA',
     marsala: '#722F37',
     marsalaDeep: '#4A1922',
+    rose: '#8A4B5E',
     gold: '#C5A46D',
     goldSoft: '#D8BF91',
     black: '#080808',
-    text: '#292323',
+    text: '#2A1A1E',
   },
 
   images: {
     hero: {
-      desktop: '/images/hero-desktop.webp',
-      mobile: '/images/hero-mobile.webp',
-      alt: 'Os noivos abraçados ao entardecer',
-      positionDesktop: 'center 40%',
-      positionMobile: 'center 35%',
+      desktop: '/images/casal-provisoria.webp',
+      mobile: '/images/casal-provisoria.webp',
+      alt: 'Os noivos sob o véu, em um jardim florido',
+      positionDesktop: 'center 45%',
+      positionMobile: 'center 60%',
     },
-    rings: {
-      desktop: '/images/rings-desktop.webp',
-      mobile: '/images/rings-mobile.webp',
-      alt: 'As mãos dos noivos mostrando as alianças',
-      positionDesktop: 'center',
-      positionMobile: 'center',
-    },
-    story: {
-      desktop: '/images/story.webp',
-      alt: 'Os noivos sorrindo juntos',
-      positionDesktop: 'center',
-      positionMobile: 'center 30%',
-    },
-    celebration: {
+    venue: {
       desktop: '/images/celebration-desktop.webp',
       mobile: '/images/celebration-mobile.webp',
       alt: 'O espaço da cerimônia decorado com flores',
       positionDesktop: 'center',
       positionMobile: 'center',
     },
-    timeline: {
-      desktop: '/images/fabric-desktop.webp',
-      mobile: '/images/fabric-mobile.webp',
-      alt: '',
+    dressCode: {
+      desktop: '/images/padrinhos-desktop.webp',
+      mobile: '/images/padrinhos-mobile.webp',
+      alt: 'Padrinhos e madrinhas lado a lado',
       positionDesktop: 'center',
       positionMobile: 'center',
     },
@@ -109,96 +94,73 @@ export const wedding = {
       positionDesktop: 'center',
       positionMobile: 'center',
     },
+    rsvp: {
+      desktop: '/images/casal-provisoria.webp',
+      alt: 'Os noivos abraçados sob o véu',
+      positionDesktop: 'center 40%',
+      positionMobile: 'center 35%',
+    },
   } satisfies Record<string, ResponsiveImage>,
 
+  nav: [
+    { label: 'O grande dia', href: '#celebracao' },
+    { label: 'Dress code', href: '#dress-code' },
+    { label: 'A festa', href: '#festa' },
+    { label: 'Presentes', href: '#presentes' },
+  ],
+
   hero: {
-    tagline: 'O início de um novo capítulo da nossa história.',
-    scrollHint: 'Deslize para descobrir nossa história',
-  },
-
-  message: {
-    title: 'O amor nos trouxe até aqui.',
-    paragraphs: [
-      'Entre encontros, caminhos inesperados e momentos que se tornaram inesquecíveis, descobrimos que as histórias mais bonitas são aquelas que escolhemos viver juntos.',
-      'Agora, com o coração cheio de alegria, queremos dividir com você um dos capítulos mais especiais da nossa vida.',
-    ],
-  },
-
-  story: {
-    eyebrow: 'Capítulo um',
-    title: 'Nossa história',
-    paragraphs: [
-      'Tudo começou de um jeito simples, daqueles que a vida prepara sem avisar.',
-      'Entre conversas, sorrisos e sonhos compartilhados, fomos construindo uma história que hoje ganha um novo significado.',
-      'Mais do que celebrar o nosso amor, queremos celebrar todas as pessoas que fizeram parte dessa caminhada.',
-    ],
+    eyebrow: 'Um convite para celebrar o amor',
+    button: 'A nossa história, agora a sua',
+    side: ['Um dia para guardar', 'para sempre'],
+    scrollHint: 'Role para descobrir',
   },
 
   celebration: {
-    title: 'A celebração',
-    paragraphs: [
-      'Preparamos cada detalhe deste dia com muito carinho para que possamos viver momentos inesquecíveis ao lado das pessoas que amamos.',
-      'Será uma celebração do amor, da alegria e de todos os caminhos que nos trouxeram até aqui.',
-    ],
+    eyebrow: 'Reserve este dia',
+    title: 'Um dia. *Uma vida inteira.*',
+    text: 'Nos encontramos entre jardins, promessas e abraços apertados.',
+    venueEyebrow: 'Onde tudo acontece',
     directionsLabel: 'Como chegar',
+    schedule: [
+      { time: '16:00', title: 'Boas-vindas', text: 'Chegue com calma. O jardim já estará à nossa espera.' },
+      { time: '16:30', title: 'A cerimônia', text: 'O sim que muda tudo, cercado por quem amamos.' },
+      { time: '18:00', title: 'Brinde ao amor', text: 'Um brinde, uma boa conversa e o começo da festa.' },
+      { time: '20:00', title: 'Pista aberta', text: 'Quando a música chamar, a gente se encontra por lá.' },
+    ],
+    attire: {
+      title: 'Um toque de elegância',
+      text: 'Traje social. Venha confortável para celebrar — e dançar.',
+    },
   },
 
   dressCode: {
-    title: 'Dress code',
-    subtitle: 'Traje: passeio completo',
-    text: 'Queremos que você se sinta elegante e confortável para celebrar conosco. Preparamos algumas referências para ajudar na escolha do traje.',
-    groups: [
-      {
-        title: 'Madrinhas',
-        description: 'Vestidos longos, tecidos fluidos, em tons de marsala e vinho.',
-        /** Caminhos das ilustrações (deixe vazio para exibir o espaço reservado). */
-        images: [
-          { src: '', alt: 'Ilustração de vestido de madrinha — modelo 1' },
-          { src: '', alt: 'Ilustração de vestido de madrinha — modelo 2' },
-          { src: '', alt: 'Ilustração de vestido de madrinha — modelo 3' },
-        ],
-      },
-      {
-        title: 'Padrinhos',
-        description: 'Terno escuro bem cortado, gravata em marsala ou dourado envelhecido.',
-        images: [
-          { src: '', alt: 'Ilustração de traje de padrinho — modelo 1' },
-          { src: '', alt: 'Ilustração de traje de padrinho — modelo 2' },
-        ],
-      },
-    ],
-    paletteTitle: 'Paleta da celebração',
-    palette: [
-      { name: 'Marsala', hex: '#722F37' },
-      { name: 'Vinho', hex: '#4A1922' },
-      { name: 'Rosé seco', hex: '#B7787B' },
-      { name: 'Dourado', hex: '#C5A46D' },
-      { name: 'Champagne', hex: '#E8D9BE' },
-    ],
-    note: 'Pedimos, com carinho, que o branco e os tons muito claros fiquem reservados à noiva.',
-  },
-
-  timeline: {
-    eyebrow: 'Programação',
-    title: 'Nosso grande dia',
-    events: [
-      { time: '16:00', title: 'A cerimônia', text: 'O momento em que dois caminhos se tornam um só.' },
-      { time: '17:00', title: 'Recepção dos convidados', text: 'Um brinde aos encontros que fazem a vida mais bonita.' },
-      { time: '18:00', title: 'Jantar', text: 'Sabores especiais para compartilhar momentos inesquecíveis.' },
-      { time: '20:00', title: 'Nossa primeira dança', text: 'Uma música, uma história e um instante para guardar para sempre.' },
-      { time: '21:00', title: 'A festa começa', text: 'Agora é hora de celebrar, dançar e criar novas memórias.' },
-    ],
+    eyebrow: 'Dress code',
+    title: 'Nossos padrinhos e *madrinhas*',
+    text: 'Uma prévia de como eles estarão. Para os convidados, traje social — elegante e confortável.',
   },
 
   party: {
-    title: 'A noite está só começando.',
-    text: 'Depois de tantas emoções, chega a hora de deixar a alegria tomar conta. Queremos ver você sorrindo, dançando e celebrando cada instante dessa noite com a gente.',
+    eyebrow: 'E depois do sim...',
+    title: 'A noite é *toda nossa.*',
+    text: 'Uma mesa cheia, taças erguidas e aquela música que ninguém consegue ouvir sentado.',
+    button: 'Conheça a trilha da festa',
   },
 
-  playlist: {
-    title: 'Já pode entrar no clima!',
-    text: 'Selecionamos algumas músicas para você começar a sentir a energia da nossa festa. Prepare o coração, escolha seus passos favoritos e venha celebrar conosco.',
-    buttonLabel: 'Ouvir nossa playlist',
+  gifts: {
+    eyebrow: 'Com carinho',
+    title: 'Quer nos *presentear?*',
+    text: 'Sua presença já é o nosso maior presente. Mas, se quiser fazer parte desse novo capítulo, separamos algumas ideias com muito carinho.',
+    button: 'Ver lista completa',
+    /** Itens do carrossel. `image` pode ficar vazio para usar o espaço reservado. */
+    items: [
+      { name: 'Jogo de taças de cristal', price: 'R$ 320', image: '/images/presente-tacas.webp' },
+      { name: 'Jantar romântico na lua de mel', price: 'R$ 450', image: '/images/presente-jantar.webp' },
+      { name: 'Aparelho de jantar', price: 'R$ 780', image: '/images/presente-aparelho.webp' },
+      { name: 'Passeio de barco', price: 'R$ 600', image: '/images/presente-barco.webp' },
+      { name: 'Cafeteira espresso', price: 'R$ 1.200', image: '/images/presente-cafeteira.webp' },
+      { name: 'Jogo de cama', price: 'R$ 520', image: '/images/presente-cama.webp' },
+    ],
   },
 
   mission: {
@@ -211,14 +173,9 @@ export const wedding = {
   },
 
   rsvpCopy: {
-    title: 'Confirme sua presença',
-    text: 'Estamos ansiosos para compartilhar esse dia com você. Digite o código recebido no seu convite para continuar.',
-    codeLabel: 'Código do convite',
-    codePlaceholder: 'CASA-XXXXX-XXXXX',
-    verifyButton: 'Verificar meu convite',
-    attendLabel: 'Vou comparecer',
-    declineLabel: 'Não poderei comparecer',
-    submitButton: 'Enviar confirmação',
+    eyebrow: 'Queremos contar com você',
+    title: 'Você vem *celebrar com a gente?*',
+    quote: ['O melhor presente', 'é ter você por perto.'],
     successTitle: 'Recebemos sua resposta com carinho!',
   },
 
@@ -238,32 +195,29 @@ export const wedding = {
   },
 
   faq: {
-    title: 'Ainda tem alguma dúvida?',
-    text: 'Reunimos algumas informações para ajudar você a aproveitar esse dia da melhor maneira possível.',
+    eyebrow: 'Um detalhe ou outro',
+    title: 'Ficou alguma *dúvida?*',
+    text: 'Reunimos aqui as respostas para você aproveitar o dia sem preocupações.',
     items: [
       {
-        q: 'Qual será o horário da cerimônia?',
-        a: 'A cerimônia terá início às 16h. Recomendamos chegar com antecedência para aproveitar cada momento.',
-      },
-      {
-        q: 'Existe estacionamento no local?',
-        a: 'O espaço contará com informações de estacionamento que serão disponibilizadas em breve.',
-      },
-      {
-        q: 'Posso levar acompanhante?',
-        a: 'A quantidade de pessoas autorizadas está vinculada ao código de cada convite. Ao inserir seu código, você poderá visualizar exatamente quem está incluído.',
-      },
-      {
         q: 'Qual é o traje recomendado?',
-        a: 'Preparamos uma seção especial com orientações de dress code e referências para ajudar na escolha do visual.',
+        a: 'Traje social. Escolha algo elegante e confortável — a festa acontece em um jardim e a pista vai ficar animada.',
       },
       {
-        q: 'Até quando posso confirmar minha presença?',
-        a: 'Pedimos que a confirmação seja realizada até 22 de abril de 2027.',
+        q: 'Posso levar crianças?',
+        a: 'As pessoas convidadas estão vinculadas ao código de cada convite. Ao inserir o seu código, você verá exatamente quem está incluído.',
       },
       {
-        q: 'Onde encontro a lista de presentes?',
-        a: 'A lista de presentes estará disponível por meio do link que será divulgado neste site.',
+        q: 'Há estacionamento no local?',
+        a: 'Sim. O espaço conta com estacionamento para os convidados.',
+      },
+      {
+        q: 'Até quando posso confirmar presença?',
+        a: 'Pedimos que a confirmação seja feita até 7 de novembro de 2026.',
+      },
+      {
+        q: 'Posso atualizar minha resposta depois?',
+        a: 'Pode, sim. Basta inserir o mesmo código novamente e enviar a nova resposta até o prazo de confirmação.',
       },
     ],
   },
@@ -273,7 +227,7 @@ export const wedding = {
   },
 
   seo: {
-    title: 'Helena & Gabriel — 22.05.2027',
+    title: 'Marina & Gabriel — 14.11.2026',
     description: 'Celebre conosco o nosso casamento. Confirme sua presença e confira todos os detalhes.',
   },
 } as const;

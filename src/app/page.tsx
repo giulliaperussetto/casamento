@@ -1,12 +1,8 @@
 import { WeddingHero } from '@/components/WeddingHero';
-import { RingsPhoto } from '@/components/RingsPhoto';
-import { WeddingMessage } from '@/components/WeddingMessage';
-import { OurStory } from '@/components/OurStory';
 import { CelebrationDetails } from '@/components/CelebrationDetails';
 import { DressCode } from '@/components/DressCode';
-import { WeddingTimeline } from '@/components/WeddingTimeline';
 import { PartySection } from '@/components/PartySection';
-import { PlaylistInvitation } from '@/components/PlaylistInvitation';
+import { GiftsSection } from '@/components/GiftsSection';
 import { GuestMission } from '@/components/GuestMission';
 import { RSVPSection } from '@/components/RSVPSection';
 import { FAQAccordion } from '@/components/FAQAccordion';
@@ -18,14 +14,10 @@ export default function Home() {
     <>
       <WeddingHero />
       <main>
-        <RingsPhoto />
-        <WeddingMessage />
-        <OurStory />
         <CelebrationDetails />
         <DressCode />
-        <WeddingTimeline />
         <PartySection />
-        <PlaylistInvitation />
+        <GiftsSection />
         <GuestMission />
         <RSVPSection />
         <FAQAccordion />

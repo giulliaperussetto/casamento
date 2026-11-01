@@ -29,6 +29,8 @@ export type PublicInvitation = {
   alreadyResponded: boolean;
   canSubmit: boolean;
   closedReason: string | null;
+  email: string;
+  message: string;
   guests: PublicGuest[];
 };
 
@@ -88,6 +90,8 @@ type InvitationRow = {
   max_guests: number;
   allow_unnamed_companion: boolean;
   active: boolean;
+  contact_email: string | null;
+  guest_message: string | null;
 };
 
 /** Localiza o convite pelo código (somente via hash) aplicando os limites de segurança. */
@@ -102,7 +106,7 @@ async function resolveInvitation(rawCode: string): Promise<InvitationRow> {
 
   const sql = db();
   const [inv] = await sql<InvitationRow[]>`
-    select id, invitation_type, max_guests, allow_unnamed_companion, active
+    select id, invitation_type, max_guests, allow_unnamed_companion, active, contact_email, guest_message
     from wedding.invitations where code_hash = ${hashInviteCode(rawCode)}`;
 
   if (!inv) {
@@ -140,6 +144,8 @@ async function loadPublicInvitation(inv: InvitationRow): Promise<PublicInvitatio
     alreadyResponded,
     canSubmit: closedReason === null,
     closedReason,
+    email: inv.contact_email ?? '',
+    message: inv.guest_message ?? '',
     // Apenas o necessário: nenhum dado de outros convites ou dados internos.
     guests: guests.map((g) => ({
       id: g.id,
@@ -176,6 +182,8 @@ export const submitSchema = z.object({
     .object({ fullName: z.string().trim().min(2).max(120), status: statusSchema })
     .nullable()
     .optional(),
+  email: z.string().trim().email().max(200),
+  message: z.string().trim().max(1000).optional(),
 });
 
 export type SubmitInput = z.infer<typeof submitSchema>;
@@ -191,9 +199,11 @@ export async function submitRsvp(input: SubmitInput) {
         ${inv.id}::uuid,
         ${sql.json(input.responses.map((r) => ({ guest_id: r.guestId, status: r.status, full_name: r.fullName ?? null })))}::jsonb,
         ${input.companion ? sql.json({ full_name: input.companion.fullName, status: input.companion.status }) : null}::jsonb,
-        ${wedding.rsvp.allowChanges}
+        ${wedding.rsvp.allowChanges},
+        ${input.email},
+        ${input.message ?? null}
       ) as result`;
-    const invitation = await loadPublicInvitation(inv);
+    const invitation = await loadPublicInvitation({ ...inv, contact_email: input.email, guest_message: input.message ?? null });
     return { eventId: row.result.event_id, updated: row.result.updated, invitation };
   } catch (err) {
     const message = (err as { message?: string }).message ?? '';

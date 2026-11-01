@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import type { CSSProperties } from 'react';
-import { Cormorant_Garamond, Inter, Pinyon_Script } from 'next/font/google';
+import { Cormorant_Garamond, DM_Sans } from 'next/font/google';
 import { wedding } from '@/config/wedding';
 import './globals.css';
 
@@ -11,8 +11,7 @@ const serif = Cormorant_Garamond({
   variable: '--font-serif',
   display: 'swap',
 });
-const sans = Inter({ subsets: ['latin'], variable: '--font-sans', display: 'swap' });
-const script = Pinyon_Script({ subsets: ['latin'], weight: '400', variable: '--font-script', display: 'swap' });
+const sans = DM_Sans({ subsets: ['latin'], variable: '--font-sans', display: 'swap' });
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'),
@@ -33,6 +32,8 @@ const t = wedding.theme;
 const themeVars = {
   '--white': t.white,
   '--warm': t.warmWhite,
+  '--sand': t.sand,
+  '--rose': t.rose,
   '--marsala': t.marsala,
   '--marsala-deep': t.marsalaDeep,
   '--gold': t.gold,
@@ -43,7 +44,7 @@ const themeVars = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="pt-BR" className={`${serif.variable} ${sans.variable} ${script.variable}`} style={themeVars}>
+    <html lang="pt-BR" className={`${serif.variable} ${sans.variable}`} style={themeVars}>
       <body>{children}</body>
     </html>
   );

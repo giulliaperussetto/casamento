@@ -24,7 +24,8 @@ function check(name: string, cond: boolean, extra?: unknown) {
 
 const ip = () => `10.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`;
 
-async function api(path: string, body: unknown, fromIp = ip()) {
+async function api(path: string, body: any, fromIp = ip()) {
+  if (path.endsWith('/submit') && body && !('email' in body)) body = { ...body, email: 'convidado@example.com' };
   const res = await fetch(BASE + path, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'x-forwarded-for': fromIp },
@@ -71,6 +72,10 @@ try {
   check('nome cadastrado é imutável', r.status === 409 && /não podem ser alterados/.test(r.data.error), r);
   r = await api('/api/rsvp/submit', { code: ind.code, responses: [{ guestId: indInv.guests[0].id, status: 'attending' }] });
   check('salva confirmação', r.status === 200 && r.data.eventId, r);
+  const [contact] = await sql`select contact_email from wedding.invitations where id = ${ind.id}`;
+  check('salva e-mail de contato', contact.contact_email === 'convidado@example.com');
+  r = await api('/api/rsvp/submit', { code: ind.code, email: 'invalido', responses: [{ guestId: indInv.guests[0].id, status: 'attending' }] });
+  check('rejeita e-mail inválido', r.status === 400, r);
   const [row] = await sql`select attendance_status, responded_at from wedding.guests where invitation_id = ${ind.id}`;
   check('resposta persistida no banco', row.attendance_status === 'attending' && row.responded_at);
   r = await api('/api/rsvp/submit', { code: ind.code, responses: [{ guestId: indInv.guests[0].id, status: 'declined' }] });
