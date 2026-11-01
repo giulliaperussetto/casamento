@@ -1,0 +1,136 @@
+'use server';
+
+import { redirect } from 'next/navigation';
+import { revalidatePath } from 'next/cache';
+import { z } from 'zod';
+import { login, logout, requireAdmin } from '@/lib/server/auth';
+import * as admin from '@/lib/server/admin';
+
+// Server Actions do Next.js já validam a origem (proteção CSRF) e cada ação
+// verifica a sessão administrativa no servidor antes de qualquer operação.
+
+export async function loginAction(_prev: { error: string; email: string } | null, formData: FormData) {
+  const email = String(formData.get('email') ?? '').slice(0, 200);
+  const password = String(formData.get('password') ?? '').slice(0, 200);
+  if (!email || !password) return { error: 'Informe e-mail e senha.', email };
+  const result = await login(email, password);
+  if (!result.ok) return { error: result.error, email };
+  redirect('/admin');
+}
+
+export async function logoutAction() {
+  await logout();
+  redirect('/admin/login');
+}
+
+function back(params: Record<string, string>): never {
+  revalidatePath('/admin');
+  redirect(`/admin?${new URLSearchParams(params).toString()}`);
+}
+
+function errorMessage(err: unknown): string {
+  const msg = (err as Error).message ?? '';
+  if (msg.includes('CAPACITY_EXCEEDED')) return 'Este convite já atingiu o limite de participantes.';
+  if (msg.includes('COMPANION_NOT_ALLOWED')) return 'Convites individuais não permitem acompanhante.';
+  if ((err as { code?: string }).code === '23505') return 'Registro duplicado: este convite já possui esse participante.';
+  if ((err as { code?: string }).code === '23514') return 'Dados inválidos (verifique o tamanho dos nomes).';
+  return msg || 'Não foi possível concluir a operação.';
+}
+
+const name = z.string().trim().min(2, 'Nome muito curto.').max(120, 'Nome muito longo.');
+const uuid = z.string().uuid();
+
+const createSchema = z.object({
+  type: z.enum(['individual', 'couple']),
+  label: z.string().trim().max(120).optional(),
+  primaryName: name,
+  companionName: z.union([name, z.literal('')]).optional(),
+  allowUnnamedCompanion: z.literal('on').optional(),
+});
+
+export async function createInvitationAction(formData: FormData) {
+  await requireAdmin();
+  const parsed = createSchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) back({ error: parsed.error.issues[0]?.message ?? 'Dados inválidos.' });
+  let created: { id: string; code: string };
+  try {
+    created = await admin.createInvitation({
+      type: parsed.data.type,
+      label: parsed.data.label,
+      primaryName: parsed.data.primaryName,
+      companionName: parsed.data.companionName || null,
+      allowUnnamedCompanion: parsed.data.allowUnnamedCompanion === 'on',
+    });
+  } catch (err) {
+    back({ error: errorMessage(err) });
+  }
+  back({ ok: `Convite criado. Código: ${created.code}`, highlight: created.id });
+}
+
+export async function toggleActiveAction(formData: FormData) {
+  await requireAdmin();
+  const id = uuid.parse(formData.get('id'));
+  const active = formData.get('active') === 'true';
+  await admin.setInvitationActive(id, active);
+  back({ ok: active ? 'Convite ativado.' : 'Convite desativado.', highlight: id });
+}
+
+export async function updateInvitationAction(formData: FormData) {
+  await requireAdmin();
+  const id = uuid.parse(formData.get('id'));
+  const label = String(formData.get('label') ?? '').trim().slice(0, 120) || null;
+  await admin.updateInvitation(id, { label, allowUnnamedCompanion: formData.get('allowUnnamedCompanion') === 'on' });
+  back({ ok: 'Convite atualizado.', highlight: id });
+}
+
+export async function regenerateCodeAction(formData: FormData) {
+  await requireAdmin();
+  const id = uuid.parse(formData.get('id'));
+  const code = await admin.regenerateCode(id);
+  back({ ok: `Novo código gerado: ${code}. O código anterior deixou de funcionar.`, highlight: id });
+}
+
+export async function deleteInvitationAction(formData: FormData) {
+  await requireAdmin();
+  await admin.deleteInvitation(uuid.parse(formData.get('id')));
+  back({ ok: 'Convite excluído.' });
+}
+
+const guestSchema = z.object({
+  guestId: uuid,
+  invitationId: uuid,
+  fullName: name,
+  status: z.enum(['pending', 'attending', 'declined']),
+});
+
+export async function updateGuestAction(formData: FormData) {
+  await requireAdmin();
+  const parsed = guestSchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) back({ error: parsed.error.issues[0]?.message ?? 'Dados inválidos.' });
+  try {
+    await admin.updateGuest(parsed.data.guestId, { fullName: parsed.data.fullName, status: parsed.data.status });
+  } catch (err) {
+    back({ error: errorMessage(err), highlight: parsed.data.invitationId });
+  }
+  back({ ok: 'Convidado atualizado.', highlight: parsed.data.invitationId });
+}
+
+export async function addCompanionAction(formData: FormData) {
+  await requireAdmin();
+  const invitationId = uuid.parse(formData.get('invitationId'));
+  const parsed = name.safeParse(formData.get('fullName'));
+  if (!parsed.success) back({ error: 'Informe o nome completo do acompanhante.', highlight: invitationId });
+  try {
+    await admin.addCompanion(invitationId, parsed.data);
+  } catch (err) {
+    back({ error: errorMessage(err), highlight: invitationId });
+  }
+  back({ ok: 'Acompanhante cadastrado.', highlight: invitationId });
+}
+
+export async function removeCompanionAction(formData: FormData) {
+  await requireAdmin();
+  const invitationId = uuid.parse(formData.get('invitationId'));
+  await admin.removeCompanion(uuid.parse(formData.get('guestId')));
+  back({ ok: 'Acompanhante removido.', highlight: invitationId });
+}
