@@ -29,7 +29,7 @@ export const wedding = {
 
   /** Data/hora da cerimônia em horário de Brasília. */
   date: {
-    iso: '2027-05-16T16:30:00-03:00',
+    iso: '2027-05-16T16:00:00-03:00',
     label: '16 de maio · 2027',
     long: '16 de maio de 2027',
   },
@@ -127,19 +127,40 @@ export const wedding = {
 
   celebration: {
     eyebrow: 'Reserve este dia',
-    title: 'Um dia. *Uma vida inteira.*',
-    text: 'Nos encontramos entre jardins, promessas e abraços apertados.',
+    title: 'Um dia para celebrar. *Uma vida inteira para amar.*',
+    text: 'O amor nos trouxe até aqui. E é aqui que celebraremos o nosso para sempre.',
     venueEyebrow: 'Onde tudo acontece',
     directionsLabel: 'Como chegar',
     schedule: [
-      { time: '16:00', title: 'Boas-vindas', text: 'Chegue com calma. O jardim já estará à nossa espera.' },
-      { time: '16:30', title: 'A cerimônia', text: 'O sim que muda tudo, cercado por quem amamos.' },
-      { time: '18:00', title: 'Brinde ao amor', text: 'Um brinde, uma boa conversa e o começo da festa.' },
-      { time: '20:00', title: 'Pista aberta', text: 'Quando a música chamar, a gente se encontra por lá.' },
+      {
+        time: '15h30',
+        title: 'Boas-vindas',
+        lead: 'O nosso dia começa com vocês.',
+        text: 'Cheguem com calma, sejam recebidos com carinho e encontrem seus lugares. Às 16h em ponto, começa o nosso tão esperado sim!',
+      },
+      {
+        time: '16h00',
+        title: 'A cerimônia',
+        lead: 'O momento que tanto sonhamos.',
+        text: 'Depois de tantos caminhos, chegou a hora de dizer sim ao nosso para sempre, cercadas pelas pessoas que fazem parte da nossa história.',
+      },
+      {
+        time: '17h00',
+        title: 'Os primeiros brindes',
+        lead: 'A celebração já começou!',
+        text: 'Enquanto registramos os primeiros momentos dessa nova fase, aproveitem! Comidas, jantar e bebidas estarão liberados para vocês brindarem e celebrarem conosco.',
+      },
+      {
+        time: '17h30',
+        title: 'Pista aberta!',
+        lead: 'Agora ninguém fica parado!',
+        text: 'É hora de abrir a pista, dançar, cantar e criar memórias inesquecíveis. Preparamos cada detalhe para viver essa festa com vocês!',
+      },
     ],
-    attire: {
-      title: 'Um toque de elegância',
-      text: 'Traje esporte fino. Veja as orientações no dress code logo abaixo.',
+    /** Aviso exibido abaixo da programação. */
+    notice: {
+      title: 'Celebre sem preocupações!',
+      text: 'Queremos que vocês aproveitem cada brinde, cada música e cada momento dessa noite especial! Por isso, recomendamos que venham de Uber ou outro transporte por aplicativo. Teremos bebidas durante toda a festa e, na saída, haverá teste de bafômetro para reforçar a segurança de todos.',
     },
   },
 

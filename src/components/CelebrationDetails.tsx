@@ -23,6 +23,7 @@ export function CelebrationDetails() {
                 <span className="schedule__dot" aria-hidden="true" />
                 <div>
                   <h3 className="schedule__title">{s.title}</h3>
+                  <p className="schedule__lead">{s.lead}</p>
                   <p className="schedule__text">{s.text}</p>
                 </div>
               </li>
@@ -50,15 +51,20 @@ export function CelebrationDetails() {
           </article>
         </div>
 
-        <div className="attire">
-          <svg width="26" height="26" viewBox="0 0 26 26" fill="none" stroke="currentColor" strokeWidth="1.2" aria-hidden="true">
-            <path d="M11 3c.8 4.6 2.4 6.2 7 7-4.6.8-6.2 2.4-7 7-.8-4.6-2.4-6.2-7-7 4.6-.8 6.2-2.4 7-7ZM20 15c.4 2.2 1.2 3 3.4 3.4-2.2.4-3 1.2-3.4 3.4-.4-2.2-1.2-3-3.4-3.4 2.2-.4 3-1.2 3.4-3.4Z" />
+        <aside className="attire" aria-labelledby="aviso-titulo">
+          {/* Ícone de policial (aviso sobre bafômetro na saída) */}
+          <svg width="40" height="40" viewBox="0 0 40 40" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round" aria-hidden="true">
+            <path d="M9 13.5c0-3 5-6.5 11-6.5s11 3.5 11 6.5c0 1.2-.6 1.9-1.6 2.2-2.6.8-6 1.2-9.4 1.2s-6.8-.4-9.4-1.2C9.6 15.4 9 14.7 9 13.5Z" />
+            <path d="M12 16.2c-.3.9-.4 1.8-.4 2.8 0 4.8 3.8 8.6 8.4 8.6s8.4-3.8 8.4-8.6c0-1-.1-1.9-.4-2.8" />
+            <path d="m20 9.2.9 1.8 2 .3-1.4 1.4.3 2-1.8-.9-1.8.9.3-2-1.4-1.4 2-.3Z" />
+            <path d="M6.5 37c.6-5 4.3-8.2 9.5-9.2L20 31l4-3.2c5.2 1 8.9 4.2 9.5 9.2" />
+            <path d="M20 31v6" />
           </svg>
           <div>
-            <h3>{celebration.attire.title}</h3>
-            <p>{celebration.attire.text}</p>
+            <h3 id="aviso-titulo">{celebration.notice.title}</h3>
+            <p>{celebration.notice.text}</p>
           </div>
-        </div>
+        </aside>
       </div>
     </section>
   );
