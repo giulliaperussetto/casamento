@@ -71,15 +71,16 @@ export async function getStats() {
 export type CreateInvitationInput = {
   label?: string | null;
   primaryName: string;
-  /** Quantas vagas de acompanhante o convite oferece (0 = individual). */
-  companions: number;
+  /** Nomes dos acompanhantes já definidos pelas noivas (pode ser vazio). */
+  companions: string[];
   /** Opcional: usar um código já impresso (será armazenado apenas como hash). */
   code?: string | null;
 };
 
 export async function createInvitation(input: CreateInvitationInput): Promise<{ id: string; code: string }> {
   const sql = db();
-  const slots = Math.max(0, Math.min(20, Math.floor(input.companions)));
+  const companions = input.companions.map((n) => n.trim()).filter(Boolean).slice(0, 20);
+  const slots = companions.length;
   for (let attempt = 0; attempt < 5; attempt++) {
     const code = input.code?.trim().toUpperCase() || generateInviteCode();
     try {
@@ -93,6 +94,10 @@ export async function createInvitation(input: CreateInvitationInput): Promise<{ 
           insert into wedding.guests (invitation_id, full_name, guest_role)
           values (${inv.id}, ${input.primaryName.trim()}, 'primary') returning id`;
         await tx`update wedding.invitations set primary_guest_id = ${primary.id} where id = ${inv.id}`;
+        for (const name of companions) {
+          await tx`insert into wedding.guests (invitation_id, full_name, guest_role)
+                   values (${inv.id}, ${name}, 'companion')`;
+        }
         await tx`insert into wedding.rsvp_events (invitation_id, event_type) values (${inv.id}, 'invitation_created')`;
         return inv.id;
       });
@@ -103,6 +108,7 @@ export async function createInvitation(input: CreateInvitationInput): Promise<{ 
       if (e.code === '23505' && e.constraint_name === 'invitations_code_hash_key') {
         throw new Error('Já existe um convite com esse código.');
       }
+      if (e.code === '23505') throw new Error('Há nomes repetidos neste convite.');
       throw err;
     }
   }
@@ -116,16 +122,8 @@ export async function setInvitationActive(id: string, active: boolean) {
             values (${id}, ${active ? 'invitation_activated' : 'invitation_deactivated'})`;
 }
 
-export async function updateInvitation(id: string, data: { label: string | null; companions: number }) {
-  const slots = Math.max(0, Math.min(20, Math.floor(data.companions)));
-  // O gatilho do banco impede reduzir abaixo do número de acompanhantes já registrados.
-  await db()`
-    update wedding.invitations
-       set label = ${data.label},
-           max_guests = ${1 + slots},
-           invitation_type = ${slots > 0 ? 'group' : 'individual'},
-           allow_unnamed_companion = ${slots > 0}
-     where id = ${id}`;
+export async function updateInvitation(id: string, data: { label: string | null }) {
+  await db()`update wedding.invitations set label = ${data.label} where id = ${id}`;
 }
 
 export async function regenerateCode(id: string): Promise<string> {
@@ -154,13 +152,27 @@ export async function updateGuest(
 }
 
 export async function addCompanion(invitationId: string, fullName: string, phone: string | null) {
-  // O gatilho do banco garante que o número de vagas do convite seja respeitado.
-  await db()`insert into wedding.guests (invitation_id, full_name, guest_role, name_locked, phone)
-             values (${invitationId}, ${fullName.trim()}, 'companion', false, ${phone})`;
+  // A vaga acompanha o nome: o convite passa a comportar mais uma pessoa.
+  await db().begin(async (tx) => {
+    await tx`update wedding.invitations
+                set max_guests = least(21, max_guests + 1), invitation_type = 'group', allow_unnamed_companion = false
+              where id = ${invitationId}`;
+    await tx`insert into wedding.guests (invitation_id, full_name, guest_role, phone)
+             values (${invitationId}, ${fullName.trim()}, 'companion', ${phone})`;
+  });
 }
 
 export async function removeCompanion(guestId: string) {
-  await db()`delete from wedding.guests where id = ${guestId} and guest_role = 'companion'`;
+  await db().begin(async (tx) => {
+    const [g] = await tx<{ invitation_id: string }[]>`
+      delete from wedding.guests where id = ${guestId} and guest_role = 'companion' returning invitation_id`;
+    if (g) {
+      await tx`update wedding.invitations
+                  set max_guests = greatest(1, max_guests - 1),
+                      invitation_type = case when max_guests - 1 <= 1 then 'individual' else 'group' end
+                where id = ${g.invitation_id}`;
+    }
+  });
 }
 
 export async function deleteInvitation(id: string) {
@@ -189,7 +201,7 @@ function csvCell(value: unknown): string {
 
 export async function exportCsv(origin = ''): Promise<string> {
   const invitations = await listInvitations('all');
-  const header = ['Convite', 'Código', 'Link do convite', 'Vagas de acompanhante', 'Ativo', 'Convidado', 'Papel', 'Telefone', 'Status', 'Respondido em', 'Não levará acompanhante', 'E-mail', 'Recado / restrições'];
+  const header = ['Convite', 'Código', 'Link do convite', 'Acompanhantes no convite', 'Ativo', 'Convidado', 'Papel', 'Telefone', 'Status', 'Respondido em', 'E-mail', 'Recado / restrições'];
   const lines = [header.join(';')];
   for (const inv of invitations) {
     for (const g of inv.guests) {
@@ -198,14 +210,13 @@ export async function exportCsv(origin = ''): Promise<string> {
           inv.label ?? '',
           inv.code ?? '',
           inv.code && origin ? `${origin}/${inv.code}` : '',
-          inv.max_guests - 1,
+          inv.guests.filter((x) => x.guest_role === 'companion').length,
           inv.active ? 'Sim' : 'Não',
           g.full_name,
           g.guest_role === 'primary' ? 'Principal' : 'Acompanhante',
           formatPhone(g.phone),
           STATUS_LABEL[g.attendance_status],
           g.responded_at ? new Date(g.responded_at).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' }) : '',
-          g.guest_role === 'primary' && inv.companions_declined ? 'Sim' : '',
           inv.contact_email ?? '',
           inv.guest_message ?? '',
         ]

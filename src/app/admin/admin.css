@@ -93,3 +93,4 @@
 .adm-link__url { flex: 1 1 220px; min-width: 0; overflow-wrap: anywhere; font-size: 13px; color: var(--marsala); }
 .adm-btn--whats { background: #1f8f4e; border-color: #1f8f4e; color: #fff; }
 .adm-btn--whats:hover { background: #17733e; border-color: #17733e; }
+.adm-form textarea { width: 100%; padding: 8px 10px; border: 1px solid #d9d1c7; border-radius: 6px; font: 16px var(--font-sans), system-ui, sans-serif; resize: vertical; }

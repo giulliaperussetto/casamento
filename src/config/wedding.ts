@@ -303,9 +303,9 @@ export const wedding = {
       {
         q: 'Posso levar acompanhantes?',
         a: [
-          'Cada convite possui um número específico de vagas, que poderá ser consultado ao inserir o código recebido.',
-          '**Atenção:** crianças de qualquer idade, inclusive bebês, também são consideradas acompanhantes e precisam estar incluídas na confirmação de presença.',
-          'Por isso, pedimos que respeitem a quantidade de vagas disponibilizadas. Caso não haja um campo disponível para cadastrar o nome da criança ou de outro acompanhante, significa que não há uma vaga reservada para essa pessoa.',
+          'Cada convite já vem com o nome de todas as pessoas convidadas. Ao inserir o seu código, você verá quem está incluído e só precisa informar se cada uma vai ou não.',
+          '**Atenção:** crianças de qualquer idade, inclusive bebês, também são consideradas acompanhantes e precisam estar incluídas no convite.',
+          'Por isso, pedimos que respeitem os nomes do convite. Se uma criança ou outro acompanhante não aparece no seu convite, significa que não há uma vaga reservada para essa pessoa.',
           'Estamos preparando tudo com muito carinho e contamos com a compreensão de vocês para receber todos da melhor forma possível!',
         ],
       },

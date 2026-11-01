@@ -48,7 +48,6 @@ function errorMessage(err: unknown): string {
 const name = z.string().trim().min(2, 'Nome muito curto.').max(120, 'Nome muito longo.');
 const uuid = z.string().uuid();
 
-const slots = z.coerce.number().int().min(0, 'Vagas inválidas.').max(20, 'Máximo de 20 acompanhantes.');
 const phone = z
   .string()
   .transform((v) => v.replace(/\D/g, ''))
@@ -58,12 +57,16 @@ const phone = z
 const createSchema = z.object({
   label: z.string().trim().max(120).optional(),
   primaryName: name,
-  companions: slots,
+  companions: z.array(name).max(20, 'Máximo de 20 acompanhantes por convite.'),
 });
 
 export async function createInvitationAction(formData: FormData) {
   await requireAdmin();
-  const parsed = createSchema.safeParse(Object.fromEntries(formData));
+  const parsed = createSchema.safeParse({
+    label: formData.get('label') ?? undefined,
+    primaryName: formData.get('primaryName'),
+    companions: formData.getAll('companions').map((v) => String(v)),
+  });
   if (!parsed.success) back({ error: parsed.error.issues[0]?.message ?? 'Dados inválidos.' });
   let created: { id: string; code: string };
   try {
@@ -90,13 +93,7 @@ export async function updateInvitationAction(formData: FormData) {
   await requireAdmin();
   const id = uuid.parse(formData.get('id'));
   const label = String(formData.get('label') ?? '').trim().slice(0, 120) || null;
-  const companions = slots.safeParse(formData.get('companions'));
-  if (!companions.success) back({ error: 'Número de vagas inválido.', highlight: id });
-  try {
-    await admin.updateInvitation(id, { label, companions: companions.data });
-  } catch (err) {
-    back({ error: errorMessage(err), highlight: id });
-  }
+  await admin.updateInvitation(id, { label });
   back({ ok: 'Convite atualizado.', highlight: id });
 }
 

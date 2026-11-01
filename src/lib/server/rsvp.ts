@@ -14,16 +14,14 @@ const LIMITS = {
   failuresGlobal: { limit: 400, window: 60 * 60 },   // freio global contra ataques distribuídos
 };
 
-export type PublicCompanion = { fullName: string; phone: string };
+export type PublicCompanion = { id: string; fullName: string; status: 'pending' | 'attending' | 'declined' };
 
 export type PublicInvitation = {
   primaryName: string;
-  maxCompanions: number;
   status: 'pending' | 'attending' | 'declined';
   phone: string;
   email: string;
   message: string;
-  companionsDeclined: boolean;
   companions: PublicCompanion[];
   alreadyResponded: boolean;
   canSubmit: boolean;
@@ -44,7 +42,7 @@ const MESSAGES: Record<string, string> = {
   DEADLINE_PASSED: 'O prazo de confirmação foi encerrado. Para qualquer ajuste, fale diretamente com as noivas.',
   GUEST_NOT_IN_INVITATION: 'Os participantes enviados não correspondem a este convite. Verifique o código novamente.',
   DUPLICATE_GUEST: 'Cada participante pode ter apenas uma resposta.',
-  MISSING_RESPONSES: 'Escolha uma resposta para cada participante antes de enviar.',
+  MISSING_RESPONSES: 'Escolha se cada acompanhante vai ou não antes de enviar.',
   NAME_LOCKED: 'Os nomes cadastrados no convite não podem ser alterados.',
   COMPANION_NOT_ALLOWED: 'Este convite não permite acompanhante.',
   CAPACITY_EXCEEDED: 'O número de acompanhantes ultrapassa as vagas do seu convite.',
@@ -121,9 +119,9 @@ async function resolveInvitation(rawCode: string): Promise<InvitationRow> {
 async function loadPublicInvitation(inv: InvitationRow): Promise<PublicInvitation> {
   const sql = db();
   const guests = await sql<
-    { full_name: string; guest_role: 'primary' | 'companion'; attendance_status: PublicInvitation['status']; phone: string | null }[]
+    { id: string; full_name: string; guest_role: 'primary' | 'companion'; attendance_status: PublicInvitation['status']; phone: string | null }[]
   >`
-    select full_name, guest_role, attendance_status, phone
+    select id, full_name, guest_role, attendance_status, phone
     from wedding.guests where invitation_id = ${inv.id}
     order by case guest_role when 'primary' then 0 else 1 end, created_at`;
 
@@ -137,13 +135,14 @@ async function loadPublicInvitation(inv: InvitationRow): Promise<PublicInvitatio
   // Apenas os dados do próprio convite; nenhum identificador interno.
   return {
     primaryName: primary?.full_name ?? '',
-    maxCompanions: Math.max(0, inv.max_guests - 1),
     status,
     phone: primary?.phone ?? '',
     email: inv.contact_email ?? '',
     message: inv.guest_message ?? '',
-    companionsDeclined: inv.companions_declined,
-    companions: guests.filter((g) => g.guest_role === 'companion').map((g) => ({ fullName: g.full_name, phone: g.phone ?? '' })),
+    // Os ids só permitem responder por pessoas deste mesmo convite (validado no banco).
+    companions: guests
+      .filter((g) => g.guest_role === 'companion')
+      .map((g) => ({ id: g.id, fullName: g.full_name, status: g.attendance_status })),
     alreadyResponded,
     canSubmit: closedReason === null,
     closedReason,
@@ -175,9 +174,8 @@ export const submitSchema = z.object({
   phone: phoneSchema,
   email: z.string().trim().email().max(200),
   message: z.string().trim().max(1000).optional(),
-  noCompanions: z.boolean().default(false),
   companions: z
-    .array(z.object({ fullName: z.string().trim().min(5).max(120), phone: phoneSchema }))
+    .array(z.object({ guestId: z.string().uuid(), status: z.enum(['attending', 'declined']) }))
     .max(20)
     .default([]),
 });
@@ -188,16 +186,14 @@ export async function submitRsvp(input: SubmitInput) {
   const inv = await resolveInvitation(input.code);
   if (deadlinePassed()) fail('DEADLINE_PASSED', 403);
 
-  const companions = input.status === 'attending' && !input.noCompanions ? input.companions : [];
   const sql = db();
   try {
     const [row] = await sql<{ result: { event_id: string; updated: boolean } }[]>`
-      select wedding.submit_rsvp_v3(
+      select wedding.submit_rsvp_v4(
         ${inv.id}::uuid,
         ${input.status},
         ${input.phone},
-        ${sql.json(companions.map((c) => ({ full_name: c.fullName, phone: c.phone })))}::jsonb,
-        ${input.status === 'attending' && input.noCompanions},
+        ${sql.json(input.companions.map((c) => ({ guest_id: c.guestId, status: c.status })))}::jsonb,
         ${input.email},
         ${input.message ?? null},
         ${wedding.rsvp.allowChanges}

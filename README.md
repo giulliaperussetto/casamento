@@ -47,9 +47,9 @@ Nos títulos do arquivo de configuração, o trecho entre `*asteriscos*` aparece
 
 - Códigos no formato `CASA-XXXXX-XXXXX` (~50 bits de entropia, sem caracteres ambíguos). O convidado pode digitar com ou sem hífens/maiúsculas.
 - O banco guarda apenas o **hash HMAC** (para validar) e uma cópia **cifrada** (para o painel). Não existe consulta por lista.
-- Cada convite tem **1 convidado principal + N vagas de acompanhante** (definidas no painel). O nome do principal é imutável.
-- Ao confirmar, o convidado informa o próprio telefone e e-mail e, para cada vaga, **nome completo e telefone** do acompanhante — ou marca **"Não vou levar acompanhante"**.
-- O limite de vagas é garantido no **PostgreSQL** (gatilho de capacidade + bloqueio de linha em `submit_rsvp_v3`), inclusive com envios simultâneos. Nomes repetidos no mesmo convite são bloqueados.
+- Cada convite tem **1 convidado principal + acompanhantes já cadastrados pelas noivas** (no painel: informe quantos e preencha o nome de cada um).
+- Ao confirmar, o convidado informa o próprio telefone e e-mail e escolhe, para cada acompanhante, se **vai ou não vai**. Ninguém pode ser adicionado pelo convidado.
+- A resposta é registrada em `submit_rsvp_v4`, com bloqueio de linha e validação de que cada acompanhante pertence ao convite. Se o principal não vai, os acompanhantes ficam como "não vai".
 - Alterações substituem a resposta anterior, sem duplicar registros (`allowChanges` e o prazo no config controlam isso). Todo envio fica em `rsvp_events`.
 - Após salvar, aparece um popup confirmando o envio, avisando da possível dupla confirmação pela assessoria, com os botões **Presentear** e **Fechar**.
 - O convidado só vê e altera participantes do próprio convite. Convites inativos são rejeitados.
@@ -68,7 +68,7 @@ Funções: criar convites individuais e de casal (código gerado automaticamente
 npm run guests:import -- convidados.csv
 ```
 
-CSV com cabeçalho `convidado;acompanhantes;identificacao` (`acompanhantes` = número de vagas, 0 para individual). Gera `convites-gerados.csv` com os códigos de cada convite. Guarde em local seguro.
+CSV com cabeçalho `convidado;acompanhantes;identificacao` (`acompanhantes` = nomes completos separados por `|`; vazio para individual). Gera `convites-gerados.csv` com os códigos de cada convite. Guarde em local seguro.
 
 ## Testes
 

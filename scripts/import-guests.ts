@@ -3,12 +3,12 @@
  *
  * Colunas (com cabeçalho):
  *   convidado;acompanhantes;identificacao
- *   Mariana Oliveira;0;Amigas da faculdade
- *   Rafael Almeida;1;Família Almeida
- *   Pedro Lima;3;Trabalho
+ *   Mariana Oliveira;;Amigas da faculdade
+ *   Rafael Almeida;Juliana Prado;Família Almeida
+ *   Pedro Lima;Ana Lima | Bia Lima | Caio Lima;Trabalho
  *
- * "acompanhantes" é o número de vagas de acompanhante (0 = individual).
- * O convidado informa nome e telefone de cada acompanhante ao confirmar.
+ * "acompanhantes": nomes completos separados por "|" (vazio = convite individual).
+ * O convidado só escolhe se cada acompanhante vai ou não.
  *
  * Gera um código único para cada convite e grava um CSV de saída com os códigos
  * (guarde-o em local seguro — os códigos ficam no banco apenas como hash + cifrados).
@@ -32,17 +32,18 @@ const header = lines[0].split(sep).map((h) => h.trim().toLowerCase());
 const col = (row: string[], name: string) => (row[header.indexOf(name)] ?? '').trim();
 
 const sql = connect();
-const out = ['identificacao;convidado;vagas_acompanhante;codigo'];
+const out = ['identificacao;convidado;acompanhantes;codigo'];
 let count = 0;
 
 await sql.begin(async (tx) => {
   for (const [i, line] of lines.slice(1).entries()) {
     const row = line.split(sep);
     const primary = col(row, 'convidado');
-    const slots = Number(col(row, 'acompanhantes') || '0');
+    const companions = col(row, 'acompanhantes').split('|').map((n) => n.trim()).filter(Boolean);
+    const slots = companions.length;
     const label = col(row, 'identificacao') || null;
     if (primary.length < 2) throw new Error(`Linha ${i + 2}: nome do convidado inválido.`);
-    if (!Number.isInteger(slots) || slots < 0 || slots > 20) throw new Error(`Linha ${i + 2}: número de acompanhantes inválido.`);
+    if (slots > 20) throw new Error(`Linha ${i + 2}: máximo de 20 acompanhantes.`);
 
     const code = generateInviteCode();
     const [inv] = await tx<{ id: string }[]>`
@@ -52,8 +53,11 @@ await sql.begin(async (tx) => {
     const [g] = await tx<{ id: string }[]>`
       insert into wedding.guests (invitation_id, full_name, guest_role) values (${inv.id}, ${primary}, 'primary') returning id`;
     await tx`update wedding.invitations set primary_guest_id = ${g.id} where id = ${inv.id}`;
+    for (const name of companions) {
+      await tx`insert into wedding.guests (invitation_id, full_name, guest_role) values (${inv.id}, ${name}, 'companion')`;
+    }
     await tx`insert into wedding.rsvp_events (invitation_id, event_type) values (${inv.id}, 'invitation_imported')`;
-    out.push([label ?? '', primary, slots, code].join(';'));
+    out.push([label ?? '', primary, companions.join(' | '), code].join(';'));
     count++;
   }
 });

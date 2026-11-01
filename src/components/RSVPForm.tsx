@@ -4,15 +4,13 @@ import { useEffect, useId, useRef, useState, type FormEvent } from 'react';
 import { ConfirmationModal } from './ConfirmationModal';
 
 type Status = 'pending' | 'attending' | 'declined';
-type Companion = { fullName: string; phone: string };
+type Companion = { id: string; fullName: string; status: Status };
 type Invitation = {
   primaryName: string;
-  maxCompanions: number;
   status: Status;
   phone: string;
   email: string;
   message: string;
-  companionsDeclined: boolean;
   companions: Companion[];
   alreadyResponded: boolean;
   canSubmit: boolean;
@@ -44,7 +42,6 @@ async function post<T>(url: string, body: unknown): Promise<T> {
 const LOCKED = 'Verifique seu código primeiro';
 const digits = (v: string) => v.replace(/\D/g, '');
 const validPhone = (v: string) => /^[0-9]{10,13}$/.test(digits(v));
-const validName = (v: string) => v.trim().length >= 5 && v.trim().includes(' ');
 
 /** Máscara simples: (11) 98765-4321 */
 function maskPhone(v: string): string {
@@ -57,8 +54,6 @@ function maskPhone(v: string): string {
   return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`;
 }
 
-const emptyRows = (n: number, filled: Companion[]): Companion[] =>
-  Array.from({ length: n }, (_, i) => ({ fullName: filled[i]?.fullName ?? '', phone: maskPhone(filled[i]?.phone ?? '') }));
 
 export function RSVPForm({ successTitle, giftListUrl, popup, allowChanges, initialCode }: Props) {
   const uid = useId();
@@ -70,8 +65,7 @@ export function RSVPForm({ successTitle, giftListUrl, popup, allowChanges, initi
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
-  const [rows, setRows] = useState<Companion[]>([]);
-  const [noCompanions, setNoCompanions] = useState(false);
+  const [compAnswers, setCompAnswers] = useState<Record<string, Status>>({});
   const [loading, setLoading] = useState<'verify' | 'submit' | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [popupOpen, setPopupOpen] = useState(false);
@@ -80,7 +74,7 @@ export function RSVPForm({ successTitle, giftListUrl, popup, allowChanges, initi
   const statusRef = useRef<HTMLSelectElement>(null);
 
   // Mensagem de erro some assim que a pessoa corrige o formulário.
-  useEffect(() => setError(null), [code, status, phone, email, rows, noCompanions]);
+  useEffect(() => setError(null), [code, status, phone, email, compAnswers]);
 
   useEffect(() => {
     if (step !== 'done') return;
@@ -97,8 +91,7 @@ export function RSVPForm({ successTitle, giftListUrl, popup, allowChanges, initi
     setPhone(maskPhone(i.phone));
     setEmail((e) => i.email || e);
     setMessage((m) => i.message || m);
-    setRows(emptyRows(i.maxCompanions, i.companions));
-    setNoCompanions(i.companionsDeclined);
+    setCompAnswers(Object.fromEntries(i.companions.map((c) => [c.id, c.status])));
   }
 
   // Link personalizado: verifica o código automaticamente ao abrir a página.
@@ -134,18 +127,8 @@ export function RSVPForm({ successTitle, giftListUrl, popup, allowChanges, initi
     if (status === 'pending') return 'Conte para nós se você estará conosco.';
     if (!validPhone(phone)) return 'Informe seu telefone com DDD, por exemplo (11) 98765-4321.';
     if (!/^\S+@\S+\.\S+$/.test(email.trim())) return 'Informe um e-mail válido para que possamos falar com você.';
-    if (status === 'attending' && inv.maxCompanions > 0 && !noCompanions) {
-      const used = rows.filter((r) => r.fullName.trim() || digits(r.phone));
-      if (used.length === 0) return 'Informe seus acompanhantes ou marque "Não vou levar acompanhante".';
-      for (const [i, r] of rows.entries()) {
-        if (!r.fullName.trim() && !digits(r.phone)) continue;
-        if (!validName(r.fullName)) return `Informe nome e sobrenome do acompanhante ${i + 1}.`;
-        if (!validPhone(r.phone)) return `Informe o telefone com DDD do acompanhante ${i + 1}.`;
-      }
-      const names = used.map((r) => r.fullName.trim().toLowerCase());
-      if (new Set([...names, inv.primaryName.trim().toLowerCase()]).size !== names.length + 1) {
-        return 'Cada acompanhante deve ter um nome diferente.';
-      }
+    if (status === 'attending' && inv.companions.some((c) => !compAnswers[c.id] || compAnswers[c.id] === 'pending')) {
+      return 'Escolha se cada acompanhante vai ou não.';
     }
     return null;
   }
@@ -168,11 +151,11 @@ export function RSVPForm({ successTitle, giftListUrl, popup, allowChanges, initi
         phone: digits(phone),
         email: email.trim(),
         message: message.trim() || undefined,
-        noCompanions: attending && inv.maxCompanions > 0 && noCompanions,
-        companions:
-          attending && !noCompanions
-            ? rows.filter((r) => r.fullName.trim()).map((r) => ({ fullName: r.fullName.trim(), phone: digits(r.phone) }))
-            : [],
+        // Se o convidado principal não vai, os acompanhantes também não vão.
+        companions: inv.companions.map((c) => ({
+          guestId: c.id,
+          status: attending ? compAnswers[c.id] : 'declined',
+        })),
       });
       load(data.invitation);
       setStep('done');
@@ -195,19 +178,18 @@ export function RSVPForm({ successTitle, giftListUrl, popup, allowChanges, initi
     setInv(null);
     setCode('');
     setStatus('pending');
-    setRows([]);
-    setNoCompanions(false);
+    setCompAnswers({});
     setStep('form');
   }
 
   const verified = !!inv;
   const editable = verified && inv.canSubmit;
-  const showCompanions = editable && status === 'attending' && inv.maxCompanions > 0;
+  const showCompanions = editable && status === 'attending' && inv.companions.length > 0;
   const slotsLabel = !inv
     ? ''
-    : inv.maxCompanions === 0
+    : inv.companions.length === 0
       ? 'Convite individual'
-      : `Até ${inv.maxCompanions} acompanhante${inv.maxCompanions > 1 ? 's' : ''}`;
+      : `Você + ${inv.companions.length} acompanhante${inv.companions.length > 1 ? 's' : ''}`;
 
   const modal = inv && (
     <ConfirmationModal
@@ -234,9 +216,11 @@ export function RSVPForm({ successTitle, giftListUrl, popup, allowChanges, initi
             </span>
           </li>
           {inv.companions.map((c) => (
-            <li key={c.fullName}>
+            <li key={c.id}>
               <span>{c.fullName}</span>
-              <span className="rsvp-done__status rsvp-done__status--attending">Acompanhante</span>
+              <span className={`rsvp-done__status rsvp-done__status--${c.status}`}>
+                {c.status === 'attending' ? 'Vai comparecer' : 'Não vai comparecer'}
+              </span>
             </li>
           ))}
         </ul>
@@ -328,7 +312,7 @@ export function RSVPForm({ successTitle, giftListUrl, popup, allowChanges, initi
         </div>
         <div className="field">
           <label className="field__label" htmlFor={`${uid}-slots`}>
-            Vagas de acompanhante
+            Seu convite inclui
           </label>
           <input id={`${uid}-slots`} className="field__input" readOnly disabled={!verified} value={slotsLabel} placeholder={LOCKED} />
         </div>
@@ -374,57 +358,39 @@ export function RSVPForm({ successTitle, giftListUrl, popup, allowChanges, initi
         <fieldset className="companions">
           <legend className="companions__title">
             Seus acompanhantes
-            <span>
-              Seu convite permite levar até {inv.maxCompanions} acompanhante{inv.maxCompanions > 1 ? 's' : ''}. Informe nome completo e
-              telefone de cada um — vamos usar para validar a lista de convidados. Crianças e bebês também contam como
-              acompanhantes.
-            </span>
+            <span>Estas pessoas estão incluídas no seu convite. Conte pra gente se cada uma vai ou não.</span>
           </legend>
 
-          {rows.map((r, i) => (
-            <div className="companion" key={i}>
+          {inv.companions.map((c, i) => (
+            <div className="companion companion--fixed" key={c.id}>
               <p className="companion__n" aria-hidden="true">
                 {i + 1}
               </p>
               <div className="field">
-                <label className="field__label" htmlFor={`${uid}-c${i}-name`}>
-                  Nome completo do acompanhante {i + 1}
-                </label>
-                <input
-                  id={`${uid}-c${i}-name`}
-                  className="field__input"
-                  value={r.fullName}
-                  onChange={(e) => setRows((rs) => rs.map((x, j) => (j === i ? { ...x, fullName: e.target.value } : x)))}
-                  disabled={noCompanions}
-                  maxLength={120}
-                  autoComplete="off"
-                  placeholder="Nome e sobrenome"
-                />
+                <span className="field__label" id={`${uid}-c${i}-label`}>
+                  Acompanhante {i + 1}
+                </span>
+                <p className="companion__name">{c.fullName}</p>
               </div>
               <div className="field">
-                <label className="field__label" htmlFor={`${uid}-c${i}-phone`}>
-                  Telefone do acompanhante {i + 1}
+                <label className="field__label" htmlFor={`${uid}-c${i}`}>
+                  Vai comparecer? <span className="req">*</span>
                 </label>
-                <input
-                  id={`${uid}-c${i}-phone`}
-                  className="field__input"
-                  type="tel"
-                  inputMode="tel"
-                  value={r.phone}
-                  onChange={(e) => setRows((rs) => rs.map((x, j) => (j === i ? { ...x, phone: maskPhone(e.target.value) } : x)))}
-                  disabled={noCompanions}
-                  autoComplete="off"
-                  placeholder="(11) 98765-4321"
-                />
+                <span className="select">
+                  <select
+                    id={`${uid}-c${i}`}
+                    aria-describedby={`${uid}-c${i}-label`}
+                    value={!compAnswers[c.id] || compAnswers[c.id] === 'pending' ? '' : compAnswers[c.id]}
+                    onChange={(e) => setCompAnswers((a) => ({ ...a, [c.id]: (e.target.value || 'pending') as Status }))}
+                  >
+                    <option value="">Selecione</option>
+                    <option value="attending">Sim, vai</option>
+                    <option value="declined">Não vai</option>
+                  </select>
+                </span>
               </div>
             </div>
           ))}
-
-          <label className="check">
-            <input type="checkbox" checked={noCompanions} onChange={(e) => setNoCompanions(e.target.checked)} />
-            <span className="check__box" aria-hidden="true" />
-            <span>Não vou levar acompanhante</span>
-          </label>
         </fieldset>
       )}
 
@@ -444,7 +410,7 @@ export function RSVPForm({ successTitle, giftListUrl, popup, allowChanges, initi
         />
       </div>
 
-      <p className="rsvp-note">O código identifica o seu convite e mostra quantos acompanhantes você pode levar.</p>
+      <p className="rsvp-note">O código identifica o seu convite e mostra exatamente quem está incluído nele.</p>
 
       {error && (
         <p className="rsvp-error" role="alert">
