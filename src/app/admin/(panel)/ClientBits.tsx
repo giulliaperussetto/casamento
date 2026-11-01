@@ -46,36 +46,3 @@ export function ConfirmSubmit({
   );
 }
 
-export function TypeFields() {
-  const [type, setType] = useState<'individual' | 'couple'>('individual');
-  const [companion, setCompanion] = useState('');
-  return (
-    <>
-      <fieldset className="adm-radio">
-        <legend>Tipo de convite</legend>
-        <label>
-          <input type="radio" name="type" value="individual" checked={type === 'individual'} onChange={() => setType('individual')} />
-          Individual (1 pessoa)
-        </label>
-        <label>
-          <input type="radio" name="type" value="couple" checked={type === 'couple'} onChange={() => setType('couple')} />
-          Casal (até 2 pessoas)
-        </label>
-      </fieldset>
-      {type === 'couple' && (
-        <>
-          <label>
-            Nome do acompanhante (opcional)
-            <input name="companionName" maxLength={120} value={companion} onChange={(e) => setCompanion(e.target.value)} />
-          </label>
-          {!companion.trim() && (
-            <label className="adm-check">
-              <input type="checkbox" name="allowUnnamedCompanion" defaultChecked />
-              Permitir que o convidado informe o nome do acompanhante
-            </label>
-          )}
-        </>
-      )}
-    </>
-  );
-}

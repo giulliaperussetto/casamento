@@ -20,22 +20,26 @@ export type ResponsiveImage = {
 
 export const wedding = {
   couple: {
-    first: 'Marina',
-    second: 'Gabriel',
-    monogram: ['M', 'G'],
+    first: 'Fernanda',
+    second: 'Giullia',
+    /** Monograma usado no menu (versão clara) e no rodapé/ícone. */
+    monogramLight: '/images/monograma-branco.png',
+    monogramDark: '/images/monograma-marsala.png',
   },
 
   /** Data/hora da cerimônia em horário de Brasília. */
   date: {
-    iso: '2026-11-14T16:30:00-03:00',
-    label: '14 de novembro · 2026',
-    long: '14 de novembro de 2026',
+    iso: '2027-05-16T16:30:00-03:00',
+    label: '16 de maio · 2027',
+    long: '16 de maio de 2027',
   },
 
   venue: {
-    name: 'Espaço Jardim das Oliveiras',
-    city: 'Campinas, São Paulo',
-    mapsUrl: 'https://maps.google.com/?q=Espa%C3%A7o+Jardim+das+Oliveiras+Campinas',
+    name: 'Porto São Jorge',
+    city: 'São Bernardo do Campo, São Paulo',
+    shortCity: 'São Bernardo do Campo · SP',
+    mapsUrl:
+      'https://www.google.com/maps/place/Porto+S%C3%A3o+Jorge/@-23.7827523,-46.5440955,17z/data=!3m1!4b1!4m6!3m5!1s0x94ce3fc812f6245f:0x667c238db2147681!8m2!3d-23.7827572!4d-46.5415206!16s%2Fg%2F11kq7szndx',
   },
 
   links: {
@@ -46,8 +50,8 @@ export const wedding = {
 
   rsvp: {
     /** Prazo exibido no site e aplicado no servidor (após o prazo, respostas são bloqueadas). */
-    deadlineIso: '2026-11-07T23:59:59-03:00',
-    deadlineLabel: '7 de novembro de 2026',
+    deadlineIso: '2027-04-16T23:59:59-03:00',
+    deadlineLabel: '16 de abril de 2027',
     /** Permite que o convidado altere uma resposta já enviada (até o prazo). */
     allowChanges: true,
   },
@@ -67,25 +71,21 @@ export const wedding = {
 
   images: {
     hero: {
-      desktop: '/images/casal-provisoria.webp',
-      mobile: '/images/casal-provisoria.webp',
-      alt: 'Os noivos sob o véu, em um jardim florido',
-      positionDesktop: 'center 45%',
-      positionMobile: 'center 60%',
+      desktop: '/images/home-casal.webp',
+      mobile: '/images/home-casal.webp',
+      alt: 'Fernanda e Giullia sorrindo juntas no sofá de um barco',
+      positionDesktop: 'center 40%',
+      positionMobile: '52% center',
     },
     venue: {
-      desktop: '/images/celebration-desktop.webp',
-      mobile: '/images/celebration-mobile.webp',
-      alt: 'O espaço da cerimônia decorado com flores',
-      positionDesktop: 'center',
-      positionMobile: 'center',
+      desktop: '/images/local-porto-sao-jorge.webp',
+      alt: 'Cerimônia ao ar livre no Porto São Jorge, com arco de flores secas diante da represa',
+      positionDesktop: 'center 60%',
+      positionMobile: 'center 60%',
     },
     dressCode: {
-      desktop: '/images/padrinhos-desktop.webp',
-      mobile: '/images/padrinhos-mobile.webp',
-      alt: 'Padrinhos e madrinhas lado a lado',
-      positionDesktop: 'center',
-      positionMobile: 'center',
+      desktop: '/images/dresscode-padrinhos-madrinhas.webp',
+      alt: 'Ilustração das madrinhas em vestidos longos marsala e dos padrinhos em terno cinza claro com camisa branca e tênis branco',
     },
     party: {
       desktop: '/images/party-desktop.webp',
@@ -95,10 +95,10 @@ export const wedding = {
       positionMobile: 'center',
     },
     rsvp: {
-      desktop: '/images/casal-provisoria.webp',
-      alt: 'Os noivos abraçados sob o véu',
-      positionDesktop: 'center 40%',
-      positionMobile: 'center 35%',
+      desktop: '/images/rsvp-casal.webp',
+      alt: 'Fernanda e Giullia se beijando no barco, segurando cartazes de Save the Date 16.05.27',
+      positionDesktop: 'center 60%',
+      positionMobile: 'center 62%',
     },
   } satisfies Record<string, ResponsiveImage>,
 
@@ -143,8 +143,8 @@ export const wedding = {
 
   dressCode: {
     eyebrow: 'Dress code',
-    title: 'Nossos padrinhos e *madrinhas*',
-    text: 'Uma prévia de como eles estarão. Para os convidados, traje social — elegante e confortável.',
+    title: 'Nossas madrinhas e *padrinhos*',
+    text: 'Madrinhas de longo marsala; padrinhos de terno cinza claro, camisa branca e tênis branco. Para os convidados, traje social — elegante e confortável.',
   },
 
   party: {
@@ -202,19 +202,14 @@ export const wedding = {
     successTitle: 'Recebemos sua resposta com carinho!',
   },
 
-  giftPrompt: {
-    first: {
-      title: 'Quer nos presentear?',
-      text: 'Sua presença já é um presente muito especial para nós. Mas, se desejar contribuir de alguma forma com esse novo capítulo, preparamos uma lista de presentes com muito carinho.',
-      yes: 'Sim, quero presentear',
-      no: 'Agora não',
-    },
-    second: {
-      title: 'Tem certeza?',
-      text: 'Não existe obrigação nenhuma! Mas, caso queira conhecer nossa lista, ela está disponível para você.',
-      yes: 'Quero conhecer a lista',
-      no: 'Não quero presentear',
-    },
+  /** Popup exibido depois que o servidor confirma que a resposta foi salva. */
+  confirmationPopup: {
+    titleAttending: 'Presença confirmada!',
+    titleDeclined: 'Resposta enviada',
+    text: 'Recebemos sua resposta com muito carinho. Pode ser que a nossa assessoria entre em contato para fazer uma dupla confirmação.',
+    giftText: 'E, se quiser nos presentear, é só clicar no botão abaixo.',
+    giftButton: 'Presentear',
+    closeButton: 'Fechar',
   },
 
   faq: {
@@ -228,15 +223,15 @@ export const wedding = {
       },
       {
         q: 'Posso levar crianças?',
-        a: 'As pessoas convidadas estão vinculadas ao código de cada convite. Ao inserir o seu código, você verá exatamente quem está incluído.',
+        a: 'Cada convite tem um número de vagas de acompanhante. Ao inserir o seu código, você verá quantas pessoas pode levar e informará o nome e o telefone de cada uma.',
       },
       {
         q: 'Há estacionamento no local?',
-        a: 'Sim. O espaço conta com estacionamento para os convidados.',
+        a: 'Sim. O Porto São Jorge conta com estacionamento para os convidados.',
       },
       {
         q: 'Até quando posso confirmar presença?',
-        a: 'Pedimos que a confirmação seja feita até 7 de novembro de 2026.',
+        a: 'Pedimos que a confirmação seja feita até 16 de abril de 2027.',
       },
       {
         q: 'Posso atualizar minha resposta depois?',
@@ -250,7 +245,7 @@ export const wedding = {
   },
 
   seo: {
-    title: 'Marina & Gabriel — 14.11.2026',
+    title: 'Fernanda & Giullia — 16.05.2027',
     description: 'Celebre conosco o nosso casamento. Confirme sua presença e confira todos os detalhes.',
   },
 } as const;

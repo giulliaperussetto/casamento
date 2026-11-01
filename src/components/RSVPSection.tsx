@@ -4,7 +4,7 @@ import { Emph, Eyebrow } from './Emph';
 import { RSVPForm } from './RSVPForm';
 
 export function RSVPSection() {
-  const { rsvpCopy, links, giftPrompt, rsvp, images } = wedding;
+  const { rsvpCopy, links, confirmationPopup, rsvp, images } = wedding;
   return (
     <section className="rsvp-section" id="rsvp" aria-labelledby="rsvp-titulo">
       <div className="rsvp-section__photo">
@@ -29,7 +29,7 @@ export function RSVPSection() {
           <RSVPForm
             successTitle={rsvpCopy.successTitle}
             giftListUrl={links.giftList}
-            gift={{ first: { ...giftPrompt.first }, second: { ...giftPrompt.second } }}
+            popup={{ ...confirmationPopup }}
             allowChanges={rsvp.allowChanges}
           />
         </div>

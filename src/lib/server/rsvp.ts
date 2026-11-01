@@ -14,24 +14,20 @@ const LIMITS = {
   failuresGlobal: { limit: 400, window: 60 * 60 },   // freio global contra ataques distribuídos
 };
 
-export type PublicGuest = {
-  id: string;
-  fullName: string;
-  role: 'primary' | 'companion';
-  nameLocked: boolean;
-  status: 'pending' | 'attending' | 'declined';
-};
+export type PublicCompanion = { fullName: string; phone: string };
 
 export type PublicInvitation = {
-  type: 'individual' | 'couple';
-  maxGuests: number;
-  canAddCompanion: boolean;
+  primaryName: string;
+  maxCompanions: number;
+  status: 'pending' | 'attending' | 'declined';
+  phone: string;
+  email: string;
+  message: string;
+  companionsDeclined: boolean;
+  companions: PublicCompanion[];
   alreadyResponded: boolean;
   canSubmit: boolean;
   closedReason: string | null;
-  email: string;
-  message: string;
-  guests: PublicGuest[];
 };
 
 export class RsvpError extends Error {
@@ -42,19 +38,21 @@ export class RsvpError extends Error {
 
 const MESSAGES: Record<string, string> = {
   INVALID_CODE: 'Não encontramos esse código. Confira se ele foi digitado exatamente como aparece no seu convite.',
-  INVITATION_INACTIVE: 'Este convite não está mais ativo. Se acredita que isso é um engano, fale com os noivos.',
+  INVITATION_INACTIVE: 'Este convite não está mais ativo. Se acredita que isso é um engano, fale com as noivas.',
   RATE_LIMITED: 'Muitas tentativas em pouco tempo. Por segurança, aguarde alguns minutos e tente novamente.',
-  ALREADY_RESPONDED: 'Este convite já foi respondido. Para alterar sua resposta, fale com os noivos.',
-  DEADLINE_PASSED: 'O prazo de confirmação foi encerrado. Para qualquer ajuste, fale diretamente com os noivos.',
+  ALREADY_RESPONDED: 'Este convite já foi respondido. Para alterar sua resposta, fale com as noivas.',
+  DEADLINE_PASSED: 'O prazo de confirmação foi encerrado. Para qualquer ajuste, fale diretamente com as noivas.',
   GUEST_NOT_IN_INVITATION: 'Os participantes enviados não correspondem a este convite. Verifique o código novamente.',
   DUPLICATE_GUEST: 'Cada participante pode ter apenas uma resposta.',
   MISSING_RESPONSES: 'Escolha uma resposta para cada participante antes de enviar.',
   NAME_LOCKED: 'Os nomes cadastrados no convite não podem ser alterados.',
   COMPANION_NOT_ALLOWED: 'Este convite não permite acompanhante.',
-  COMPANION_ALREADY_EXISTS: 'O acompanhante deste convite já foi registrado.',
-  CAPACITY_EXCEEDED: 'Este convite já atingiu o número máximo de participantes.',
-  DUPLICATE_NAME: 'O nome do acompanhante não pode repetir um participante já registrado.',
-  INVALID_NAME: 'Informe o nome completo do acompanhante (entre 2 e 120 caracteres).',
+  CAPACITY_EXCEEDED: 'O número de acompanhantes ultrapassa as vagas do seu convite.',
+  DUPLICATE_NAME: 'Cada acompanhante deve ter um nome diferente (e diferente do seu).',
+  INVALID_NAME: 'Informe nome e sobrenome de cada acompanhante.',
+  INVALID_PHONE: 'Informe um telefone válido com DDD, por exemplo (11) 98765-4321.',
+  COMPANIONS_NOT_EXPECTED: 'Você marcou que não levará acompanhante. Remova os acompanhantes informados ou desmarque essa opção.',
+  COMPANION_CHOICE_REQUIRED: 'Informe seus acompanhantes ou marque que não levará acompanhante.',
   INVALID_STATUS: 'Escolha uma resposta para cada participante antes de enviar.',
   INVALID_PAYLOAD: 'Não foi possível entender a resposta enviada. Atualize a página e tente novamente.',
 };
@@ -92,6 +90,7 @@ type InvitationRow = {
   active: boolean;
   contact_email: string | null;
   guest_message: string | null;
+  companions_declined: boolean;
 };
 
 /** Localiza o convite pelo código (somente via hash) aplicando os limites de segurança. */
@@ -106,7 +105,7 @@ async function resolveInvitation(rawCode: string): Promise<InvitationRow> {
 
   const sql = db();
   const [inv] = await sql<InvitationRow[]>`
-    select id, invitation_type, max_guests, allow_unnamed_companion, active, contact_email, guest_message
+    select id, invitation_type, max_guests, allow_unnamed_companion, active, contact_email, guest_message, companions_declined
     from wedding.invitations where code_hash = ${hashInviteCode(rawCode)}`;
 
   if (!inv) {
@@ -122,38 +121,32 @@ async function resolveInvitation(rawCode: string): Promise<InvitationRow> {
 async function loadPublicInvitation(inv: InvitationRow): Promise<PublicInvitation> {
   const sql = db();
   const guests = await sql<
-    { id: string; full_name: string; guest_role: 'primary' | 'companion'; name_locked: boolean; attendance_status: PublicGuest['status'] }[]
+    { full_name: string; guest_role: 'primary' | 'companion'; attendance_status: PublicInvitation['status']; phone: string | null }[]
   >`
-    select id, full_name, guest_role, name_locked, attendance_status
+    select full_name, guest_role, attendance_status, phone
     from wedding.guests where invitation_id = ${inv.id}
     order by case guest_role when 'primary' then 0 else 1 end, created_at`;
 
-  const alreadyResponded = guests.some((g) => g.attendance_status !== 'pending');
+  const primary = guests.find((g) => g.guest_role === 'primary');
+  const status = primary?.attendance_status ?? 'pending';
+  const alreadyResponded = status !== 'pending';
   let closedReason: string | null = null;
   if (deadlinePassed()) closedReason = MESSAGES.DEADLINE_PASSED;
   else if (alreadyResponded && !wedding.rsvp.allowChanges) closedReason = MESSAGES.ALREADY_RESPONDED;
 
+  // Apenas os dados do próprio convite; nenhum identificador interno.
   return {
-    type: inv.invitation_type,
-    maxGuests: inv.max_guests,
-    canAddCompanion:
-      inv.invitation_type === 'couple' &&
-      inv.allow_unnamed_companion &&
-      !guests.some((g) => g.guest_role === 'companion') &&
-      guests.length < inv.max_guests,
+    primaryName: primary?.full_name ?? '',
+    maxCompanions: Math.max(0, inv.max_guests - 1),
+    status,
+    phone: primary?.phone ?? '',
+    email: inv.contact_email ?? '',
+    message: inv.guest_message ?? '',
+    companionsDeclined: inv.companions_declined,
+    companions: guests.filter((g) => g.guest_role === 'companion').map((g) => ({ fullName: g.full_name, phone: g.phone ?? '' })),
     alreadyResponded,
     canSubmit: closedReason === null,
     closedReason,
-    email: inv.contact_email ?? '',
-    message: inv.guest_message ?? '',
-    // Apenas o necessário: nenhum dado de outros convites ou dados internos.
-    guests: guests.map((g) => ({
-      id: g.id,
-      fullName: g.full_name,
-      role: g.guest_role,
-      nameLocked: g.name_locked,
-      status: g.attendance_status,
-    })),
   };
 }
 
@@ -165,25 +158,28 @@ export async function verifyInvitation(rawCode: string): Promise<PublicInvitatio
 // ---------------------------------------------------------------------------
 // Envio
 // ---------------------------------------------------------------------------
-const statusSchema = z.enum(['attending', 'declined']);
+/** Mantém apenas dígitos; aceita com ou sem +55. */
+export function normalizePhone(value: string): string {
+  return value.replace(/\D/g, '');
+}
+
+const phoneSchema = z
+  .string()
+  .max(30)
+  .transform(normalizePhone)
+  .refine((v) => /^[0-9]{10,13}$/.test(v), 'INVALID_PHONE');
+
 export const submitSchema = z.object({
   code: z.string().min(1).max(64),
-  responses: z
-    .array(
-      z.object({
-        guestId: z.string().uuid(),
-        status: statusSchema,
-        fullName: z.string().trim().min(2).max(120).optional(),
-      }),
-    )
-    .min(1)
-    .max(2),
-  companion: z
-    .object({ fullName: z.string().trim().min(2).max(120), status: statusSchema })
-    .nullable()
-    .optional(),
+  status: z.enum(['attending', 'declined']),
+  phone: phoneSchema,
   email: z.string().trim().email().max(200),
   message: z.string().trim().max(1000).optional(),
+  noCompanions: z.boolean().default(false),
+  companions: z
+    .array(z.object({ fullName: z.string().trim().min(5).max(120), phone: phoneSchema }))
+    .max(20)
+    .default([]),
 });
 
 export type SubmitInput = z.infer<typeof submitSchema>;
@@ -192,24 +188,30 @@ export async function submitRsvp(input: SubmitInput) {
   const inv = await resolveInvitation(input.code);
   if (deadlinePassed()) fail('DEADLINE_PASSED', 403);
 
+  const companions = input.status === 'attending' && !input.noCompanions ? input.companions : [];
   const sql = db();
   try {
     const [row] = await sql<{ result: { event_id: string; updated: boolean } }[]>`
-      select wedding.submit_rsvp(
+      select wedding.submit_rsvp_v3(
         ${inv.id}::uuid,
-        ${sql.json(input.responses.map((r) => ({ guest_id: r.guestId, status: r.status, full_name: r.fullName ?? null })))}::jsonb,
-        ${input.companion ? sql.json({ full_name: input.companion.fullName, status: input.companion.status }) : null}::jsonb,
-        ${wedding.rsvp.allowChanges},
+        ${input.status},
+        ${input.phone},
+        ${sql.json(companions.map((c) => ({ full_name: c.fullName, phone: c.phone })))}::jsonb,
+        ${input.status === 'attending' && input.noCompanions},
         ${input.email},
-        ${input.message ?? null}
+        ${input.message ?? null},
+        ${wedding.rsvp.allowChanges}
       ) as result`;
-    const invitation = await loadPublicInvitation({ ...inv, contact_email: input.email, guest_message: input.message ?? null });
+    const [fresh] = await sql<InvitationRow[]>`
+      select id, invitation_type, max_guests, allow_unnamed_companion, active, contact_email, guest_message, companions_declined
+      from wedding.invitations where id = ${inv.id}`;
+    const invitation = await loadPublicInvitation(fresh);
     return { eventId: row.result.event_id, updated: row.result.updated, invitation };
   } catch (err) {
     const message = (err as { message?: string }).message ?? '';
     if (MESSAGES[message]) fail(message, 409);
-    // Violação de índice único (acompanhante duplicado em concorrência)
-    if ((err as { code?: string }).code === '23505') fail('COMPANION_ALREADY_EXISTS', 409);
+    if ((err as { code?: string }).code === '23505') fail('DUPLICATE_NAME', 409);
+    if ((err as { code?: string }).code === '23514') fail('INVALID_PHONE', 409);
     throw err;
   }
 }

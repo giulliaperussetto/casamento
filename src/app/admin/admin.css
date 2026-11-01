@@ -87,3 +87,4 @@
 .adm-login h1 { font: 500 28px var(--font-serif), Georgia, serif; color: var(--marsala); margin: 0 0 18px; }
 
 .adm-contact { display: grid; gap: 4px; margin: 8px 0 0; padding: 10px 12px; background: #f9f6f2; border-radius: 6px; font-size: 14px; }
+@media (min-width: 700px) { .adm-guest { grid-template-columns: 1fr 170px 140px 110px auto; } }

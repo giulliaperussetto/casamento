@@ -10,7 +10,8 @@ import {
   updateGuestAction,
   updateInvitationAction,
 } from '../actions';
-import { ConfirmSubmit, CopyButton, TypeFields } from './ClientBits';
+import { formatPhone } from '@/lib/server/admin';
+import { ConfirmSubmit, CopyButton } from './ClientBits';
 
 const FILTERS: { key: StatusFilter; label: string }[] = [
   { key: 'all', label: 'Todos' },
@@ -54,10 +55,14 @@ export default async function AdminPage({
         <section className="adm-panel">
           <h2>Novo convite</h2>
           <form action={createInvitationAction} className="adm-form">
-            <TypeFields />
             <label>
               Nome do convidado principal
               <input name="primaryName" required minLength={2} maxLength={120} />
+            </label>
+            <label>
+              Vagas de acompanhante
+              <input name="companions" type="number" min={0} max={20} defaultValue={0} required inputMode="numeric" />
+              <span className="adm-muted adm-small">0 = convite individual. O convidado informa nome e telefone de cada acompanhante.</span>
             </label>
             <label>
               Identificação interna (opcional)
@@ -99,7 +104,9 @@ export default async function AdminPage({
               <li key={inv.id} id={inv.id} className={`adm-inv${inv.active ? '' : ' is-inactive'}${sp.highlight === inv.id ? ' is-highlight' : ''}`}>
                 <div className="adm-inv__head">
                   <div>
-                    <span className="adm-badge">{inv.invitation_type === 'couple' ? 'Casal · até 2' : 'Individual · 1'}</span>
+                    <span className="adm-badge">
+                      {inv.max_guests === 1 ? 'Individual' : `+${inv.max_guests - 1} acompanhante${inv.max_guests > 2 ? 's' : ''}`}
+                    </span>
                     {!inv.active && <span className="adm-badge adm-badge--off">Inativo</span>}
                     {inv.label && <strong className="adm-inv__label">{inv.label}</strong>}
                   </div>
@@ -121,10 +128,12 @@ export default async function AdminPage({
                             <input type="hidden" name="guestId" value={g.id} />
                             <input type="hidden" name="invitationId" value={inv.id} />
                             <label className="adm-guest__name">
-                              <span className="adm-muted adm-small">
-                                {g.guest_role === 'primary' ? 'Principal' : g.name_locked ? 'Acompanhante' : 'Acompanhante (informado pelo convidado)'}
-                              </span>
+                              <span className="adm-muted adm-small">{g.guest_role === 'primary' ? 'Principal' : 'Acompanhante'}</span>
                               <input name="fullName" defaultValue={g.full_name} required minLength={2} maxLength={120} />
+                            </label>
+                            <label className="adm-guest__name">
+                              <span className="adm-muted adm-small">Telefone</span>
+                              <input name="phone" defaultValue={formatPhone(g.phone)} inputMode="tel" maxLength={20} placeholder="(11) 90000-0000" />
                             </label>
                             <select name="status" defaultValue={g.attendance_status} aria-label="Status">
                               {(['pending', 'attending', 'declined'] as const).map((s) => (
@@ -151,17 +160,19 @@ export default async function AdminPage({
                   </tbody>
                 </table>
 
-                {(inv.contact_email || inv.guest_message) && (
+                {(inv.contact_email || inv.guest_message || inv.companions_declined) && (
                   <p className="adm-contact">
+                    {inv.companions_declined && <span>Não levará acompanhante (tinha {inv.max_guests - 1} vaga{inv.max_guests > 2 ? 's' : ''})</span>}
                     {inv.contact_email && <span>✉ {inv.contact_email}</span>}
                     {inv.guest_message && <span>“{inv.guest_message}”</span>}
                   </p>
                 )}
 
-                {inv.invitation_type === 'couple' && inv.guests.length < inv.max_guests && (
+                {inv.guests.length < inv.max_guests && (
                   <form action={addCompanionAction} className="adm-inline">
                     <input type="hidden" name="invitationId" value={inv.id} />
-                    <input name="fullName" placeholder="Cadastrar nome do acompanhante" minLength={2} maxLength={120} required aria-label="Nome do acompanhante" />
+                    <input name="fullName" placeholder="Nome do acompanhante" minLength={2} maxLength={120} required aria-label="Nome do acompanhante" />
+                    <input name="phone" placeholder="Telefone" inputMode="tel" maxLength={20} aria-label="Telefone do acompanhante" />
                     <button className="adm-btn adm-btn--small">Adicionar</button>
                   </form>
                 )}
@@ -172,12 +183,10 @@ export default async function AdminPage({
                     <form action={updateInvitationAction} className="adm-inline">
                       <input type="hidden" name="id" value={inv.id} />
                       <input name="label" defaultValue={inv.label ?? ''} placeholder="Identificação interna" maxLength={120} aria-label="Identificação interna" />
-                      {inv.invitation_type === 'couple' && (
-                        <label className="adm-check">
-                          <input type="checkbox" name="allowUnnamedCompanion" defaultChecked={inv.allow_unnamed_companion} />
-                          Convidado pode informar acompanhante
-                        </label>
-                      )}
+                      <label className="adm-check">
+                        Vagas
+                        <input name="companions" type="number" min={0} max={20} defaultValue={inv.max_guests - 1} aria-label="Vagas de acompanhante" style={{ width: 80 }} />
+                      </label>
                       <button className="adm-btn adm-btn--small">Salvar</button>
                     </form>
                     <div className="adm-inline">

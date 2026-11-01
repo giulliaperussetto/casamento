@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import { wedding } from '@/config/wedding';
 import { ResponsiveBackground } from './ResponsiveBackground';
 import { Arrow } from './Emph';
@@ -10,10 +11,8 @@ export function WeddingHero() {
       <div className="hero__shade" aria-hidden="true" />
 
       <nav className="topnav" aria-label="Navegação principal">
-        <a href="#inicio" className="topnav__mark" aria-label={`${couple.first} e ${couple.second}`}>
-          {couple.monogram[0]}
-          <span>&amp;</span>
-          {couple.monogram[1]}.
+        <a href="#inicio" className="topnav__mark" aria-label={`${couple.first} e ${couple.second} — início`}>
+          <Image src={couple.monogramLight} alt="" width={749} height={870} priority sizes="64px" />
         </a>
         <ul className="topnav__links" role="list">
           {nav.map((n) => (
@@ -50,7 +49,7 @@ export function WeddingHero() {
       </p>
 
       <div className="hero__bottom">
-        <span>{venue.city.replace(', ', ' · ')}</span>
+        <span>{venue.shortCity}</span>
         <span className="hero__bottom-line" aria-hidden="true" />
         <span>{hero.scrollHint}</span>
       </div>

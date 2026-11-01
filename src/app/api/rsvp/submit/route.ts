@@ -12,15 +12,17 @@ export async function POST(req: Request) {
   }
   const parsed = submitSchema.safeParse(body);
   if (!parsed.success) {
-    const emailIssue = parsed.error.issues.some((i) => i.path[0] === 'email');
-    return json(
-      {
-        error: emailIssue
-          ? 'Informe um e-mail válido para que possamos falar com você.'
-          : 'Verifique as respostas: escolha uma opção para cada participante e informe nomes válidos.',
-      },
-      400,
-    );
+    const issue = parsed.error.issues[0];
+    const field = String(issue?.path[0] ?? '');
+    const error =
+      field === 'email'
+        ? 'Informe um e-mail válido para que possamos falar com você.'
+        : issue?.message === 'INVALID_PHONE'
+          ? 'Informe um telefone válido com DDD, por exemplo (11) 98765-4321.'
+          : field === 'companions'
+            ? 'Informe nome e sobrenome de cada acompanhante.'
+            : 'Verifique as respostas antes de enviar.';
+    return json({ error }, 400);
   }
   try {
     return json(await submitRsvp(parsed.data));

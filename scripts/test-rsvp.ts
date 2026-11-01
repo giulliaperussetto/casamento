@@ -3,7 +3,6 @@
  * Uso: BASE_URL=http://localhost:3000 npm run test:rsvp
  * Cria convites temporários (identificados como "TESTE-AUTO") e remove ao final.
  */
-import { randomUUID } from 'node:crypto';
 import { encryptInviteCode, generateInviteCode, hashInviteCode } from '../src/lib/server/crypto';
 import { connect } from './_env';
 
@@ -25,7 +24,6 @@ function check(name: string, cond: boolean, extra?: unknown) {
 const ip = () => `10.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`;
 
 async function api(path: string, body: any, fromIp = ip()) {
-  if (path.endsWith('/submit') && body && !('email' in body)) body = { ...body, email: 'convidado@example.com' };
   const res = await fetch(BASE + path, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'x-forwarded-for': fromIp },
@@ -34,118 +32,114 @@ async function api(path: string, body: any, fromIp = ip()) {
   return { status: res.status, data: (await res.json()) as any };
 }
 
-async function invite(type: 'individual' | 'couple', primary: string, companion?: string, allowUnnamed = false, active = true) {
+async function invite(primary: string, slots: number, active = true) {
   const code = generateInviteCode();
   const [inv] = await sql<{ id: string }[]>`
     insert into wedding.invitations (code_hash, code_encrypted, label, invitation_type, max_guests, allow_unnamed_companion, active)
-    values (${hashInviteCode(code)}, ${encryptInviteCode(code)}, 'TESTE-AUTO', ${type}, ${type === 'couple' ? 2 : 1}, ${allowUnnamed}, ${active})
+    values (${hashInviteCode(code)}, ${encryptInviteCode(code)}, 'TESTE-AUTO', ${slots > 0 ? 'group' : 'individual'}, ${1 + slots}, ${slots > 0}, ${active})
     returning id`;
   const [g] = await sql<{ id: string }[]>`insert into wedding.guests (invitation_id, full_name, guest_role) values (${inv.id}, ${primary}, 'primary') returning id`;
   await sql`update wedding.invitations set primary_guest_id = ${g.id} where id = ${inv.id}`;
-  if (companion) await sql`insert into wedding.guests (invitation_id, full_name, guest_role) values (${inv.id}, ${companion}, 'companion')`;
   return { id: inv.id, code };
 }
+
+const base = { email: 'convidado@example.com', phone: '(11) 98765-4321' };
+const submit = (code: string, extra: any, fromIp?: string) => api('/api/rsvp/submit', { code, ...base, ...extra }, fromIp);
+const guestsOf = (id: string) => sql`select full_name, guest_role, attendance_status, phone from wedding.guests where invitation_id = ${id} order by guest_role desc, created_at`;
 
 try {
   console.log('Código inválido');
   let r = await api('/api/rsvp/verify', { code: 'CASA-ZZZZZ-ZZZZZ' });
   check('retorna 404 com mensagem amigável', r.status === 404 && /Não encontramos/.test(r.data.error), r);
 
-  console.log('Convite individual');
-  const ind = await invite('individual', 'Mariana Oliveira');
+  console.log('Convite individual (0 vagas)');
+  const ind = await invite('Mariana Oliveira', 0);
   r = await api('/api/rsvp/verify', { code: ind.code.toLowerCase().replace(/-/g, ' ') });
   check('valida código (sem diferenciar maiúsculas/hífens)', r.status === 200, r);
-  const indInv = r.data.invitation;
-  check('exibe 1 participante com nome cadastrado', indInv.guests.length === 1 && indInv.guests[0].fullName === 'Mariana Oliveira');
-  check('não permite acompanhante', indInv.canAddCompanion === false);
-  check('não expõe ids internos do convite', !('id' in indInv) && !JSON.stringify(indInv).includes(ind.id));
-  r = await api('/api/rsvp/submit', {
-    code: ind.code,
-    responses: [{ guestId: indInv.guests[0].id, status: 'attending' }],
-    companion: { fullName: 'Intruso da Silva', status: 'attending' },
-  });
-  check('rejeita acompanhante em convite individual', r.status === 409, r);
-  r = await api('/api/rsvp/submit', {
-    code: ind.code,
-    responses: [{ guestId: indInv.guests[0].id, status: 'attending', fullName: 'Outro Nome' }],
-  });
-  check('nome cadastrado é imutável', r.status === 409 && /não podem ser alterados/.test(r.data.error), r);
-  r = await api('/api/rsvp/submit', { code: ind.code, responses: [{ guestId: indInv.guests[0].id, status: 'attending' }] });
-  check('salva confirmação', r.status === 200 && r.data.eventId, r);
-  const [contact] = await sql`select contact_email from wedding.invitations where id = ${ind.id}`;
-  check('salva e-mail de contato', contact.contact_email === 'convidado@example.com');
-  r = await api('/api/rsvp/submit', { code: ind.code, email: 'invalido', responses: [{ guestId: indInv.guests[0].id, status: 'attending' }] });
+  check('exibe nome cadastrado e 0 vagas', r.data.invitation.primaryName === 'Mariana Oliveira' && r.data.invitation.maxCompanions === 0);
+  check('não expõe ids internos', !JSON.stringify(r.data).includes(ind.id) && !/"id"/.test(JSON.stringify(r.data)));
+  r = await submit(ind.code, { status: 'attending', companions: [{ fullName: 'Intruso da Silva', phone: '11999990000' }] });
+  check('rejeita acompanhante em convite sem vagas', r.status === 409, r);
+  r = await submit(ind.code, { status: 'attending', phone: '1234' });
+  check('rejeita telefone inválido', r.status === 400 && /telefone/i.test(r.data.error), r);
+  r = await submit(ind.code, { status: 'attending', email: 'invalido' });
   check('rejeita e-mail inválido', r.status === 400, r);
-  const [row] = await sql`select attendance_status, responded_at from wedding.guests where invitation_id = ${ind.id}`;
-  check('resposta persistida no banco', row.attendance_status === 'attending' && row.responded_at);
-  r = await api('/api/rsvp/submit', { code: ind.code, responses: [{ guestId: indInv.guests[0].id, status: 'declined' }] });
-  const [cnt] = await sql`select count(*)::int as n from wedding.guests where invitation_id = ${ind.id}`;
-  check('alteração atualiza o registro existente (sem duplicar)', r.status === 200 && r.data.updated === true && cnt.n === 1, r);
+  r = await submit(ind.code, { status: 'attending' });
+  check('salva confirmação', r.status === 200 && r.data.eventId, r);
+  let rows = await guestsOf(ind.id);
+  check('resposta e telefone persistidos (só dígitos)', rows[0].attendance_status === 'attending' && rows[0].phone === '11987654321', rows);
+  r = await submit(ind.code, { status: 'declined' });
+  rows = await guestsOf(ind.id);
+  check('alteração atualiza o registro existente', r.status === 200 && r.data.updated === true && rows.length === 1 && rows[0].attendance_status === 'declined', r);
 
-  console.log('Convite de casal com acompanhante cadastrado');
-  const cpl = await invite('couple', 'Rafael Almeida', 'Juliana Prado');
-  r = await api('/api/rsvp/verify', { code: cpl.code });
-  const cplInv = r.data.invitation;
-  check('exibe os 2 participantes', cplInv.guests.length === 2 && cplInv.guests[1].fullName === 'Juliana Prado');
-  check('não oferece terceiro participante', cplInv.canAddCompanion === false);
-  r = await api('/api/rsvp/submit', { code: cpl.code, responses: [{ guestId: cplInv.guests[0].id, status: 'attending' }] });
-  check('exige resposta de cada participante', r.status === 409, r);
-  r = await api('/api/rsvp/submit', {
-    code: cpl.code,
-    responses: [
-      { guestId: cplInv.guests[0].id, status: 'attending' },
-      { guestId: cplInv.guests[0].id, status: 'declined' },
+  console.log('Convite com 2 vagas de acompanhante');
+  const grp = await invite('Rafael Almeida', 2);
+  r = await api('/api/rsvp/verify', { code: grp.code });
+  check('informa 2 vagas', r.data.invitation.maxCompanions === 2);
+  r = await submit(grp.code, { status: 'attending' });
+  check('exige acompanhantes ou "não vou levar"', r.status === 409 && /não levará/.test(r.data.error), r);
+  r = await submit(grp.code, {
+    status: 'attending',
+    companions: [
+      { fullName: 'Juliana Prado', phone: '11911112222' },
+      { fullName: 'Pedro Lima', phone: '11933334444' },
+      { fullName: 'Terceira Pessoa', phone: '11955556666' },
     ],
   });
-  check('rejeita resposta duplicada para o mesmo participante', r.status === 409, r);
-  r = await api('/api/rsvp/submit', {
-    code: cpl.code,
-    responses: [
-      { guestId: cplInv.guests[0].id, status: 'attending' },
-      { guestId: cplInv.guests[1].id, status: 'declined' },
-    ],
-    companion: { fullName: 'Terceira Pessoa', status: 'attending' },
-  });
-  check('impede terceiro participante', r.status === 409, r);
-  r = await api('/api/rsvp/submit', {
-    code: cpl.code,
-    responses: [
-      { guestId: cplInv.guests[0].id, status: 'attending' },
-      { guestId: cplInv.guests[1].id, status: 'declined' },
+  check('impede acompanhantes além das vagas', r.status === 409, r);
+  r = await submit(grp.code, { status: 'attending', companions: [{ fullName: 'Juliana', phone: '11911112222' }] });
+  check('exige nome e sobrenome', r.status === 409 && /sobrenome/.test(r.data.error), r);
+  r = await submit(grp.code, { status: 'attending', companions: [{ fullName: 'Juliana Prado', phone: '123' }] });
+  check('exige telefone válido do acompanhante', r.status === 400, r);
+  r = await submit(grp.code, {
+    status: 'attending',
+    companions: [
+      { fullName: 'Juliana Prado', phone: '11911112222' },
+      { fullName: 'juliana prado', phone: '11933334444' },
     ],
   });
-  check('salva respostas individuais', r.status === 200 && r.data.invitation.guests[1].status === 'declined', r);
+  check('impede acompanhantes duplicados', r.status === 409, r);
+  r = await submit(grp.code, {
+    status: 'attending',
+    companions: [
+      { fullName: 'Juliana Prado', phone: '(11) 91111-2222' },
+      { fullName: 'Pedro Lima', phone: '+55 11 93333-4444' },
+    ],
+  });
+  rows = await guestsOf(grp.id);
+  check('salva 2 acompanhantes com nome e telefone', r.status === 200 && rows.length === 3 && rows[2].phone === '5511933334444', rows);
+  r = await submit(grp.code, { status: 'attending', companions: [{ fullName: 'Juliana Prado', phone: '11911112222' }] });
+  rows = await guestsOf(grp.id);
+  check('nova resposta substitui os acompanhantes (sem duplicar)', r.status === 200 && rows.length === 2, rows);
+  r = await submit(grp.code, { status: 'attending', noCompanions: true });
+  rows = await guestsOf(grp.id);
+  const [flag] = await sql`select companions_declined from wedding.invitations where id = ${grp.id}`;
+  check('"não vou levar acompanhante" registrado', r.status === 200 && rows.length === 1 && flag.companions_declined === true, r);
+  r = await api('/api/rsvp/verify', { code: grp.code });
+  check('reabre com a opção marcada e sem acompanhantes', r.data.invitation.companionsDeclined === true && r.data.invitation.companions.length === 0);
 
-  console.log('Isolamento entre convites');
-  r = await api('/api/rsvp/submit', { code: ind.code, responses: [{ guestId: cplInv.guests[0].id, status: 'declined' }] });
-  check('não permite responder por convidado de outro convite', r.status === 409, r);
-  r = await api('/api/rsvp/submit', { code: ind.code, responses: [{ guestId: randomUUID(), status: 'declined' }] });
-  check('rejeita participante inexistente', r.status === 409, r);
-
-  console.log('Casal com acompanhante a definir');
-  const open = await invite('couple', 'Pedro Lima', undefined, true);
-  r = await api('/api/rsvp/verify', { code: open.code });
-  const openInv = r.data.invitation;
-  check('permite informar acompanhante', openInv.canAddCompanion === true && openInv.guests.length === 1);
-  // Envios simultâneos tentando criar acompanhantes diferentes
+  console.log('Concorrência');
+  const conc = await invite('Carla Dias', 2);
   const results = await Promise.all(
-    ['Ana Souza', 'Bruna Costa', 'Carla Dias', 'Daniela Reis', 'Elisa Melo'].map((n) =>
-      api('/api/rsvp/submit', {
-        code: open.code,
-        responses: [{ guestId: openInv.guests[0].id, status: 'attending' }],
-        companion: { fullName: n, status: 'attending' },
+    ['Ana Souza', 'Bruna Costa', 'Elisa Melo', 'Fabi Reis', 'Gabi Nunes'].map((n, i) =>
+      submit(conc.code, {
+        status: 'attending',
+        companions: [
+          { fullName: n, phone: `1190000000${i}` },
+          { fullName: n + ' Filho', phone: `1191111111${i}` },
+        ],
       }),
     ),
   );
-  const [companions] = await sql`select count(*)::int as n from wedding.guests where invitation_id = ${open.id}`;
-  check('concorrência: apenas 1 acompanhante criado (máx. 2 pessoas)', companions.n === 2 && results.filter((x) => x.status === 200).length === 1, results.map((x) => x.status));
-  r = await api('/api/rsvp/verify', { code: open.code });
-  check('acompanhante não pode ser adicionado de novo', r.data.invitation.canAddCompanion === false);
+  rows = await guestsOf(conc.id);
+  check('envios simultâneos nunca ultrapassam as vagas', rows.length === 3 && results.every((x) => x.status === 200), [rows.length, results.map((x) => x.status)]);
 
-  console.log('Convite inativo');
-  const off = await invite('individual', 'Convidado Inativo', undefined, false, false);
+  console.log('Isolamento e convite inativo');
+  const off = await invite('Convidado Inativo', 1, false);
   r = await api('/api/rsvp/verify', { code: off.code });
   check('rejeita convite inativo', r.status === 403, r);
+  r = await submit(off.code, { status: 'attending', noCompanions: true });
+  check('rejeita envio para convite inativo', r.status === 403, r);
 
   console.log('Proteção contra força bruta');
   const attacker = ip();
@@ -156,7 +150,7 @@ try {
   check('bloqueio vale mesmo com código correto', r.status === 429);
 
   console.log('Honeypot e origem');
-  r = await api('/api/rsvp/submit', { code: ind.code, website: 'spam', responses: [] });
+  r = await submit(ind.code, { website: 'spam', status: 'attending' });
   check('honeypot rejeita robôs', r.status === 400);
   const cross = await fetch(BASE + '/api/rsvp/verify', {
     method: 'POST',

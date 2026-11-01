@@ -12,7 +12,7 @@ export default async function PanelLayout({ children }: { children: React.ReactN
     <div className="adm">
       <header className="adm-header">
         <div className="adm-wrap adm-header__inner">
-          <strong>Painel dos noivos</strong>
+          <strong>Painel das noivas</strong>
           <div className="adm-header__right">
             <span className="adm-muted">{admin.email}</span>
             <form action={logoutAction}>

@@ -1,5 +1,5 @@
+import Image from 'next/image';
 import { wedding } from '@/config/wedding';
-import { ResponsiveBackground } from './ResponsiveBackground';
 import { Emph, Eyebrow } from './Emph';
 
 export function DressCode() {
@@ -14,8 +14,14 @@ export function DressCode() {
           </h2>
           <p className="section-head__text">{dressCode.text}</p>
         </header>
-        <figure className="party-photo">
-          <ResponsiveBackground image={images.dressCode} sizes="(min-width: 1160px) 1100px, 100vw" />
+        <figure className="dress-figure">
+          <Image
+            src={images.dressCode.desktop}
+            alt={images.dressCode.alt}
+            width={1274}
+            height={944}
+            sizes="(min-width: 1100px) 1000px, 100vw"
+          />
         </figure>
       </div>
     </section>
