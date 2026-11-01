@@ -10,7 +10,11 @@ export function OurStory() {
         <h2 className="display story__title" id="historia-titulo">
           <Emph text={story.title} />
         </h2>
-        <p className="story__body">{story.text}</p>
+        <div className="story__body">
+          {story.paragraphs.map((p) => (
+            <p key={p}>{p}</p>
+          ))}
+        </div>
         <div className="story__sign">
           <span>{story.signoff}</span>
           <strong>

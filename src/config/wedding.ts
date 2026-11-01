@@ -103,7 +103,6 @@ export const wedding = {
   } satisfies Record<string, ResponsiveImage>,
 
   nav: [
-    { label: 'Nossa história', href: '#nossa-historia' },
     { label: 'O grande dia', href: '#celebracao' },
     { label: 'Playlist', href: '#trilha' },
     { label: 'Presentes', href: '#presentes' },
@@ -117,9 +116,12 @@ export const wedding = {
   },
 
   story: {
-    eyebrow: 'Duas vidas, um mesmo caminho',
-    title: 'O acaso nos apresentou. *O amor escolheu ficar.*',
-    text: 'Entre conversas que atravessaram a noite, planos divididos e pequenos momentos que viraram tudo, construímos um lugar só nosso. Agora, queremos celebrar esse próximo capítulo com as pessoas que fazem parte da nossa história.',
+    eyebrow: 'Um amor que sempre soube o caminho',
+    title: 'A vida nos separou em capítulos. *O amor nos reuniu na mesma história.*',
+    paragraphs: [
+      'A vida nos transformou, o tempo nos amadureceu e o amor nos trouxe de volta. Hoje, com a certeza de quem já se escolheu mais de uma vez, decidimos construir a nossa família e celebrar um amor que nunca deixou de existir.',
+      'E não poderíamos viver esse momento sem as pessoas que, de alguma forma, também fazem parte da nossa história.',
+    ],
     signoff: 'Com carinho,',
   },
 

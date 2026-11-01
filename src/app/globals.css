@@ -456,6 +456,7 @@ h1, h2, h3 { margin: 0; font-weight: 400; }
    ========================================================================= */
 .story { text-align: center; display: flex; flex-direction: column; align-items: center; }
 .story__title .emph { display: block; }
+.story__body p { margin-bottom: 1.2em; }
 .story__body { font-size: 1.08rem; line-height: 1.9; color: color-mix(in srgb, var(--text) 72%, transparent); max-width: 36em; margin-inline: auto; }
 .story__sign { margin-top: 2.6rem; display: grid; gap: .3rem; justify-items: center; }
 .story__sign::before { content: ''; width: 48px; height: 1px; background: var(--gold); margin-bottom: 1.2rem; }
@@ -536,3 +537,6 @@ h1, h2, h3 { margin: 0; font-weight: 400; }
 @media (hover: hover) { .btn-outline:hover { background: color-mix(in srgb, var(--marsala) 8%, transparent); } }
 .modal__check { width: 56px; height: 56px; margin: 0 auto 1.2rem; display: grid; place-items: center; border-radius: 50%; background: color-mix(in srgb, var(--gold) 22%, transparent); color: var(--marsala); }
 .modal__text p { margin-bottom: .8em; }
+@media (max-width: 480px) {
+  .kicker { font-size: .66rem; letter-spacing: .16em; gap: 9px; }
+}
