@@ -1,5 +1,6 @@
 import 'server-only';
 import postgres from 'postgres';
+import { inspectDatabaseUrl, normalizeDatabaseUrl } from './dbUrl';
 
 export type Check = { label: string; ok: boolean; detail?: string };
 
@@ -38,8 +39,15 @@ export async function runDiagnostics(): Promise<Check[]> {
     checks.push({ label: 'INVITE_CODE_ENCRYPTION_KEY com 32 bytes', ok: len === 32, detail: len === 32 ? undefined : 'Copie o valor exatamente como está no arquivo, sem espaços.' });
   }
 
-  const url = process.env.DATABASE_URL;
-  if (!url) return checks;
+  const raw = process.env.DATABASE_URL;
+  if (!raw) return checks;
+  const problems = inspectDatabaseUrl(raw);
+  checks.push({
+    label: 'Formato da DATABASE_URL',
+    ok: problems.length === 0,
+    detail: problems.length ? problems.join(' ') : undefined,
+  });
+  const url = normalizeDatabaseUrl(raw);
 
   let sql: ReturnType<typeof postgres> | null = null;
   try {

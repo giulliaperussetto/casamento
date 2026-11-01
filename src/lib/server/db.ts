@@ -1,5 +1,6 @@
 import 'server-only';
 import postgres from 'postgres';
+import { normalizeDatabaseUrl } from './dbUrl';
 
 declare global {
   // eslint-disable-next-line no-var
@@ -7,10 +8,12 @@ declare global {
 }
 
 function createClient() {
-  const url = process.env.DATABASE_URL;
-  if (!url) throw new Error('DATABASE_URL não configurada.');
+  const raw = process.env.DATABASE_URL;
+  if (!raw) throw new Error('DATABASE_URL não configurada.');
+  const url = normalizeDatabaseUrl(raw);
   return postgres(url, {
     max: Number(process.env.DATABASE_POOL_MAX ?? 5),
+    connect_timeout: 15,
     idle_timeout: 20,
     // Necessário para o pooler em modo transação do Supabase (porta 6543)
     prepare: false,
