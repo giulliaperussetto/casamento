@@ -23,9 +23,13 @@ export function RSVPSection() {
           <h2 className="display rsvp-title" id="rsvp-titulo">
             <Emph text={rsvpCopy.title} />
           </h2>
-          <p className="rsvp-lead">
-            Confirme até <strong>{rsvp.deadlineLabel}</strong>. Informe o código do convite exatamente como recebeu.
-          </p>
+          <div className="rsvp-lead">
+            <p>{rsvpCopy.intro}</p>
+            <p>
+              Confirme sua presença até <strong>{rsvp.deadlineLabel}</strong>, utilizando o código que recebeu no convite.
+            </p>
+            <p className="rsvp-lead__closing">{rsvpCopy.closing}</p>
+          </div>
           <RSVPForm
             successTitle={rsvpCopy.successTitle}
             giftListUrl={links.giftList}

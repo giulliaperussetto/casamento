@@ -361,7 +361,8 @@ export function RSVPForm({ successTitle, giftListUrl, popup, allowChanges }: Pro
             Seus acompanhantes
             <span>
               Seu convite permite levar até {inv.maxCompanions} acompanhante{inv.maxCompanions > 1 ? 's' : ''}. Informe nome completo e
-              telefone de cada um — vamos usar para validar a lista de convidados.
+              telefone de cada um — vamos usar para validar a lista de convidados. Crianças e bebês também contam como
+              acompanhantes.
             </span>
           </legend>
 

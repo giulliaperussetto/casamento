@@ -1,6 +1,17 @@
 import { wedding } from '@/config/wedding';
 import { Emph, Eyebrow } from './Emph';
 
+/** Converte **trecho** em negrito. */
+function Rich({ text }: { text: string }) {
+  return (
+    <>
+      {text.split(/(\*\*[^*]+\*\*)/g).map((part, i) =>
+        part.startsWith('**') && part.endsWith('**') ? <strong key={i}>{part.slice(2, -2)}</strong> : part,
+      )}
+    </>
+  );
+}
+
 /** Accordion nativo (<details>): começa recolhido e funciona sem JavaScript. */
 export function FAQAccordion() {
   const { faq } = wedding;
@@ -24,7 +35,11 @@ export function FAQAccordion() {
                 </svg>
               </summary>
               <div className="faq__a">
-                <p>{item.a}</p>
+                {(typeof item.a === 'string' ? [item.a] : item.a).map((p) => (
+                  <p key={p}>
+                    <Rich text={p} />
+                  </p>
+                ))}
               </div>
             </details>
           ))}

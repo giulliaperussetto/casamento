@@ -350,6 +350,10 @@ h1, h2, h3 { margin: 0; font-weight: 400; }
 .rsvp-title .emph { display: block; }
 .rsvp-lead { font-size: 1.02rem; color: color-mix(in srgb, var(--text) 75%, transparent); margin-bottom: 2.4rem; }
 .rsvp-lead strong { color: var(--marsala); }
+.rsvp-lead p { margin-bottom: .9em; }
+.rsvp-lead .rsvp-lead__closing { font-family: var(--font-serif), Georgia, serif; font-style: italic; font-size: 1.3rem; line-height: 1.4; color: var(--rose); }
+.faq__a strong { color: var(--marsala); }
+.faq__a p { margin-bottom: .8em; }
 @media (min-width: 900px) {
   .rsvp-section { grid-template-columns: 45% 55%; }
   .rsvp-section__photo { min-height: auto; margin: var(--frame) 0 var(--frame) var(--frame); }

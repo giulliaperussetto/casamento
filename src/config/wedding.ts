@@ -95,9 +95,9 @@ export const wedding = {
       positionMobile: 'center',
     },
     rsvp: {
-      desktop: '/images/rsvp-casal.webp',
-      alt: 'Fernanda e Giullia se beijando no barco, segurando cartazes de Save the Date 16.05.27',
-      positionDesktop: 'center 60%',
+      desktop: '/images/rsvp-brinde.webp',
+      alt: 'Duas mãos brindando com taças de vinho ao pôr do sol, com montanhas ao fundo',
+      positionDesktop: 'center 55%',
       positionMobile: 'center 62%',
     },
   } satisfies Record<string, ResponsiveImage>,
@@ -255,8 +255,10 @@ export const wedding = {
 
   rsvpCopy: {
     eyebrow: 'Queremos contar com você',
-    title: 'Você vem *celebrar com a gente?*',
-    quote: ['O melhor presente', 'é ter você por perto.'],
+    title: 'Guardamos um lugar *especial para você.*',
+    intro: 'Estamos preparando cada detalhe para viver um dia inesquecível ao lado das pessoas que fazem parte da nossa história. E você é uma delas!',
+    closing: 'A gente cuida da festa. Você só precisa confirmar e preparar os passos de dança!',
+    quote: ['O próximo brinde', 'é com você!'],
     successTitle: 'Recebemos sua resposta com carinho!',
   },
 
@@ -274,14 +276,23 @@ export const wedding = {
     eyebrow: 'Um detalhe ou outro',
     title: 'Ficou alguma *dúvida?*',
     text: 'Reunimos aqui as respostas para você aproveitar o dia sem preocupações.',
+    /**
+     * Respostas: texto simples ou lista de parágrafos.
+     * Use **asteriscos duplos** para destacar em negrito.
+     */
     items: [
       {
         q: 'Qual é o traje recomendado?',
         a: 'Esporte fino. Pedimos que evitem marsala e cinza claro (cores das madrinhas e padrinhos). Não será permitida a entrada com jeans, shorts, chinelo ou roupas brancas, bege, off-white ou de qualquer tom claro.',
       },
       {
-        q: 'Posso levar crianças?',
-        a: 'Cada convite tem um número de vagas de acompanhante. Ao inserir o seu código, você verá quantas pessoas pode levar e informará o nome e o telefone de cada uma.',
+        q: 'Posso levar acompanhantes?',
+        a: [
+          'Cada convite possui um número específico de vagas, que poderá ser consultado ao inserir o código recebido.',
+          '**Atenção:** crianças de qualquer idade, inclusive bebês, também são consideradas acompanhantes e precisam estar incluídas na confirmação de presença.',
+          'Por isso, pedimos que respeitem a quantidade de vagas disponibilizadas. Caso não haja um campo disponível para cadastrar o nome da criança ou de outro acompanhante, significa que não há uma vaga reservada para essa pessoa.',
+          'Estamos preparando tudo com muito carinho e contamos com a compreensão de vocês para receber todos da melhor forma possível!',
+        ],
       },
       {
         q: 'Há estacionamento no local?',
@@ -289,11 +300,25 @@ export const wedding = {
       },
       {
         q: 'Até quando posso confirmar presença?',
-        a: 'Pedimos que a confirmação seja feita até 16 de abril de 2027.',
+        a: 'Pedimos que a confirmação seja feita até 16 de abril de 2027, utilizando o código que você recebeu no convite.',
       },
       {
         q: 'Posso atualizar minha resposta depois?',
         a: 'Pode, sim. Basta inserir o mesmo código novamente e enviar a nova resposta até o prazo de confirmação.',
+      },
+      {
+        q: 'Os presentes da lista são reais ou apenas ilustrativos?',
+        a: [
+          '**São reais!** Cada item da lista foi escolhido com muito carinho, pensando na nossa casa e nessa nova fase das nossas vidas.',
+          'Ao escolher um presente, você está nos dando exatamente aquele item. Pode ficar tranquilo(a): ele chega de verdade até nós!',
+        ],
+      },
+      {
+        q: 'Não gosto de comprar presente online, prefiro entregar pessoalmente. E agora?',
+        a: [
+          'Sem problema nenhum! Criamos a lista online para facilitar a vida de todos, mas ela também está disponível na loja física.',
+          'Basta ir até a loja (em breve divulgaremos aqui o nome e o endereço), pedir a **lista de presentes de Fernanda e Giullia** e escolher um dos presentes que estiverem disponíveis. Depois, é só entregar como preferir.',
+        ],
       },
     ],
   },
