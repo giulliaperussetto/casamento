@@ -13,7 +13,16 @@ export async function loginAction(_prev: { error: string; email: string } | null
   const email = String(formData.get('email') ?? '').slice(0, 200);
   const password = String(formData.get('password') ?? '').slice(0, 200);
   if (!email || !password) return { error: 'Informe e-mail e senha.', email };
-  const result = await login(email, password);
+  let result: Awaited<ReturnType<typeof login>>;
+  try {
+    result = await login(email, password);
+  } catch (err) {
+    console.error('[admin] falha no login', err);
+    return {
+      error: 'Não foi possível conectar ao banco de dados. Abra /diagnostico para ver o que falta configurar.',
+      email,
+    };
+  }
   if (!result.ok) return { error: result.error, email };
   redirect('/admin');
 }
