@@ -14,10 +14,21 @@ const serif = Cormorant_Garamond({
 const sans = DM_Sans({ subsets: ['latin'], variable: '--font-sans', display: 'swap' });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'),
+  // Endereço público: NEXT_PUBLIC_SITE_URL (domínio próprio) ou o domínio de produção da Vercel.
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL ??
+      (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : 'http://localhost:3000'),
+  ),
   title: wedding.seo.title,
   description: wedding.seo.description,
-  openGraph: { title: wedding.seo.title, description: wedding.seo.description, images: [wedding.images.hero.desktop] },
+  openGraph: {
+    title: wedding.seo.title,
+    description: wedding.seo.description,
+    type: 'website',
+    locale: 'pt_BR',
+    images: [{ url: '/og.jpg', width: 1200, height: 630, alt: `${wedding.couple.first} & ${wedding.couple.second}` }],
+  },
+  twitter: { card: 'summary_large_image', images: ['/og.jpg'] },
   robots: { index: false, follow: false },
 };
 
