@@ -59,12 +59,12 @@ export const wedding = {
      * {nome} = primeiro nome do convidado · {link} = link personalizado do convite
      */
     whatsappMessage: [
-      'Oi, {nome}! 🤍',
+      'Oi, {nome}!',
       '',
-      'Nosso grande dia está chegando! No dia 16 de maio de 2027, vamos celebrar nosso amor e queremos muito você com a gente! 🥂',
+      'Nosso grande dia está chegando! No dia 16 de maio de 2027, vamos celebrar nosso amor e queremos muito você com a gente!',
       '',
       'Seu convite está aqui! Acesse e confirme sua presença:',
-      '🔗 {link}',
+      '{link}',
       '',
       'Com carinho,',
       'Fernanda & Giullia',
