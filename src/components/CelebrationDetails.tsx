@@ -31,8 +31,9 @@ export function CelebrationDetails() {
           </ol>
 
           <article className="venue">
-            <ResponsiveBackground image={images.venue} sizes="(min-width: 900px) 40vw, 100vw" />
-            <div className="venue__shade" aria-hidden="true" />
+            <div className="venue__photo">
+              <ResponsiveBackground image={images.venue} sizes="(min-width: 900px) 40vw, 100vw" />
+            </div>
             <div className="venue__body">
               <p className="venue__eyebrow">{celebration.venueEyebrow}</p>
               <h3 className="venue__name">{venue.name}</h3>
@@ -63,6 +64,7 @@ export function CelebrationDetails() {
           <div>
             <h3 id="aviso-titulo">{celebration.notice.title}</h3>
             <p>{celebration.notice.text}</p>
+            <p className="attire__highlight">{celebration.notice.highlight}</p>
           </div>
         </aside>
       </div>

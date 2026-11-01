@@ -44,6 +44,19 @@ export function DressCode() {
         </header>
 
         <div className="dress-layout">
+          <ul className="dress-rules" role="list">
+            {dressCode.rules.map((r) => (
+              <li key={r.title} className="dress-rule">
+                <svg width="26" height="26" viewBox="0 0 26 26" fill="none" stroke="currentColor" strokeWidth="1.3" aria-hidden="true">
+                  {ICONS[r.icon as keyof typeof ICONS]}
+                </svg>
+                <h3>{r.title}</h3>
+                <p>{r.text}</p>
+                {'swatches' in r && <Swatches colors={r.swatches} />}
+              </li>
+            ))}
+          </ul>
+
           <figure className="dress-figure">
             <Image
               src={images.dressCode.desktop}
@@ -60,19 +73,6 @@ export function DressCode() {
               <span>{dressCode.figureText}</span>
             </figcaption>
           </figure>
-
-          <ul className="dress-rules" role="list">
-            {dressCode.rules.map((r) => (
-              <li key={r.title} className="dress-rule">
-                <svg width="26" height="26" viewBox="0 0 26 26" fill="none" stroke="currentColor" strokeWidth="1.3" aria-hidden="true">
-                  {ICONS[r.icon as keyof typeof ICONS]}
-                </svg>
-                <h3>{r.title}</h3>
-                <p>{r.text}</p>
-                {'swatches' in r && <Swatches colors={r.swatches} />}
-              </li>
-            ))}
-          </ul>
 
           <div className="dress-rule dress-rule--ban">
             <svg width="26" height="26" viewBox="0 0 26 26" fill="none" stroke="currentColor" strokeWidth="1.3" aria-hidden="true">

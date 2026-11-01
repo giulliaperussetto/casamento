@@ -20,24 +20,40 @@ export function PlaylistTracks() {
         <div>
           <ol className="tracks" role="list">
             {playlist.tracks.map((t, i) => (
-              <li key={t.title}>
-                <a className="track" href={t.url || links.playlist} target="_blank" rel="noopener noreferrer">
-                  <span className="track__n">{String(i + 1).padStart(2, '0')}</span>
-                  <span className="track__icon" aria-hidden="true">
-                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.3">
-                      <path d="M7 14.5V4l7-1.5" />
-                      <circle cx="5" cy="14.5" r="2" />
-                    </svg>
-                  </span>
-                  <span className="track__info">
-                    <span className="track__title">{t.title}</span>
-                    <span className="track__artist">{t.artist}</span>
-                  </span>
-                  <span className="track__go">
-                    <Arrow dir="out" />
-                  </span>
-                  <span className="sr-only"> (abre em nova aba)</span>
-                </a>
+              <li key={i}>
+                {t.title ? (
+                  <a className="track" href={t.url || links.playlist} target="_blank" rel="noopener noreferrer">
+                    <span className="track__n">{String(i + 1).padStart(2, '0')}</span>
+                    <span className="track__icon" aria-hidden="true">
+                      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.3">
+                        <path d="M7 14.5V4l7-1.5" />
+                        <circle cx="5" cy="14.5" r="2" />
+                      </svg>
+                    </span>
+                    <span className="track__info">
+                      <span className="track__title">{t.title}</span>
+                      <span className="track__artist">{t.artist}</span>
+                    </span>
+                    <span className="track__go">
+                      <Arrow dir="out" />
+                    </span>
+                    <span className="sr-only"> (abre em nova aba)</span>
+                  </a>
+                ) : (
+                  <div className="track track--pending">
+                    <span className="track__n">{String(i + 1).padStart(2, '0')}</span>
+                    <span className="track__icon" aria-hidden="true">
+                      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.3">
+                        <path d="M7 14.5V4l7-1.5" />
+                        <circle cx="5" cy="14.5" r="2" />
+                      </svg>
+                    </span>
+                    <span className="track__info">
+                      <span className="track__title">Em seleção</span>
+                      <span className="track__artist">Em breve por aqui</span>
+                    </span>
+                  </div>
+                )}
               </li>
             ))}
           </ol>

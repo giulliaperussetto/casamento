@@ -161,6 +161,7 @@ export const wedding = {
     notice: {
       title: 'Celebre sem preocupações!',
       text: 'Queremos que vocês aproveitem cada brinde, cada música e cada momento dessa noite especial! Por isso, recomendamos que venham de Uber ou outro transporte por aplicativo. Teremos bebidas durante toda a festa e, na saída, haverá teste de bafômetro para reforçar a segurança de todos.',
+      highlight: 'O local terá estacionamento, porém ele é pago.',
     },
   },
 
@@ -204,24 +205,24 @@ export const wedding = {
   },
 
   playlist: {
-    eyebrow: 'Nossa trilha',
-    title: 'Canções que *contam um pouco da gente.*',
-    text: 'Algumas músicas já têm lugar cativo na nossa história. Dê o play, entre no clima e prepare o coração — e os passos.',
-    button: 'Abrir seleção no Spotify',
-    note: 'A última música? Essa a gente escolhe juntos na pista.',
-    /** `url` opcional: link da música (se vazio, usa o link da playlist). */
+    eyebrow: 'Prepare-se para dançar',
+    title: 'Tem música pra todo mundo. *Só não vale ficar parado!*',
+    text: 'Preparamos uma noite para todos os gostos, todas as gerações e todos os estilos. Porque o melhor da festa é ver quem a gente ama celebrando junto!',
+    button: 'Ouça um pouquinho do que vem por aí',
+    note: 'A última música? Essa a gente escolhe juntas na pista.',
+    /** Deixe `title` vazio para exibir "Em seleção". `url` opcional: link da música. */
     tracks: [
-      { title: 'Best Part', artist: 'Daniel Caesar feat. H.E.R.', url: '' },
-      { title: 'Turning Page', artist: 'Sleeping At Last', url: '' },
-      { title: 'You Are the Best Thing', artist: 'Ray LaMontagne', url: '' },
-      { title: 'Velha Infância', artist: 'Tribalistas', url: '' },
+      { title: '', artist: '', url: '' },
+      { title: '', artist: '', url: '' },
+      { title: '', artist: '', url: '' },
+      { title: '', artist: '', url: '' },
     ],
   },
 
   gifts: {
     eyebrow: 'Lista de presentes',
-    title: 'Quer nos *presentear?*',
-    text: 'Sua presença já é o nosso maior presente. Mas, se quiser fazer parte desse novo capítulo, separamos algumas ideias com muito carinho.',
+    title: 'O amor a gente já tem. *Agora falta o resto!*',
+    text: 'Sua presença já é o nosso maior presente! Mas preparamos uma lista com muito carinho para quem quiser fazer parte dessa nova fase. Cada contribuição será um pedacinho do nosso futuro juntas.',
     button: 'Ver lista completa',
     buyLabel: 'Presentear',
     /** Itens do carrossel. `image` pode ficar vazio para usar o espaço reservado. */
@@ -237,11 +238,19 @@ export const wedding = {
 
   mission: {
     question: 'Você já sabe qual é a sua missão?',
-    title: 'Sua missão é simples: viver esse momento com a gente.',
+    title: 'Sua missão é simples: *aproveitar cada segundo com a gente!*',
     paragraphs: [
-      'Queremos dividir esse dia com pessoas que fazem parte da nossa história. Sua presença tornará essa celebração ainda mais especial.',
-      'Por isso, pedimos que confirme sua participação e nos ajude a preparar tudo com muito carinho.',
+      'Dançar até cansar, comer bem, brindar muito, dar boas risadas e tirar fotos para guardar cada momento dessa noite!',
+      'Preparamos tudo com muito carinho para que vocês aproveitem cada pedacinho dessa celebração. Queremos ver sorrisos, abraços apertados, passos de dança e muitas memórias sendo criadas!',
     ],
+    request: {
+      title: 'Mas temos um pedido especial...',
+      paragraphs: [
+        'Durante a cerimônia, pedimos carinhosamente que guardem os celulares e deixem as fotos por conta dos nossos fotógrafos. Queremos que todos estejam presentes de corpo e coração, vivendo esse momento com a gente, sem telas ou distrações.',
+        'Depois do nosso sim, as câmeras estão liberadas! Registrem tudo, porque queremos ter muitas histórias para lembrar e fotos para compartilhar!',
+      ],
+    },
+    closing: 'A única coisa que não vale é deixar de aproveitar!',
   },
 
   rsvpCopy: {
@@ -276,7 +285,7 @@ export const wedding = {
       },
       {
         q: 'Há estacionamento no local?',
-        a: 'Sim. O Porto São Jorge conta com estacionamento para os convidados.',
+        a: 'Sim. O Porto São Jorge tem estacionamento no local, porém ele é pago. Como teremos bebidas e teste de bafômetro na saída, recomendamos ir de Uber ou outro aplicativo.',
       },
       {
         q: 'Até quando posso confirmar presença?',
