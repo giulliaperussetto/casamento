@@ -180,12 +180,18 @@ export const wedding = {
         text: 'Pedimos, com carinho, que os convidados não usem marsala nem cinza claro — elas são das nossas madrinhas e padrinhos.',
         swatches: ['#722F37', '#B9B9BB'],
       },
-      {
-        icon: 'ban',
-        title: 'Não será permitida a entrada com',
-        text: 'Jeans, shorts ou chinelo.',
-      },
     ],
+    /** Bloco de restrições, exibido abaixo dos dois anteriores. */
+    banned: {
+      title: 'Não será permitida a entrada com',
+      items: [
+        { text: 'Jeans, shorts ou chinelo.' },
+        {
+          text: 'Roupas brancas, bege, off-white ou de qualquer tom claro — essas cores são reservadas às noivas.',
+          swatches: ['#FFFFFF', '#E6D7BF', '#F4EFE4'],
+        },
+      ],
+    },
     figureTitle: 'Nossas madrinhas e *padrinhos*',
     figureText: 'Madrinhas de longo marsala; padrinhos de terno cinza claro, camisa branca e tênis branco.',
   },
@@ -262,7 +268,7 @@ export const wedding = {
     items: [
       {
         q: 'Qual é o traje recomendado?',
-        a: 'Esporte fino. Pedimos que evitem marsala e cinza claro (cores das madrinhas e padrinhos). Não será permitida a entrada com jeans, shorts ou chinelo.',
+        a: 'Esporte fino. Pedimos que evitem marsala e cinza claro (cores das madrinhas e padrinhos). Não será permitida a entrada com jeans, shorts, chinelo ou roupas brancas, bege, off-white ou de qualquer tom claro.',
       },
       {
         q: 'Posso levar crianças?',

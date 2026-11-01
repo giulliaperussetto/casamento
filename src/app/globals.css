@@ -490,25 +490,37 @@ h1, h2, h3 { margin: 0; font-weight: 400; }
 .tracks__note { display: flex; align-items: center; gap: 12px; margin-top: 1.6rem; font-family: var(--font-serif), Georgia, serif; font-style: italic; font-size: 1.15rem; color: color-mix(in srgb, var(--text) 65%, transparent); }
 .tracks__note svg { color: var(--rose); flex: none; }
 
-/* Dress code: orientações + ilustração inteira, sem cortes */
-#dress-code .section-head { margin-bottom: clamp(32px, 5vw, 48px); }
-.dress-rules { list-style: none; margin: 0 auto clamp(40px, 6vw, 64px); padding: 0; display: grid; gap: 14px; max-width: 1100px; }
-@media (min-width: 860px) { .dress-rules { grid-template-columns: repeat(3, 1fr); gap: 18px; } }
-.dress-rule { position: relative; padding: 26px 24px 24px; border-radius: var(--r-md); background: var(--sand); }
-.dress-rule svg { color: #9C7A3E; margin-bottom: 14px; }
-.dress-rule h3 { font-family: var(--font-serif), Georgia, serif; font-size: 1.45rem; line-height: 1.2; color: #2E141B; margin-bottom: .4rem; }
+/* Dress code: foto compacta + orientações */
+#dress-code .section-head { margin-bottom: clamp(28px, 5vw, 48px); }
+.dress-layout { display: grid; gap: 14px; max-width: 1100px; margin: 0 auto; }
+.dress-rules { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
+.dress-rule { position: relative; padding: 22px 22px 20px; border-radius: var(--r-md); background: var(--sand); }
+.dress-rule svg { color: #9C7A3E; margin-bottom: 10px; }
+.dress-rule h3 { font-family: var(--font-serif), Georgia, serif; font-size: 1.4rem; line-height: 1.2; color: #2E141B; margin-bottom: .35rem; }
 .dress-rule p { font-size: .95rem; color: color-mix(in srgb, var(--text) 74%, transparent); }
 .dress-rule--ban { background: color-mix(in srgb, var(--marsala) 9%, var(--warm)); }
 .dress-rule--ban svg { color: var(--marsala); }
-.dress-rule--ban p { font-weight: 600; color: var(--marsala); font-size: 1.02rem; }
-.dress-rule__swatches { display: flex; gap: 8px; margin-top: 14px; }
-.dress-rule__swatches span { position: relative; width: 30px; height: 30px; border-radius: 50%; box-shadow: inset 0 0 0 1px rgba(0,0,0,.08); }
-.dress-rule__swatches span::after { content: ''; position: absolute; left: -3px; right: -3px; top: 50%; height: 1.5px; background: var(--warm); transform: rotate(-45deg); }
-.dress-figure { margin: 0 auto; max-width: 1100px; background: var(--white); border-radius: var(--r-lg); padding: clamp(20px, 4vw, 48px) clamp(8px, 3vw, 40px) clamp(12px, 3vw, 32px); box-shadow: 0 1px 0 rgba(0,0,0,.03); }
-.dress-figure figcaption { text-align: center; margin-bottom: clamp(8px, 2vw, 20px); padding-inline: 12px; }
-.dress-figure__title { font-family: var(--font-serif), Georgia, serif; font-size: clamp(1.7rem, 5vw, 2.3rem); color: #2E141B; margin-bottom: .3rem; }
-.dress-figure figcaption p { font-size: .95rem; color: color-mix(in srgb, var(--text) 70%, transparent); max-width: 34em; margin: 0 auto; }
-.dress-figure img { width: 100%; height: auto; }
+.dress-ban { list-style: none; margin: .4rem 0 0; padding: 0; display: grid; gap: .8rem; }
+.dress-ban li { display: flex; align-items: flex-start; gap: 14px; }
+.dress-ban p { font-weight: 600; color: var(--marsala); font-size: 1rem; }
+.dress-ban li::before { content: ''; width: 6px; height: 6px; margin-top: .6em; border-radius: 50%; background: var(--marsala); flex: none; }
+.dress-rule__swatches { display: flex; gap: 8px; margin-top: 12px; }
+.dress-ban .dress-rule__swatches { margin-top: 10px; }
+.dress-rule__swatches span { position: relative; width: 28px; height: 28px; border-radius: 50%; box-shadow: inset 0 0 0 1px rgba(0,0,0,.14); }
+.dress-rule__swatches span::after { content: ''; position: absolute; left: -3px; right: -3px; top: 50%; height: 1.5px; background: #fff; box-shadow: 0 0 0 .6px var(--marsala); transform: rotate(-45deg); }
+.dress-figure { margin: 0; background: var(--white); border-radius: var(--r-md); padding: 14px 14px 16px; display: grid; gap: 10px; }
+.dress-figure img { width: 100%; height: auto; max-height: 230px; object-fit: contain; }
+.dress-figure figcaption { text-align: center; display: grid; gap: 2px; }
+.dress-figure figcaption strong { font-family: var(--font-serif), Georgia, serif; font-weight: 500; font-size: 1.25rem; color: #2E141B; }
+.dress-figure figcaption span { font-size: .84rem; line-height: 1.5; color: color-mix(in srgb, var(--text) 68%, transparent); }
+@media (min-width: 900px) {
+  .dress-layout { grid-template-columns: 440px 1fr; gap: 18px; }
+  .dress-rules { gap: 18px; }
+  .dress-figure { grid-row: span 1; align-content: center; padding: 22px; }
+  .dress-figure img { max-height: 300px; }
+  .dress-rule--ban { grid-column: 1 / -1; display: grid; grid-template-columns: auto 1fr; column-gap: 18px; align-items: start; }
+  .dress-rule--ban svg { grid-row: span 2; margin: 2px 0 0; }
+}
 
 /* Rodapé com monograma */
 .footer__mono { width: 64px; height: auto; margin: 0 auto 1.4rem; opacity: .95; }

@@ -20,6 +20,16 @@ const ICONS = {
   ),
 } as const;
 
+function Swatches({ colors }: { colors: readonly string[] }) {
+  return (
+    <span className="dress-rule__swatches" aria-hidden="true">
+      {colors.map((c) => (
+        <span key={c} style={{ background: c }} />
+      ))}
+    </span>
+  );
+}
+
 export function DressCode() {
   const { dressCode, images } = wedding;
   return (
@@ -33,41 +43,54 @@ export function DressCode() {
           <p className="section-head__text">{dressCode.text}</p>
         </header>
 
-        <ul className="dress-rules" role="list">
-          {dressCode.rules.map((r) => (
-            <li key={r.title} className={`dress-rule dress-rule--${r.icon}`}>
-              <svg width="26" height="26" viewBox="0 0 26 26" fill="none" stroke="currentColor" strokeWidth="1.3" aria-hidden="true">
-                {ICONS[r.icon as keyof typeof ICONS]}
-              </svg>
-              <h3>{r.title}</h3>
-              <p>{r.text}</p>
-              {'swatches' in r && (
-                <span className="dress-rule__swatches" aria-hidden="true">
-                  {r.swatches.map((c) => (
-                    <span key={c} style={{ background: c }} />
-                  ))}
-                </span>
-              )}
-            </li>
-          ))}
-        </ul>
+        <div className="dress-layout">
+          <figure className="dress-figure">
+            <Image
+              src={images.dressCode.desktop}
+              alt={images.dressCode.alt}
+              width={2548}
+              height={1888}
+              quality={90}
+              sizes="(min-width: 900px) 460px, 92vw"
+            />
+            <figcaption>
+              <strong>
+                <Emph text={dressCode.figureTitle} />
+              </strong>
+              <span>{dressCode.figureText}</span>
+            </figcaption>
+          </figure>
 
-        <figure className="dress-figure">
-          <figcaption>
-            <h3 className="dress-figure__title">
-              <Emph text={dressCode.figureTitle} />
-            </h3>
-            <p>{dressCode.figureText}</p>
-          </figcaption>
-          <Image
-            src={images.dressCode.desktop}
-            alt={images.dressCode.alt}
-            width={2548}
-            height={1888}
-            quality={90}
-            sizes="(min-width: 1180px) 1100px, 100vw"
-          />
-        </figure>
+          <ul className="dress-rules" role="list">
+            {dressCode.rules.map((r) => (
+              <li key={r.title} className="dress-rule">
+                <svg width="26" height="26" viewBox="0 0 26 26" fill="none" stroke="currentColor" strokeWidth="1.3" aria-hidden="true">
+                  {ICONS[r.icon as keyof typeof ICONS]}
+                </svg>
+                <h3>{r.title}</h3>
+                <p>{r.text}</p>
+                {'swatches' in r && <Swatches colors={r.swatches} />}
+              </li>
+            ))}
+          </ul>
+
+          <div className="dress-rule dress-rule--ban">
+            <svg width="26" height="26" viewBox="0 0 26 26" fill="none" stroke="currentColor" strokeWidth="1.3" aria-hidden="true">
+              {ICONS.ban}
+            </svg>
+            <h3>{dressCode.banned.title}</h3>
+            <ul className="dress-ban" role="list">
+              {dressCode.banned.items.map((item) => (
+                <li key={item.text}>
+                  <div>
+                    <p>{item.text}</p>
+                    {'swatches' in item && <Swatches colors={item.swatches} />}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
       </div>
     </section>
   );
