@@ -295,6 +295,13 @@ export const wedding = {
         ],
       },
       {
+        q: 'Esquecemos alguém?',
+        a: [
+          'Pode acontecer! Na correria dos preparativos, alguém muito especial pode ter ficado de fora sem querer.',
+          'Se você acha que esquecemos alguém, **mande uma mensagem pra gente**. Vamos olhar com todo o carinho para incluir essa pessoa na lista de convidados ou avaliar se será possível recebê-la.',
+        ],
+      },
+      {
         q: 'Há estacionamento no local?',
         a: 'Sim. O Porto São Jorge tem estacionamento no local, porém ele é pago. Como teremos bebidas e teste de bafômetro na saída, recomendamos ir de Uber ou outro aplicativo.',
       },
