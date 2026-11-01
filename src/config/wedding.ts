@@ -58,8 +58,17 @@ export const wedding = {
      * Mensagem sugerida no botão "Enviar no WhatsApp" do painel.
      * {nome} = primeiro nome do convidado · {link} = link personalizado do convite
      */
-    whatsappMessage:
-      'Olá, {nome}! Com muito carinho, queremos você no nosso casamento, no dia 16 de maio de 2027. Seu convite já está aqui, é só confirmar sua presença: {link}',
+    whatsappMessage: [
+      'Oi, {nome}! 🤍',
+      '',
+      'Nosso grande dia está chegando! No dia 16 de maio de 2027, vamos celebrar nosso amor e queremos muito você com a gente! 🥂',
+      '',
+      'Seu convite está aqui! Acesse e confirme sua presença:',
+      '🔗 {link}',
+      '',
+      'Com carinho,',
+      'Fernanda & Giullia',
+    ].join('\n'),
   },
 
   theme: {
