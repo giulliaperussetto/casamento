@@ -488,8 +488,24 @@ h1, h2, h3 { margin: 0; font-weight: 400; }
 .tracks__note { display: flex; align-items: center; gap: 12px; margin-top: 1.6rem; font-family: var(--font-serif), Georgia, serif; font-style: italic; font-size: 1.15rem; color: color-mix(in srgb, var(--text) 65%, transparent); }
 .tracks__note svg { color: var(--rose); flex: none; }
 
-/* Dress code: ilustração inteira, sem cortes */
-.dress-figure { margin: 0 auto; max-width: 1000px; background: var(--white); border-radius: var(--r-lg); padding: clamp(12px, 3vw, 36px); }
+/* Dress code: orientações + ilustração inteira, sem cortes */
+#dress-code .section-head { margin-bottom: clamp(32px, 5vw, 48px); }
+.dress-rules { list-style: none; margin: 0 auto clamp(40px, 6vw, 64px); padding: 0; display: grid; gap: 14px; max-width: 1100px; }
+@media (min-width: 860px) { .dress-rules { grid-template-columns: repeat(3, 1fr); gap: 18px; } }
+.dress-rule { position: relative; padding: 26px 24px 24px; border-radius: var(--r-md); background: var(--sand); }
+.dress-rule svg { color: #9C7A3E; margin-bottom: 14px; }
+.dress-rule h3 { font-family: var(--font-serif), Georgia, serif; font-size: 1.45rem; line-height: 1.2; color: #2E141B; margin-bottom: .4rem; }
+.dress-rule p { font-size: .95rem; color: color-mix(in srgb, var(--text) 74%, transparent); }
+.dress-rule--ban { background: color-mix(in srgb, var(--marsala) 9%, var(--warm)); }
+.dress-rule--ban svg { color: var(--marsala); }
+.dress-rule--ban p { font-weight: 600; color: var(--marsala); font-size: 1.02rem; }
+.dress-rule__swatches { display: flex; gap: 8px; margin-top: 14px; }
+.dress-rule__swatches span { position: relative; width: 30px; height: 30px; border-radius: 50%; box-shadow: inset 0 0 0 1px rgba(0,0,0,.08); }
+.dress-rule__swatches span::after { content: ''; position: absolute; left: -3px; right: -3px; top: 50%; height: 1.5px; background: var(--warm); transform: rotate(-45deg); }
+.dress-figure { margin: 0 auto; max-width: 1100px; background: var(--white); border-radius: var(--r-lg); padding: clamp(20px, 4vw, 48px) clamp(8px, 3vw, 40px) clamp(12px, 3vw, 32px); box-shadow: 0 1px 0 rgba(0,0,0,.03); }
+.dress-figure figcaption { text-align: center; margin-bottom: clamp(8px, 2vw, 20px); padding-inline: 12px; }
+.dress-figure__title { font-family: var(--font-serif), Georgia, serif; font-size: clamp(1.7rem, 5vw, 2.3rem); color: #2E141B; margin-bottom: .3rem; }
+.dress-figure figcaption p { font-size: .95rem; color: color-mix(in srgb, var(--text) 70%, transparent); max-width: 34em; margin: 0 auto; }
 .dress-figure img { width: 100%; height: auto; }
 
 /* Rodapé com monograma */

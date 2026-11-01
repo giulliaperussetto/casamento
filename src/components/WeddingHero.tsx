@@ -7,7 +7,8 @@ export function WeddingHero() {
   const { couple, date, hero, images, nav, venue } = wedding;
   return (
     <header className="hero" id="inicio">
-      <ResponsiveBackground image={images.hero} priority />
+      {/* Foto horizontal cobrindo a tela em pé do celular: largura ≈ 1,5 × altura da tela */}
+      <ResponsiveBackground image={images.hero} priority sizesMobile="150vh" />
       <div className="hero__shade" aria-hidden="true" />
 
       <nav className="topnav" aria-label="Navegação principal">

@@ -7,6 +7,8 @@ type Props = {
   /** true apenas para a primeira dobra (hero). Demais imagens usam lazy loading. */
   priority?: boolean;
   sizes?: string;
+  /** `sizes` da versão de celular (ex.: foto horizontal cobrindo uma tela em pé). */
+  sizesMobile?: string;
   className?: string;
   decorative?: boolean;
 };
@@ -16,12 +18,12 @@ type Props = {
  * Usa <picture> para servir uma versão diferente em celular e desktop,
  * com otimização automática (AVIF/WebP) e enquadramento configurável.
  */
-export function ResponsiveBackground({ image, priority = false, sizes = '100vw', className, decorative }: Props) {
-  const common = { alt: decorative ? '' : image.alt, fill: true, sizes, quality: 78, priority } as const;
+export function ResponsiveBackground({ image, priority = false, sizes = '100vw', sizesMobile, className, decorative }: Props) {
+  const common = { alt: decorative ? '' : image.alt, fill: true, sizes, quality: 90, priority } as const;
   const {
     props: { srcSet: desktopSrcSet },
   } = getImageProps({ ...common, src: image.desktop });
-  const { props: mobile } = getImageProps({ ...common, src: image.mobile ?? image.desktop });
+  const { props: mobile } = getImageProps({ ...common, sizes: sizesMobile ?? sizes, src: image.mobile ?? image.desktop });
 
   const style = {
     ...mobile.style,

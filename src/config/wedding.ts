@@ -137,14 +137,34 @@ export const wedding = {
     ],
     attire: {
       title: 'Um toque de elegância',
-      text: 'Traje social. Venha confortável para celebrar — e dançar.',
+      text: 'Traje esporte fino. Veja as orientações no dress code logo abaixo.',
     },
   },
 
   dressCode: {
     eyebrow: 'Dress code',
-    title: 'Nossas madrinhas e *padrinhos*',
-    text: 'Madrinhas de longo marsala; padrinhos de terno cinza claro, camisa branca e tênis branco. Para os convidados, traje social — elegante e confortável.',
+    title: 'Esporte *fino*',
+    text: 'Queremos todo mundo elegante e confortável para celebrar com a gente. Separamos algumas orientações para ajudar na escolha do look.',
+    rules: [
+      {
+        icon: 'dress',
+        title: 'Traje esporte fino',
+        text: 'Vestidos, saias e conjuntos elegantes; calça social ou de alfaiataria com camisa — blazer é bem-vindo.',
+      },
+      {
+        icon: 'palette',
+        title: 'Evite estas cores',
+        text: 'Pedimos, com carinho, que os convidados não usem marsala nem cinza claro — elas são das nossas madrinhas e padrinhos.',
+        swatches: ['#722F37', '#B9B9BB'],
+      },
+      {
+        icon: 'ban',
+        title: 'Não será permitida a entrada com',
+        text: 'Jeans, shorts ou chinelo.',
+      },
+    ],
+    figureTitle: 'Nossas madrinhas e *padrinhos*',
+    figureText: 'Madrinhas de longo marsala; padrinhos de terno cinza claro, camisa branca e tênis branco.',
   },
 
   party: {
@@ -219,7 +239,7 @@ export const wedding = {
     items: [
       {
         q: 'Qual é o traje recomendado?',
-        a: 'Traje social. Escolha algo elegante e confortável — a festa acontece em um jardim e a pista vai ficar animada.',
+        a: 'Esporte fino. Pedimos que evitem marsala e cinza claro (cores das madrinhas e padrinhos). Não será permitida a entrada com jeans, shorts ou chinelo.',
       },
       {
         q: 'Posso levar crianças?',
