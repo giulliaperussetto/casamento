@@ -30,6 +30,8 @@ export const metadata: Metadata = {
   },
   twitter: { card: 'summary_large_image', images: ['/og.jpg'] },
   robots: { index: false, follow: false },
+  // Verificação do Google Search Console (Prefixo do URL → Tag HTML)
+  verification: { google: 'UbJWccE-zKy4f1teYxaUzNLxv73ZdINJ1n2t1RR--JA' },
 };
 
 export const viewport: Viewport = {
