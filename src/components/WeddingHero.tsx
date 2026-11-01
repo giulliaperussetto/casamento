@@ -39,7 +39,7 @@ export function WeddingHero() {
         <p className="hero__date">
           <time dateTime={date.iso.slice(0, 10)}>{date.label}</time>
         </p>
-        <a className="btn-line btn-line--light" href="#celebracao">
+        <a className="btn-line btn-line--light" href="#nossa-historia">
           {hero.button} <Arrow dir="down" />
         </a>
       </div>

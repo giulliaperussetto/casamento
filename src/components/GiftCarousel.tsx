@@ -6,7 +6,7 @@ import { useRef } from 'react';
 type Item = { name: string; price?: string; image?: string };
 
 /** Carrossel simples (rolagem horizontal apenas dentro do componente, com setas). */
-export function GiftCarousel({ items, href }: { items: readonly Item[]; href: string }) {
+export function GiftCarousel({ items, href, buyLabel }: { items: readonly Item[]; href: string; buyLabel: string }) {
   const track = useRef<HTMLUListElement>(null);
 
   function move(dir: 1 | -1) {
@@ -22,18 +22,23 @@ export function GiftCarousel({ items, href }: { items: readonly Item[]; href: st
       <ul className="gifts__track" ref={track} role="list" aria-label="Sugestões de presentes" tabIndex={0}>
         {items.map((item) => (
           <li className="gift" key={item.name}>
-            <a href={href} target="_blank" rel="noopener noreferrer" className="gift__link">
-              <span className="gift__img">
+            <article className="gift__card">
+              <div className="gift__img">
                 {item.image ? (
                   <Image src={item.image} alt="" fill sizes="(min-width: 900px) 280px, 70vw" />
                 ) : (
                   <span className="gift__ph" aria-hidden="true">✦</span>
                 )}
-              </span>
-              <span className="gift__name">{item.name}</span>
-              {item.price && <span className="gift__price">{item.price}</span>}
-              <span className="sr-only"> (abre a lista de presentes em nova aba)</span>
-            </a>
+                <div className="gift__overlay">
+                  {item.price && <span className="gift__price">{item.price}</span>}
+                  <a href={href} target="_blank" rel="noopener noreferrer" className="gift__buy">
+                    {buyLabel}
+                    <span className="sr-only">: {item.name} (abre a lista de presentes em nova aba)</span>
+                  </a>
+                </div>
+              </div>
+              <h3 className="gift__name">{item.name}</h3>
+            </article>
           </li>
         ))}
       </ul>

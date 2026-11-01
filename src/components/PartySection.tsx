@@ -2,9 +2,9 @@ import { wedding } from '@/config/wedding';
 import { ResponsiveBackground } from './ResponsiveBackground';
 import { Arrow, Emph } from './Emph';
 
-/** Clima da festa + convite para a playlist (unificados). */
+/** Clima da festa; o botão leva à lista de músicas logo abaixo. */
 export function PartySection() {
-  const { party, images, links } = wedding;
+  const { party, images } = wedding;
   return (
     <section className="party" id="festa" aria-labelledby="festa-titulo">
       <ResponsiveBackground image={images.party} decorative />
@@ -15,14 +15,10 @@ export function PartySection() {
           <Emph text={party.title} className="emph emph--gold" />
         </h2>
         <p className="party__text">{party.text}</p>
-        <a className="btn-line btn-line--light" href={links.playlist} target="_blank" rel="noopener noreferrer">
-          {party.button} <Arrow dir="out" />
-          <span className="sr-only"> (abre em nova aba)</span>
+        <a className="btn-line btn-line--light" href="#trilha">
+          {party.button} <Arrow dir="down" />
         </a>
       </div>
-      <svg className="party__curve" viewBox="0 0 1440 120" preserveAspectRatio="none" aria-hidden="true">
-        <path d="M0 120V40C240 10 480 0 720 0s480 10 720 40v80Z" />
-      </svg>
     </section>
   );
 }

@@ -37,7 +37,7 @@ Tudo fica em **`src/config/wedding.ts`**: nomes, data, horário, local, link do 
 
 ## Ordem das seções
 
-Hero (com menu) → O grande dia (programação, local e traje) → Dress code (foto dos padrinhos e madrinhas) → A festa + playlist → Presentes (carrossel) → Sua missão → Confirmação de presença → Dúvidas → Rodapé. Componentes em `src/components/`.
+Hero (com menu) → Nossa história → O grande dia (programação, local e traje) → Dress code (foto dos padrinhos e madrinhas) → A festa → Nossa trilha (lista de músicas) → Sua missão → Presentes (carrossel) → Confirmação de presença → Dúvidas → Rodapé. Componentes em `src/components/`.
 
 Nos títulos do arquivo de configuração, o trecho entre `*asteriscos*` aparece em itálico de destaque (ex.: `'Um dia. *Uma vida inteira.*'`).
 

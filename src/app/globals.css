@@ -3,9 +3,10 @@
    ========================================================================= */
 *, *::before, *::after { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+:root { --r-sm: 12px; --r-md: 20px; --r-lg: 30px; --frame: clamp(8px, 1.4vw, 18px); }
 body {
   margin: 0;
-  background: var(--sand);
+  background: var(--warm);
   color: var(--text);
   font-family: var(--font-sans), system-ui, sans-serif;
   font-size: 1rem;
@@ -74,8 +75,8 @@ h1, h2, h3 { margin: 0; font-weight: 400; }
 /* ---------- Botões ---------- */
 .btn-line {
   display: inline-flex; align-items: center; justify-content: center; gap: 14px;
-  min-height: 54px; padding: 0.9rem 1.6rem;
-  border: 1px solid currentColor;
+  min-height: 54px; padding: 0.9rem 1.8rem;
+  border: 1px solid currentColor; border-radius: 999px;
   font: 500 0.78rem/1.2 var(--font-sans), system-ui, sans-serif;
   letter-spacing: 0.18em; text-transform: uppercase; text-decoration: none;
   -webkit-tap-highlight-color: transparent;
@@ -85,14 +86,14 @@ h1, h2, h3 { margin: 0; font-weight: 400; }
 .btn-solid {
   display: inline-flex; align-items: center; justify-content: center; gap: 14px;
   min-height: 58px; padding: 1rem 2rem;
-  border: 0; background: var(--marsala); color: var(--white);
+  border: 0; border-radius: 999px; background: var(--marsala); color: var(--white);
   font: 500 0.8rem/1.2 var(--font-sans), system-ui, sans-serif;
   letter-spacing: 0.18em; text-transform: uppercase; text-decoration: none; cursor: pointer;
   -webkit-tap-highlight-color: transparent;
   transition: background-color .2s ease;
 }
 .btn-solid--block { width: 100%; }
-.btn-solid--gold { background: var(--gold); color: #1b0d10; margin-top: 2.6rem; }
+.btn-solid--center { margin-top: 2.6rem; }
 .btn-solid:disabled { opacity: .55; cursor: not-allowed; }
 .link-btn {
   display: inline-flex; align-items: center; gap: 12px;
@@ -111,7 +112,6 @@ h1, h2, h3 { margin: 0; font-weight: 400; }
 @media (hover: hover) {
   .btn-line--light:hover { background: rgba(255, 255, 255, 0.12); }
   .btn-solid:hover { background: var(--marsala-deep); }
-  .btn-solid--gold:hover { background: var(--gold-soft); }
   .link-btn:hover { color: var(--marsala-deep); }
   .link-under:hover { color: var(--gold-soft); }
 }
@@ -126,7 +126,8 @@ h1, h2, h3 { margin: 0; font-weight: 400; }
    ========================================================================= */
 .hero {
   position: relative; isolation: isolate;
-  min-height: 100vh; min-height: 100svh;
+  min-height: calc(100vh - 2 * var(--frame)); min-height: calc(100svh - 2 * var(--frame));
+  margin: var(--frame); border-radius: var(--r-lg); overflow: hidden;
   display: grid; grid-template-rows: auto 1fr auto;
   color: var(--white); background: #3b2a22;
 }
@@ -241,6 +242,7 @@ h1, h2, h3 { margin: 0; font-weight: 400; }
   position: relative; isolation: isolate; overflow: hidden;
   aspect-ratio: 4 / 5; width: 100%;
   display: flex; align-items: flex-end; color: var(--white); background: var(--marsala-deep);
+  border-radius: var(--r-lg);
 }
 .venue .media { z-index: -2; }
 .venue__shade { position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, rgba(74, 25, 34, .15) 20%, rgba(74, 25, 34, .88) 100%); }
@@ -261,7 +263,7 @@ h1, h2, h3 { margin: 0; font-weight: 400; }
 /* =========================================================================
    Dress code (foto dos padrinhos e madrinhas)
    ========================================================================= */
-.party-photo { position: relative; margin: 0; aspect-ratio: 4 / 5; background: var(--sand); overflow: hidden; }
+.party-photo { position: relative; margin: 0; aspect-ratio: 4 / 5; background: var(--sand); overflow: hidden; border-radius: var(--r-lg); }
 @media (min-width: 768px) { .party-photo { aspect-ratio: 21 / 9; } }
 #dress-code .section-head { margin-bottom: clamp(36px, 5vw, 56px); }
 
@@ -271,14 +273,17 @@ h1, h2, h3 { margin: 0; font-weight: 400; }
 .party {
   position: relative; isolation: isolate;
   min-height: 88svh; display: grid; place-items: center;
-  padding: 110px 0 150px; color: var(--white); background: #1b0d10;
+  padding: 110px 0; color: var(--white); background: #1b0d10;
+  border-radius: var(--r-lg); overflow: hidden;
 }
+.frame { padding-inline: var(--frame); }
+.frame--party { background: linear-gradient(var(--warm) 50%, var(--sand) 50%); }
+.frame--footer { background: var(--sand); padding-bottom: var(--frame); }
 .party .media { z-index: -2; }
 .party__shade { position: absolute; inset: 0; z-index: -1; background: radial-gradient(ellipse at center, rgba(27, 13, 16, .55), rgba(27, 13, 16, .78) 80%); }
 .party__content { text-align: center; display: flex; flex-direction: column; align-items: center; }
 .party .display { font-size: clamp(2.8rem, 11vw, 5.4rem); }
 .party__text { font-size: 1.08rem; max-width: 32em; margin-bottom: 2.4rem; color: rgba(255, 255, 255, .9); }
-.party__curve { position: absolute; left: 0; right: 0; bottom: -1px; width: 100%; height: clamp(50px, 8vw, 120px); fill: var(--marsala-deep); }
 
 /* =========================================================================
    Presentes (carrossel)
@@ -297,18 +302,29 @@ h1, h2, h3 { margin: 0; font-weight: 400; }
 .gift { flex: 0 0 72%; scroll-snap-align: start; }
 @media (min-width: 640px) { .gift { flex-basis: 42%; } }
 @media (min-width: 1000px) { .gift { flex-basis: calc((100% - 60px) / 4); } .gifts__track { margin: 0; padding-inline: 0; } }
-.gift__link { position: relative; display: block; text-decoration: none; color: var(--warm); }
-.gift__img { position: relative; display: block; aspect-ratio: 4 / 5; background: rgba(255, 255, 255, .06); overflow: hidden; margin-bottom: 1rem; }
+.gift__card { position: relative; }
+.gift__img { position: relative; display: block; aspect-ratio: 4 / 5; background: #ebe2d8; overflow: hidden; margin-bottom: 1rem; border-radius: var(--r-md); }
+.gift__overlay {
+  position: absolute; left: 10px; right: 10px; bottom: 10px;
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 8px 8px 8px 16px; border-radius: 999px;
+  background: rgba(255, 253, 250, .92); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+}
+.gift__buy {
+  display: inline-flex; align-items: center; min-height: 40px; padding: .5rem 1.1rem; border-radius: 999px;
+  background: var(--marsala); color: var(--white); text-decoration: none;
+  font-size: .7rem; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; white-space: nowrap;
+}
 .gift__img img { object-fit: cover; }
 .gift__ph { position: absolute; inset: 0; display: grid; place-items: center; color: var(--gold); font-size: 1.6rem; }
-.gift__name { display: block; font-family: var(--font-serif), Georgia, serif; font-size: 1.35rem; line-height: 1.2; }
-.gift__price { display: block; margin-top: .3rem; font-size: .82rem; letter-spacing: .14em; color: var(--gold-soft); }
+.gift__name { font-family: var(--font-serif), Georgia, serif; font-size: 1.35rem; line-height: 1.2; color: #2E141B; padding-inline: 4px; }
+.gift__price { font-size: .9rem; font-weight: 600; color: var(--marsala); white-space: nowrap; }
 .gifts__nav { display: flex; gap: 10px; justify-content: flex-end; margin-top: 18px; }
 .gifts__arrow {
   width: 52px; height: 52px; display: grid; place-items: center; cursor: pointer;
-  border: 1px solid rgba(216, 191, 145, .55); border-radius: 50%; background: none; color: var(--warm);
+  border: 1px solid color-mix(in srgb, var(--marsala) 35%, transparent); border-radius: 50%; background: var(--warm); color: var(--marsala);
 }
-@media (hover: hover) { .gifts__arrow:hover { background: rgba(216, 191, 145, .15); } .gift__link:hover .gift__name { color: var(--gold-soft); } }
+@media (hover: hover) { .gifts__arrow:hover { background: var(--marsala); color: var(--white); } .gift__buy:hover { background: var(--marsala-deep); } }
 
 /* =========================================================================
    Missão
@@ -319,7 +335,10 @@ h1, h2, h3 { margin: 0; font-weight: 400; }
    RSVP
    ========================================================================= */
 .rsvp-section { display: grid; background: var(--warm); }
-.rsvp-section__photo { position: relative; isolation: isolate; min-height: 70svh; display: flex; align-items: flex-end; background: #3b2a22; }
+#trilha { background: var(--sand); }
+#presentes { background: var(--sand); }
+#missao { background: var(--warm); }
+.rsvp-section__photo { position: relative; isolation: isolate; min-height: 70svh; display: flex; align-items: flex-end; background: #3b2a22; margin: var(--frame) var(--frame) 0; border-radius: var(--r-lg); overflow: hidden; }
 .rsvp-section__photo .media { z-index: -2; }
 .rsvp-section__shade { position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, transparent 50%, rgba(30, 14, 12, .55)); }
 .rsvp-section__quote {
@@ -334,7 +353,7 @@ h1, h2, h3 { margin: 0; font-weight: 400; }
 .rsvp-lead strong { color: var(--marsala); }
 @media (min-width: 900px) {
   .rsvp-section { grid-template-columns: 45% 55%; }
-  .rsvp-section__photo { min-height: auto; }
+  .rsvp-section__photo { min-height: auto; margin: var(--frame) 0 var(--frame) var(--frame); }
   .rsvp-section__quote { padding: 0 5vw 60px; }
 }
 
@@ -345,7 +364,7 @@ h1, h2, h3 { margin: 0; font-weight: 400; }
 .opt { font-weight: 400; font-size: .78rem; color: #8b7d7f; }
 .field__input, .select select {
   width: 100%; min-height: 58px; padding: .9rem 1.1rem;
-  border: 1px solid #e3dad3; border-radius: 0; background: #fffdfa; color: var(--text);
+  border: 1px solid #e3dad3; border-radius: var(--r-sm); background: #fffdfa; color: var(--text);
   font: 400 1rem var(--font-sans), system-ui, sans-serif; /* 16px: evita zoom no iOS */
   -webkit-appearance: none; appearance: none;
 }
@@ -367,8 +386,8 @@ h1, h2, h3 { margin: 0; font-weight: 400; }
 .field .link-btn { justify-self: start; margin-top: .2rem; }
 .hp { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
 .rsvp-note { font-size: .8rem; color: #8b7d7f; margin: -.4rem 0 0; }
-.rsvp-notice { margin: 0; padding: .9rem 1rem; background: #f6efe6; border-left: 3px solid var(--gold); font-size: .94rem; }
-.rsvp-error { margin: 0; padding: .9rem 1rem; background: #fbeeee; border-left: 3px solid var(--marsala); color: #6a1d26; font-size: .94rem; }
+.rsvp-notice { margin: 0; padding: .9rem 1.1rem; background: #f6efe6; border-radius: var(--r-sm); font-size: .94rem; }
+.rsvp-error { margin: 0; padding: .9rem 1.1rem; background: #fbeeee; border-radius: var(--r-sm); color: #6a1d26; font-size: .94rem; }
 
 .rsvp-done { outline: none; }
 .rsvp-done__title { font-family: var(--font-serif), Georgia, serif; font-style: italic; font-size: clamp(1.9rem, 6vw, 2.5rem); line-height: 1.15; color: var(--marsala); margin-bottom: 1.6rem; }
@@ -380,13 +399,13 @@ h1, h2, h3 { margin: 0; font-weight: 400; }
 
 /* ---------- Modal ---------- */
 .modal {
-  border: 0; padding: 0; width: min(92vw, 460px); max-height: calc(100svh - 32px);
+  border: 0; padding: 0; width: min(92vw, 460px); max-height: calc(100svh - 32px); border-radius: var(--r-lg);
   background: var(--warm); color: var(--text); box-shadow: 0 30px 80px rgba(8, 8, 8, .35);
 }
 .modal::backdrop { background: rgba(8, 8, 8, .6); }
 .modal__body { position: relative; padding: 52px 28px 30px; text-align: center; }
 .modal__mark { display: block; color: var(--gold); margin-bottom: 1rem; }
-.modal__close { position: absolute; top: 8px; right: 8px; width: 44px; height: 44px; display: grid; place-items: center; border: 0; background: none; color: var(--text); cursor: pointer; }
+.modal__close { position: absolute; top: 8px; right: 8px; width: 44px; height: 44px; display: grid; place-items: center; border: 0; background: none; color: var(--text); cursor: pointer; border-radius: 50%; }
 .modal__title { font-family: var(--font-serif), Georgia, serif; font-size: 2.2rem; color: var(--marsala); margin-bottom: .8rem; }
 .modal__text { font-size: .98rem; color: color-mix(in srgb, var(--text) 80%, transparent); }
 .modal__actions { display: grid; gap: 8px; margin-top: 1.8rem; justify-items: center; }
@@ -413,7 +432,7 @@ h1, h2, h3 { margin: 0; font-weight: 400; }
 /* =========================================================================
    Rodapé
    ========================================================================= */
-.footer { background: var(--marsala-deep); color: var(--warm); padding: 80px 0 calc(56px + env(safe-area-inset-bottom)); }
+.footer { background: var(--marsala-deep); color: var(--warm); padding: 80px 0 calc(56px + env(safe-area-inset-bottom)); border-radius: var(--r-lg); }
 .footer__names { font-family: var(--font-serif), Georgia, serif; font-size: clamp(2.4rem, 10vw, 3.4rem); line-height: 1.05; }
 .footer__amp { font-style: italic; color: var(--gold-soft); }
 .footer__date { font-size: .76rem; letter-spacing: .3em; text-transform: uppercase; margin: 1rem 0 1.6rem; color: var(--gold-soft); }
@@ -432,3 +451,44 @@ h1, h2, h3 { margin: 0; font-weight: 400; }
   .hero__amp { font-size: .5em; }
 }
 @media (min-width: 1000px) { .gifts__track { scroll-padding-inline: 0; } }
+
+/* =========================================================================
+   Nossa história
+   ========================================================================= */
+.story { display: grid; gap: 48px; align-items: center; }
+.story__title .emph { display: block; }
+.story__body { font-size: 1.06rem; line-height: 1.9; color: color-mix(in srgb, var(--text) 72%, transparent); max-width: 34em; }
+.story__sign { margin-top: 2.4rem; padding-left: 1.4rem; border-left: 1px solid color-mix(in srgb, var(--rose) 60%, transparent); display: grid; gap: .3rem; }
+.story__sign span { font-family: var(--font-serif), Georgia, serif; font-style: italic; font-size: 1.2rem; color: color-mix(in srgb, var(--text) 65%, transparent); }
+.story__sign strong { font-family: var(--font-serif), Georgia, serif; font-weight: 500; font-size: 1.8rem; color: #2E141B; }
+.story__rings { width: min(100%, 360px); justify-self: center; }
+@media (min-width: 900px) {
+  .story { grid-template-columns: 1.1fr 1fr; gap: 80px; }
+  .story__rings { width: min(100%, 420px); }
+}
+
+/* =========================================================================
+   Nossa trilha (lista de músicas)
+   ========================================================================= */
+.split { display: grid; gap: 48px; }
+@media (min-width: 900px) { .split { grid-template-columns: 1fr 1.1fr; gap: 90px; align-items: center; } }
+.split .display .emph { display: block; }
+.split__text { margin: 0 0 2rem; }
+.link-under--dark { color: var(--marsala); }
+@media (hover: hover) { .link-under--dark:hover { color: var(--marsala-deep); } }
+.tracks { list-style: none; margin: 0; padding: 0; border-top: 1px solid color-mix(in srgb, var(--text) 15%, transparent); }
+.tracks li { border-bottom: 1px solid color-mix(in srgb, var(--text) 15%, transparent); }
+.track {
+  display: grid; grid-template-columns: 2rem 48px 1fr auto; align-items: center; gap: 16px;
+  padding: 1.3rem .4rem; text-decoration: none; color: inherit; border-radius: var(--r-sm);
+}
+.track__n { font-family: var(--font-serif), Georgia, serif; font-size: 1.15rem; color: #8C6A3C; font-variant-numeric: oldstyle-nums; }
+.track__icon { width: 48px; height: 48px; display: grid; place-items: center; border-radius: 50%; border: 1px solid color-mix(in srgb, var(--gold) 50%, transparent); color: #8C6A3C; background: var(--warm); }
+.track__info { display: grid; gap: 2px; min-width: 0; }
+.track__title { font-family: var(--font-serif), Georgia, serif; font-size: clamp(1.35rem, 4.4vw, 1.7rem); line-height: 1.15; color: #2E141B; }
+.track__artist { font-size: .88rem; color: color-mix(in srgb, var(--text) 62%, transparent); }
+.track__go { color: #8C6A3C; }
+@media (hover: hover) { .track:hover { background: color-mix(in srgb, var(--warm) 70%, transparent); } .track:hover .track__title { color: var(--marsala); } }
+@media (max-width: 480px) { .track { grid-template-columns: 1.6rem 40px 1fr auto; gap: 12px; } .track__icon { width: 40px; height: 40px; } }
+.tracks__note { display: flex; align-items: center; gap: 12px; margin-top: 1.6rem; font-family: var(--font-serif), Georgia, serif; font-style: italic; font-size: 1.15rem; color: color-mix(in srgb, var(--text) 65%, transparent); }
+.tracks__note svg { color: var(--rose); flex: none; }

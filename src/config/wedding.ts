@@ -103,9 +103,9 @@ export const wedding = {
   } satisfies Record<string, ResponsiveImage>,
 
   nav: [
+    { label: 'Nossa história', href: '#nossa-historia' },
     { label: 'O grande dia', href: '#celebracao' },
-    { label: 'Dress code', href: '#dress-code' },
-    { label: 'A festa', href: '#festa' },
+    { label: 'Playlist', href: '#trilha' },
     { label: 'Presentes', href: '#presentes' },
   ],
 
@@ -114,6 +114,13 @@ export const wedding = {
     button: 'A nossa história, agora a sua',
     side: ['Um dia para guardar', 'para sempre'],
     scrollHint: 'Role para descobrir',
+  },
+
+  story: {
+    eyebrow: 'Duas vidas, um mesmo caminho',
+    title: 'O acaso nos apresentou. *O amor escolheu ficar.*',
+    text: 'Entre conversas que atravessaram a noite, planos divididos e pequenos momentos que viraram tudo, construímos um lugar só nosso. Agora, queremos celebrar esse próximo capítulo com as pessoas que fazem parte da nossa história.',
+    signoff: 'Com carinho,',
   },
 
   celebration: {
@@ -147,11 +154,27 @@ export const wedding = {
     button: 'Conheça a trilha da festa',
   },
 
+  playlist: {
+    eyebrow: 'Nossa trilha',
+    title: 'Canções que *contam um pouco da gente.*',
+    text: 'Algumas músicas já têm lugar cativo na nossa história. Dê o play, entre no clima e prepare o coração — e os passos.',
+    button: 'Abrir seleção no Spotify',
+    note: 'A última música? Essa a gente escolhe juntos na pista.',
+    /** `url` opcional: link da música (se vazio, usa o link da playlist). */
+    tracks: [
+      { title: 'Best Part', artist: 'Daniel Caesar feat. H.E.R.', url: '' },
+      { title: 'Turning Page', artist: 'Sleeping At Last', url: '' },
+      { title: 'You Are the Best Thing', artist: 'Ray LaMontagne', url: '' },
+      { title: 'Velha Infância', artist: 'Tribalistas', url: '' },
+    ],
+  },
+
   gifts: {
-    eyebrow: 'Com carinho',
+    eyebrow: 'Lista de presentes',
     title: 'Quer nos *presentear?*',
     text: 'Sua presença já é o nosso maior presente. Mas, se quiser fazer parte desse novo capítulo, separamos algumas ideias com muito carinho.',
     button: 'Ver lista completa',
+    buyLabel: 'Presentear',
     /** Itens do carrossel. `image` pode ficar vazio para usar o espaço reservado. */
     items: [
       { name: 'Jogo de taças de cristal', price: 'R$ 320', image: '/images/presente-tacas.webp' },

@@ -5,20 +5,20 @@ import { Arrow, Emph, Eyebrow } from './Emph';
 export function GiftsSection() {
   const { gifts, links } = wedding;
   return (
-    <section className="section section--marsala gifts-section" id="presentes" aria-labelledby="presentes-titulo">
+    <section className="section section--sand gifts-section" id="presentes" aria-labelledby="presentes-titulo">
       <div className="container">
         <header className="section-head section-head--split">
           <div>
-            <Eyebrow light>{gifts.eyebrow}</Eyebrow>
-            <h2 className="display display--light" id="presentes-titulo">
-              <Emph text={gifts.title} className="emph emph--gold" />
+            <Eyebrow>{gifts.eyebrow}</Eyebrow>
+            <h2 className="display" id="presentes-titulo">
+              <Emph text={gifts.title} />
             </h2>
           </div>
           <p className="section-head__text">{gifts.text}</p>
         </header>
-        <GiftCarousel items={gifts.items} href={links.giftList} />
+        <GiftCarousel items={gifts.items} href={links.giftList} buyLabel={gifts.buyLabel} />
         <div className="center">
-          <a className="btn-solid btn-solid--gold" href={links.giftList} target="_blank" rel="noopener noreferrer">
+          <a className="btn-solid btn-solid--center" href={links.giftList} target="_blank" rel="noopener noreferrer">
             {gifts.button} <Arrow dir="out" />
             <span className="sr-only"> (abre em nova aba)</span>
           </a>
