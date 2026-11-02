@@ -240,15 +240,31 @@ export const wedding = {
     text: 'Sua presença já é o nosso maior presente! Mas preparamos uma lista com muito carinho para quem quiser fazer parte dessa nova fase. Cada contribuição será um pedacinho do nosso futuro juntas.',
     button: 'Ver lista completa',
     buyLabel: 'Presentear',
-    /** Rótulos das faixas de preço exibidos nos cartões. */
-    tierLabels: { barato: 'Mimo', medio: 'Especial', caro: 'Grande presente' },
+    /** Pix direto, para quem preferir não escolher um item da lista. */
+    pix: {
+      title: 'Prefere mandar um Pix?',
+      text: 'Se preferir, você também pode nos presentear com um Pix de qualquer valor. É só escanear o QR Code ou copiar o código abaixo e colar no app do seu banco, em "Pix Copia e Cola".',
+      key: 'giulliabp@gmail.com',
+      holder: 'Giullia Bertti Perussetto',
+      code: '00020126410014BR.GOV.BCB.PIX0119giulliabp@gmail.com5204000053039865802BR5925Giullia Bertti Perussetto6009SAO PAULO62140510jkJBzbdNMv63045A8A',
+    },
     /**
-     * Destaques do carrossel (3 aparecem por vez): 3 mais baratos, 3 médios e 3 mais caros.
-     * Copie da lista do Final Feliz: nome, preço, foto (salve em /public/images/presentes)
-     * e, se quiser, o link direto do presente (`url`; vazio = abre a lista completa).
-     * Enquanto a lista estiver vazia, o carrossel não aparece — só o texto e o botão.
+     * Destaques do carrossel (3 aparecem por vez, em ordem crescente de preço):
+     * um presente por faixa de R$ 100 e dois acima de R$ 1.000.
+     * Fotos em /public/images/presentes. O botão "Presentear" abre a lista completa.
+     * Se a lista ficar vazia, o carrossel não aparece — só o texto e o botão.
      */
-    items: [] as { tier: 'barato' | 'medio' | 'caro'; name: string; price: string; image: string; url?: string }[],
+    items: [
+      { name: 'Kit 6 taças de vidro para vinho e água', price: 'R$ 47,00', image: '/images/presentes/tacas.webp' },
+      { name: 'Conjunto de facas inox com suporte (8 peças)', price: 'R$ 188,90', image: '/images/presentes/facas.webp' },
+      { name: 'Processador de alimentos 3 em 1 Electrolux', price: 'R$ 299,97', image: '/images/presentes/processador.webp' },
+      { name: 'Kit furadeira e parafusadeira Bosch', price: 'R$ 332,41', image: '/images/presentes/furadeira.webp' },
+      { name: 'Batedeira planetária Electrolux 750W', price: 'R$ 445,72', image: '/images/presentes/batedeira.webp' },
+      { name: 'Air fryer Electrolux Rita Lobo 12L', price: 'R$ 599,89', image: '/images/presentes/air-fryer.webp' },
+      { name: 'Máquina de pão automática inox', price: 'R$ 739,90', image: '/images/presentes/panificadora.webp' },
+      { name: 'Smart TV 43" LG 4K', price: 'R$ 2.299,00', image: '/images/presentes/smart-tv.webp' },
+      { name: 'Geladeira Electrolux Frost Free 320L', price: 'R$ 2.599,00', image: '/images/presentes/geladeira.webp' },
+    ] as { name: string; price: string; image: string; url?: string }[],
   },
 
   mission: {

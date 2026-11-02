@@ -3,24 +3,22 @@
 import Image from 'next/image';
 import { useRef } from 'react';
 
-type Tier = 'barato' | 'medio' | 'caro';
-type Item = { tier: Tier; name: string; price?: string; image?: string; url?: string };
-const ORDER: Record<Tier, number> = { barato: 0, medio: 1, caro: 2 };
+type Item = { name: string; price?: string; image?: string; url?: string };
+/** "R$ 2.599,00" → 2599 */
+const toNumber = (p?: string) => Number((p ?? '0').replace(/[^\d,]/g, '').replace(',', '.')) || 0;
 
 /** Carrossel simples (rolagem horizontal apenas dentro do componente, com setas). */
 export function GiftCarousel({
   items,
   href,
   buyLabel,
-  tierLabels,
 }: {
   items: readonly Item[];
   href: string;
   buyLabel: string;
-  tierLabels: Record<Tier, string>;
 }) {
-  // Ordem: mais baratos → médios → mais caros.
-  const sorted = [...items].sort((a, b) => ORDER[a.tier] - ORDER[b.tier]);
+  // Ordem crescente de preço.
+  const sorted = [...items].sort((a, b) => toNumber(a.price) - toNumber(b.price));
   const track = useRef<HTMLUListElement>(null);
 
   function move(dir: 1 | -1) {
@@ -43,7 +41,6 @@ export function GiftCarousel({
                 ) : (
                   <span className="gift__ph" aria-hidden="true">✦</span>
                 )}
-                <span className={`gift__tier gift__tier--${item.tier}`}>{tierLabels[item.tier]}</span>
                 <div className="gift__overlay">
                   {item.price && <span className="gift__price">{item.price}</span>}
                   <a href={item.url || href} target="_blank" rel="noopener noreferrer" className="gift__buy">
