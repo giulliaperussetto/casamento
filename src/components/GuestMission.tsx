@@ -5,7 +5,7 @@ export function GuestMission() {
   const { mission } = wedding;
   return (
     <section className="section section--warm section--compact" id="missao" aria-labelledby="missao-titulo">
-      <div className="container container--narrow center mission">
+      <div className="container center mission">
         <Eyebrow>{mission.question}</Eyebrow>
         <h2 className="display display--md mission__title" id="missao-titulo">
           <Emph text={mission.title} />

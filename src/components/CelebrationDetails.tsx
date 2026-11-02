@@ -53,7 +53,7 @@ export function CelebrationDetails() {
         </div>
 
         <aside className="attire" aria-labelledby="aviso-titulo">
-          {/* Ícone de policial (aviso sobre bafômetro na saída) */}
+          {/* Ícone de policial (aviso sobre bebida e direção) */}
           <svg width="40" height="40" viewBox="0 0 40 40" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round" aria-hidden="true">
             <path d="M9 13.5c0-3 5-6.5 11-6.5s11 3.5 11 6.5c0 1.2-.6 1.9-1.6 2.2-2.6.8-6 1.2-9.4 1.2s-6.8-.4-9.4-1.2C9.6 15.4 9 14.7 9 13.5Z" />
             <path d="M12 16.2c-.3.9-.4 1.8-.4 2.8 0 4.8 3.8 8.6 8.4 8.6s8.4-3.8 8.4-8.6c0-1-.1-1.9-.4-2.8" />

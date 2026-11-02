@@ -5,7 +5,7 @@ export function OurStory() {
   const { story, couple } = wedding;
   return (
     <section className="section section--warm" id="nossa-historia" aria-labelledby="historia-titulo">
-      <div className="container container--narrow story">
+      <div className="container story">
         <Eyebrow>{story.eyebrow}</Eyebrow>
         <h2 className="display story__title" id="historia-titulo">
           <Emph text={story.title} />
