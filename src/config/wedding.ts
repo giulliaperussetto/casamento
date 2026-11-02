@@ -208,7 +208,7 @@ export const wedding = {
         },
       ],
     },
-    figureTitle: 'Nossas madrinhas e *padrinhos*',
+    figureTitle: 'Nossas madrinhas e padrinhos',
     figureText: 'Madrinhas de longo marsala; padrinhos de terno cinza claro, camisa branca e tênis branco.',
   },
 
