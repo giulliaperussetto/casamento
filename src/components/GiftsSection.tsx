@@ -16,7 +16,9 @@ export function GiftsSection() {
           </div>
           <p className="section-head__text">{gifts.text}</p>
         </header>
-        <GiftCarousel items={gifts.items} href={links.giftList} buyLabel={gifts.buyLabel} />
+        {gifts.items.length > 0 && (
+          <GiftCarousel items={gifts.items} href={links.giftList} buyLabel={gifts.buyLabel} tierLabels={gifts.tierLabels} />
+        )}
         <div className="center">
           <a className="btn-solid btn-solid--center" href={links.giftList} target="_blank" rel="noopener noreferrer">
             {gifts.button} <Arrow dir="out" />

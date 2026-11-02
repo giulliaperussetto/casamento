@@ -1,18 +1,27 @@
 import { wedding } from '@/config/wedding';
 import { Emph, Eyebrow } from './Emph';
 
-/** Converte **trecho** em negrito. */
+/** Converte **trecho** em negrito e [texto](https://...) em link. */
 function Rich({ text }: { text: string }) {
   return (
     <>
-      {text.split(/(\*\*[^*]+\*\*)/g).map((part, i) =>
-        part.startsWith('**') && part.endsWith('**') ? <strong key={i}>{part.slice(2, -2)}</strong> : part,
-      )}
+      {text.split(/(\*\*[^*]+\*\*|\[[^\]]+\]\(https?:\/\/[^)\s]+\))/g).map((part, i) => {
+        if (part.startsWith('**') && part.endsWith('**')) return <strong key={i}>{part.slice(2, -2)}</strong>;
+        const link = part.match(/^\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)$/);
+        if (link) {
+          return (
+            <a key={i} href={link[2]} target="_blank" rel="noopener noreferrer" className="faq__link">
+              {link[1]}
+              <span className="sr-only"> (abre em nova aba)</span>
+            </a>
+          );
+        }
+        return part;
+      })}
     </>
   );
 }
 
-/** Accordion nativo (<details>): começa recolhido e funciona sem JavaScript. */
 export function FAQAccordion() {
   const { faq } = wedding;
   return (

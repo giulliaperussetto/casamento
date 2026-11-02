@@ -45,7 +45,7 @@ export const wedding = {
   links: {
     playlist: 'https://open.spotify.com/',
     /** Link da lista de presentes (usado no carrossel e nos popups após o RSVP). */
-    giftList: 'https://example.com/lista-de-presentes',
+    giftList: 'https://www.querodecasamento.com.br/lista-de-casamento/fernandaegiullia',
   },
 
   rsvp: {
@@ -240,15 +240,15 @@ export const wedding = {
     text: 'Sua presença já é o nosso maior presente! Mas preparamos uma lista com muito carinho para quem quiser fazer parte dessa nova fase. Cada contribuição será um pedacinho do nosso futuro juntas.',
     button: 'Ver lista completa',
     buyLabel: 'Presentear',
-    /** Itens do carrossel. `image` pode ficar vazio para usar o espaço reservado. */
-    items: [
-      { name: 'Jogo de taças de cristal', price: 'R$ 320', image: '/images/presente-tacas.webp' },
-      { name: 'Jantar romântico na lua de mel', price: 'R$ 450', image: '/images/presente-jantar.webp' },
-      { name: 'Aparelho de jantar', price: 'R$ 780', image: '/images/presente-aparelho.webp' },
-      { name: 'Passeio de barco', price: 'R$ 600', image: '/images/presente-barco.webp' },
-      { name: 'Cafeteira espresso', price: 'R$ 1.200', image: '/images/presente-cafeteira.webp' },
-      { name: 'Jogo de cama', price: 'R$ 520', image: '/images/presente-cama.webp' },
-    ],
+    /** Rótulos das faixas de preço exibidos nos cartões. */
+    tierLabels: { barato: 'Mimo', medio: 'Especial', caro: 'Grande presente' },
+    /**
+     * Destaques do carrossel (3 aparecem por vez): 3 mais baratos, 3 médios e 3 mais caros.
+     * Copie da lista do Quero de Casamento: nome, preço, foto (salve em /public/images/presentes)
+     * e, se quiser, o link direto do presente (`url`; vazio = abre a lista completa).
+     * Enquanto a lista estiver vazia, o carrossel não aparece — só o texto e o botão.
+     */
+    items: [] as { tier: 'barato' | 'medio' | 'caro'; name: string; price: string; image: string; url?: string }[],
   },
 
   mission: {
@@ -332,7 +332,8 @@ export const wedding = {
         q: 'Os presentes da lista são reais ou apenas ilustrativos?',
         a: [
           '**São reais!** Cada item da lista foi escolhido com muito carinho, pensando na nossa casa e nessa nova fase das nossas vidas.',
-          'Ao escolher um presente, você está nos dando exatamente aquele item. Pode ficar tranquilo(a): ele chega de verdade até nós!',
+          'Pela plataforma, o valor do presente escolhido é revertido para nós, e **vamos comprar exatamente o que está no site**. Ou seja: o seu presente vai mesmo fazer parte da nossa casa!',
+          'A lista completa está aqui: [Ver lista de presentes](https://www.querodecasamento.com.br/lista-de-casamento/fernandaegiullia).',
         ],
       },
       {

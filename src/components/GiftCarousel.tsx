@@ -3,10 +3,24 @@
 import Image from 'next/image';
 import { useRef } from 'react';
 
-type Item = { name: string; price?: string; image?: string };
+type Tier = 'barato' | 'medio' | 'caro';
+type Item = { tier: Tier; name: string; price?: string; image?: string; url?: string };
+const ORDER: Record<Tier, number> = { barato: 0, medio: 1, caro: 2 };
 
 /** Carrossel simples (rolagem horizontal apenas dentro do componente, com setas). */
-export function GiftCarousel({ items, href, buyLabel }: { items: readonly Item[]; href: string; buyLabel: string }) {
+export function GiftCarousel({
+  items,
+  href,
+  buyLabel,
+  tierLabels,
+}: {
+  items: readonly Item[];
+  href: string;
+  buyLabel: string;
+  tierLabels: Record<Tier, string>;
+}) {
+  // Ordem: mais baratos → médios → mais caros.
+  const sorted = [...items].sort((a, b) => ORDER[a.tier] - ORDER[b.tier]);
   const track = useRef<HTMLUListElement>(null);
 
   function move(dir: 1 | -1) {
@@ -20,7 +34,7 @@ export function GiftCarousel({ items, href, buyLabel }: { items: readonly Item[]
   return (
     <div className="gifts">
       <ul className="gifts__track" ref={track} role="list" aria-label="Sugestões de presentes" tabIndex={0}>
-        {items.map((item) => (
+        {sorted.map((item) => (
           <li className="gift" key={item.name}>
             <article className="gift__card">
               <div className="gift__img">
@@ -29,9 +43,10 @@ export function GiftCarousel({ items, href, buyLabel }: { items: readonly Item[]
                 ) : (
                   <span className="gift__ph" aria-hidden="true">✦</span>
                 )}
+                <span className={`gift__tier gift__tier--${item.tier}`}>{tierLabels[item.tier]}</span>
                 <div className="gift__overlay">
                   {item.price && <span className="gift__price">{item.price}</span>}
-                  <a href={href} target="_blank" rel="noopener noreferrer" className="gift__buy">
+                  <a href={item.url || href} target="_blank" rel="noopener noreferrer" className="gift__buy">
                     {buyLabel}
                     <span className="sr-only">: {item.name} (abre a lista de presentes em nova aba)</span>
                   </a>

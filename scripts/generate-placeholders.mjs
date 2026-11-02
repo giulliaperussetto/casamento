@@ -138,19 +138,9 @@ scenes.padrinhos = (w, h) => {
     ${label(w, h, 'FOTO PROVISÓRIA · PADRINHOS E MADRINHAS', 'rgba(74,25,34,0.55)')}`;
 };
 
-const giftTones = { tacas: ['#E9DCCB', '#B99B78'], jantar: ['#5A2430', '#2A1015'], aparelho: ['#F3ECE3', '#CDBBA6'], barco: ['#BFD3D6', '#5F8189'], cafeteira: ['#D8C3AE', '#6E4E3A'], cama: ['#EFE6DC', '#B79C8E'] };
-for (const [k, [a, b]] of Object.entries(giftTones)) {
-  scenes['gift-' + k] = (w, h) => `
-    <defs><radialGradient id="g" cx="0.5" cy="0.4" r="0.8"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></radialGradient></defs>
-    <rect width="100%" height="100%" fill="url(#g)"/>
-    <circle cx="${w / 2}" cy="${h * 0.46}" r="${w * 0.18}" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="2"/>
-    <path d="M${w / 2} ${h * 0.38} l${w * 0.03} ${w * 0.05} l${w * 0.05} ${w * 0.01} l-${w * 0.05} ${w * 0.02} l-${w * 0.03} ${w * 0.05} l-${w * 0.03} -${w * 0.05} l-${w * 0.05} -${w * 0.02} l${w * 0.05} -${w * 0.01} Z" fill="rgba(255,255,255,0.75)"/>
-    ${label(w, h, 'IMAGEM PROVISÓRIA', 'rgba(255,255,255,0.7)')}`;
-}
 
 const jobs = [
   ['padrinhos-desktop', 'padrinhos', 2400, 1030], ['padrinhos-mobile', 'padrinhos', 1080, 1350],
-  ...Object.keys(giftTones).map((k) => ['presente-' + k, 'gift-' + k, 800, 1000]),
   ['celebration-desktop', 'celebration', 1600, 1800], ['celebration-mobile', 'celebration', 1080, 1300],
   ['party-desktop', 'party', 2400, 1500], ['party-mobile', 'party', 1080, 1920],
 ];
