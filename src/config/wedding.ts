@@ -176,7 +176,7 @@ export const wedding = {
     notice: {
       title: 'Celebre sem preocupações!',
       text: 'Queremos que vocês aproveitem cada brinde, cada música e cada momento dessa noite especial! Teremos bebidas durante toda a festa e, para a segurança de todos, pedimos que quem vier de carro tome cuidado com a quantidade de bebida. Se puder, venha de Uber ou outro transporte por aplicativo.',
-      highlight: 'O local terá estacionamento, porém ele é pago.',
+      highlight: 'O local terá estacionamento, porém ele é pago: R$ 35,00.',
     },
   },
 
@@ -332,7 +332,7 @@ export const wedding = {
       },
       {
         q: 'Há estacionamento no local?',
-        a: 'Sim. O Porto São Jorge tem estacionamento no local, porém ele é pago. Como teremos bebidas a noite toda, pedimos que quem for de carro tome cuidado com a quantidade de bebida — se puder, vá de Uber ou outro aplicativo.',
+        a: 'Sim. O Porto São Jorge tem estacionamento no local, porém ele é pago: o valor é de R$ 35,00. Como teremos bebidas a noite toda, pedimos que quem for de carro tome cuidado com a quantidade de bebida — se puder, vá de Uber ou outro aplicativo.',
       },
       {
         q: 'Até quando posso confirmar presença?',
