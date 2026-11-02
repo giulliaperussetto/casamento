@@ -43,7 +43,7 @@ export const wedding = {
   },
 
   links: {
-    playlist: 'https://open.spotify.com/',
+    playlist: 'https://open.spotify.com/playlist/72XBTj5OtaZUNvdR4jIZOD',
     /** Link da lista de presentes (usado no carrossel e nos popups após o RSVP). */
     giftList: 'https://www.finalfeliz.de/fernandaegiullia',
   },
@@ -223,14 +223,14 @@ export const wedding = {
     eyebrow: 'Prepare-se para dançar',
     title: 'Tem música pra todo mundo. *Só não vale ficar parado!*',
     text: 'Preparamos uma noite para todos os gostos, todas as gerações e todos os estilos. Porque o melhor da festa é ver quem a gente ama celebrando junto!',
-    button: 'Ouça um pouquinho do que vem por aí',
+    button: 'Tem uma música que não pode faltar? Adicione aqui',
     note: 'A última música? Essa a gente escolhe juntas na pista.',
     /** Deixe `title` vazio para exibir "Em seleção". `url` opcional: link da música. */
     tracks: [
-      { title: '', artist: '', url: '' },
-      { title: '', artist: '', url: '' },
-      { title: '', artist: '', url: '' },
-      { title: '', artist: '', url: '' },
+      { title: 'Jet Ski', artist: 'Pedro Sampaio', url: '' },
+      { title: 'Seu Astral', artist: 'Jorge & Mateus', url: '' },
+      { title: 'Danada Vem Que Vem', artist: 'MC Coringa', url: '' },
+      { title: 'Pirata e Tesouro', artist: 'Ferrugem', url: '' },
     ],
   },
 
