@@ -321,8 +321,6 @@ export const wedding = {
         a: [
           'Cada convite já vem com o nome de todas as pessoas convidadas. Ao inserir o seu código, você verá quem está incluído e só precisa informar se cada uma vai ou não.',
           '**Atenção:** crianças de qualquer idade, inclusive bebês, também são consideradas acompanhantes e precisam estar incluídas no convite.',
-          'Por isso, pedimos que respeitem os nomes do convite. Se uma criança ou outro acompanhante não aparece no seu convite, significa que não há uma vaga reservada para essa pessoa.',
-          'Estamos preparando tudo com muito carinho e contamos com a compreensão de vocês para receber todos da melhor forma possível!',
         ],
       },
       {
@@ -350,13 +348,6 @@ export const wedding = {
           '**São reais!** Cada item da lista foi escolhido com muito carinho, pensando na nossa casa e nessa nova fase das nossas vidas.',
           'Pela plataforma, o valor do presente escolhido é revertido para nós, e **vamos comprar exatamente o que está no site**. Ou seja: o seu presente vai mesmo fazer parte da nossa casa!',
           'A lista completa está aqui: [Ver lista de presentes](https://www.finalfeliz.de/fernandaegiullia).',
-        ],
-      },
-      {
-        q: 'Não gosto de comprar presente online, prefiro entregar pessoalmente. E agora?',
-        a: [
-          'Sem problema nenhum! Criamos a lista online para facilitar a vida de todos, mas ela também está disponível na loja física.',
-          'Basta ir até a loja (em breve divulgaremos aqui o nome e o endereço), pedir a **lista de presentes de Fernanda e Giullia** e escolher um dos presentes que estiverem disponíveis. Depois, é só entregar como preferir.',
         ],
       },
     ],

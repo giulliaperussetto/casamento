@@ -37,7 +37,7 @@ export function GiftCarousel({
             <article className="gift__card">
               <div className="gift__img">
                 {item.image ? (
-                  <Image src={item.image} alt="" fill sizes="(min-width: 900px) 280px, 70vw" />
+                  <Image src={item.image} alt="" fill quality={90} sizes="(min-width: 1000px) 400px, (min-width: 640px) 45vw, 75vw" />
                 ) : (
                   <span className="gift__ph" aria-hidden="true">✦</span>
                 )}
