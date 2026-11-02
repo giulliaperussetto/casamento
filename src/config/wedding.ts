@@ -50,8 +50,8 @@ export const wedding = {
 
   rsvp: {
     /** Prazo exibido no site e aplicado no servidor (após o prazo, respostas são bloqueadas). */
-    deadlineIso: '2027-04-16T23:59:59-03:00',
-    deadlineLabel: '16 de abril de 2027',
+    deadlineIso: '2027-03-16T23:59:59-03:00',
+    deadlineLabel: '16 de março de 2027',
     /** Permite que o convidado altere uma resposta já enviada (até o prazo). */
     allowChanges: true,
     /**
@@ -336,7 +336,7 @@ export const wedding = {
       },
       {
         q: 'Até quando posso confirmar presença?',
-        a: 'Pedimos que a confirmação seja feita até 16 de abril de 2027, utilizando o código que você recebeu no convite.',
+        a: 'Pedimos que a confirmação seja feita até 16 de março de 2027, utilizando o código que você recebeu no convite.',
       },
       {
         q: 'Posso atualizar minha resposta depois?',
