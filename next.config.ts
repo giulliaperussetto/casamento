@@ -16,6 +16,10 @@ const nextConfig: NextConfig = {
     deviceSizes: [640, 750, 828, 1080, 1200, 1440, 1920, 2048, 2560],
     minimumCacheTTL: 60 * 60 * 24 * 30,
   },
+  async rewrites() {
+    // A lista de presentes é uma página própria do site (public/presentes.html).
+    return [{ source: '/presentes', destination: '/presentes.html' }];
+  },
   async headers() {
     return [
       { source: '/:path*', headers: securityHeaders },

@@ -45,7 +45,7 @@ export const wedding = {
   links: {
     playlist: 'https://open.spotify.com/playlist/72XBTj5OtaZUNvdR4jIZOD',
     /** Link da lista de presentes (usado no carrossel e nos popups após o RSVP). */
-    giftList: 'https://www.finalfeliz.de/fernandaegiullia',
+    giftList: '/presentes',
   },
 
   rsvp: {
@@ -347,7 +347,7 @@ export const wedding = {
         a: [
           '**São reais!** Cada item da lista foi escolhido com muito carinho, pensando na nossa casa e nessa nova fase das nossas vidas.',
           'Pela plataforma, o valor do presente escolhido é revertido para nós, e **vamos comprar exatamente o que está no site**. Ou seja: o seu presente vai mesmo fazer parte da nossa casa!',
-          'A lista completa está aqui: [Ver lista de presentes](https://www.finalfeliz.de/fernandaegiullia).',
+          'A lista completa está aqui: [Ver lista de presentes](/presentes).',
         ],
       },
     ],

@@ -21,9 +21,8 @@ export function GiftsSection() {
           <GiftCarousel items={gifts.items} href={links.giftList} buyLabel={gifts.buyLabel} />
         )}
         <div className="center">
-          <a className="btn-solid btn-solid--center" href={links.giftList} target="_blank" rel="noopener noreferrer">
+          <a className="btn-solid btn-solid--center" href={links.giftList}>
             {gifts.button} <Arrow dir="out" />
-            <span className="sr-only"> (abre em nova aba)</span>
           </a>
         </div>
         <PixGift />

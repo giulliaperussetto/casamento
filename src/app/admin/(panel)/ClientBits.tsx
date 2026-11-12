@@ -144,6 +144,7 @@ export function NavLinks() {
     { href: '/admin', label: 'Início' },
     { href: '/admin/convites', label: 'Convites' },
     { href: '/admin/lista', label: 'Lista geral' },
+    { href: '/admin/presentes', label: 'Presentes' },
     { href: '/admin/tags', label: 'Tags' },
   ];
   return (

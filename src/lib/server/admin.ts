@@ -355,3 +355,30 @@ export async function exportCsv(origin = ''): Promise<string> {
   }
   return '﻿' + lines.join('\r\n');
 }
+
+// ---------------------------------------------------------------------------
+// Presentes informados na página /presentes
+// ---------------------------------------------------------------------------
+export type GiftOrder = {
+  id: string;
+  giver_name: string;
+  message: string | null;
+  items: { id: string; name: string; price: number; qty: number }[];
+  total: string;
+  received: boolean;
+  created_at: Date;
+};
+
+export async function listGiftOrders(): Promise<GiftOrder[]> {
+  return db()<GiftOrder[]>`
+    select id, giver_name, message, items, total::text as total, received, created_at
+      from wedding.gift_orders order by created_at desc`;
+}
+
+export async function setGiftReceived(id: string, received: boolean) {
+  await db()`update wedding.gift_orders set received = ${received} where id = ${id}`;
+}
+
+export async function deleteGiftOrder(id: string) {
+  await db()`delete from wedding.gift_orders where id = ${id}`;
+}

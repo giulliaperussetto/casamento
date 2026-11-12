@@ -43,9 +43,8 @@ export function GiftCarousel({
                 )}
                 <div className="gift__overlay">
                   {item.price && <span className="gift__price">{item.price}</span>}
-                  <a href={item.url || href} target="_blank" rel="noopener noreferrer" className="gift__buy">
+                  <a href={item.url || href} className="gift__buy">
                     {buyLabel}
-                    <span className="sr-only">: {item.name} (abre a lista de presentes em nova aba)</span>
                   </a>
                 </div>
               </div>

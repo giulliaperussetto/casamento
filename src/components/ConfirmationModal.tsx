@@ -65,12 +65,9 @@ export function ConfirmationModal({ open, title, text, giftText, giftButton, clo
           <a
             className="btn-solid btn-solid--block"
             href={giftListUrl}
-            target="_blank"
-            rel="noopener noreferrer"
             onClick={() => close()}
           >
             {giftButton}
-            <span className="sr-only"> (abre a lista de presentes em nova aba)</span>
           </a>
           <button ref={closeBtn} type="button" className="btn-outline btn-solid--block" onClick={close}>
             {closeButton}

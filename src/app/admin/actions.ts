@@ -261,3 +261,18 @@ export async function saveSettingsAction(formData: FormData) {
   await admin.saveSettings(parsed.data);
   back(formData, { ok: 'Configurações salvas.' }, '/admin');
 }
+
+// ---------------------------------------------------------------------------
+// Presentes
+// ---------------------------------------------------------------------------
+export async function setGiftReceivedAction(formData: FormData) {
+  await requireAdmin();
+  await admin.setGiftReceived(uuid.parse(formData.get('id')), formData.get('received') === 'true');
+  back(formData, {}, '/admin/presentes');
+}
+
+export async function deleteGiftOrderAction(formData: FormData) {
+  await requireAdmin();
+  await admin.deleteGiftOrder(uuid.parse(formData.get('id')));
+  back(formData, { ok: 'Registro excluído.' }, '/admin/presentes');
+}

@@ -242,3 +242,16 @@
 .adm-login h1 { font-size: 24px; font-weight: 600; color: var(--marsala); margin: 0 0 20px; }
 .adm-eyebrow { font-size: 11px; letter-spacing: .24em; text-transform: uppercase; color: var(--gold); margin: 0 0 6px; }
 .adm-login .adm-btn--primary { border-radius: 999px; }
+
+/* ---------- Presentes ---------- */
+.adm-gifts { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.adm-gift { background: #fff; border-radius: 16px; padding: 16px 18px; display: grid; gap: 10px; border-left: 4px solid var(--gold); }
+.adm-gift.is-received { border-left-color: var(--a-green); }
+.adm-gift__head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.adm-gift__head strong { font-size: 16px; }
+.adm-gift__total { font-size: 20px; font-weight: 600; color: var(--marsala); }
+.adm-gift__items { margin: 0; padding-left: 18px; font-size: 14px; }
+.adm-gift__msg { margin: 0; padding: 10px 14px; background: #f8f4f0; border-radius: 12px; font-size: 14px; font-style: italic; }
+.adm-gift__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; }
+.adm-pill { font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 999px; background: #f6efe2; color: #8c6a3c; }
+.adm-pill--ok { background: #edf6ef; color: #245a36; }

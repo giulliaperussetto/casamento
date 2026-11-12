@@ -235,9 +235,8 @@ export function RSVPForm({ successTitle, giftListUrl, popup, allowChanges, initi
           ))}
         </ul>
         <div className="rsvp-done__actions">
-          <a className="btn-solid" href={giftListUrl} target="_blank" rel="noopener noreferrer">
+          <a className="btn-solid" href={giftListUrl}>
             {popup.giftButton}
-            <span className="sr-only"> (abre a lista de presentes em nova aba)</span>
           </a>
           {allowChanges && (
             <button className="link-btn" type="button" onClick={() => setStep('form')}>

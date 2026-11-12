@@ -5,14 +5,18 @@ import { Emph, Eyebrow } from './Emph';
 function Rich({ text }: { text: string }) {
   return (
     <>
-      {text.split(/(\*\*[^*]+\*\*|\[[^\]]+\]\(https?:\/\/[^)\s]+\))/g).map((part, i) => {
+      {text.split(/(\*\*[^*]+\*\*|\[[^\]]+\]\((?:https?:\/\/|\/)[^)\s]*\))/g).map((part, i) => {
         if (part.startsWith('**') && part.endsWith('**')) return <strong key={i}>{part.slice(2, -2)}</strong>;
-        const link = part.match(/^\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)$/);
+        const link = part.match(/^\[([^\]]+)\]\(((?:https?:\/\/|\/)[^)\s]*)\)$/);
         if (link) {
           return (
-            <a key={i} href={link[2]} target="_blank" rel="noopener noreferrer" className="faq__link">
+            <a
+              key={i}
+              href={link[2]}
+              className="faq__link"
+              {...(link[2].startsWith('http') ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+            >
               {link[1]}
-              <span className="sr-only"> (abre em nova aba)</span>
             </a>
           );
         }
