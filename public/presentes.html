@@ -794,6 +794,8 @@ body.has-bar { padding-bottom: 86px; }
 .pay__opt input { width: 20px; height: 20px; accent-color: var(--marsala); margin: 0; }
 .pay__name { display: block; font-weight: 600; color: var(--ink); }
 .pay__desc { display: block; font-size: .82rem; line-height: 1.45; color: var(--muted); }
+.pay__opt--soon { cursor: not-allowed; opacity: .6; background: transparent; }
+.pay__soon { display: inline-block; margin-left: 6px; padding: 2px 8px; border-radius: 999px; background: #f3ebde; color: #8C6A3C; font-size: .62rem; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; vertical-align: 2px; }
 .field-error { margin: 0; font-size: .82rem; color: #6a1d26; }
 .count-hint { justify-self: end; font-size: .76rem; color: var(--muted); font-variant-numeric: tabular-nums; }
 
@@ -943,7 +945,7 @@ body.has-bar { padding-bottom: 86px; }
       <ol class="steps">
         <li><span class="steps__n">1</span><div><h3>Escolha os presentes</h3><p>Adicione quantos quiser ao carrinho, ou escolha um valor livre.</p></div></li>
         <li><span class="steps__n">2</span><div><h3>Deixe um recado</h3><p>Seu nome e uma mensagem chegam direto para as noivas.</p></div></li>
-        <li><span class="steps__n">3</span><div><h3>Pague com Pix</h3><p>O valor já vem preenchido e cai direto na nossa conta.</p></div></li>
+        <li><span class="steps__n">3</span><div><h3>Pague com Pix</h3><p>O valor já vem preenchido e cai direto na nossa conta. Cartão de crédito em breve.</p></div></li>
       </ol>
       <div class="center steps-cta">
         <a class="btn-solid" href="#vitrine">Escolher seu presente <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M8 2v12M3 9l5 5 5-5"/></svg></a>
@@ -1011,10 +1013,11 @@ body.has-bar { padding-bottom: 86px; }
       <textarea class="field__input field__textarea" id="co-msg" name="message" maxlength="500" placeholder="Escreva uma mensagem de carinho, um conselho ou uma piada interna."></textarea>
       <span class="count-hint" id="co-count">0/500</span>
     </div>
-    <div class="pay">
-      <span class="field__label">Forma de pagamento</span>
-      <div class="pay__opt pay__opt--only"><span><span class="pay__name">Pix</span><span class="pay__desc">QR Code ou Pix Copia e Cola, com o valor já preenchido. O valor cai direto na conta das noivas.</span></span></div>
-    </div>
+    <fieldset class="pay">
+      <legend class="field__label">Forma de pagamento <span class="req">*</span></legend>
+      <label class="pay__opt"><input type="radio" name="pay" value="pix" checked><span><span class="pay__name">Pix</span><span class="pay__desc">QR Code ou Pix Copia e Cola, com o valor já preenchido. O valor cai direto na conta das noivas.</span></span></label>
+      <label class="pay__opt pay__opt--soon" aria-disabled="true"><input type="radio" name="pay" value="card" disabled><span><span class="pay__name">Cartão de crédito <span class="pay__soon">Em breve</span></span><span class="pay__desc">Pagamento seguro pelo Mercado Pago, com parcelamento. Disponível em breve.</span></span></label>
+    </fieldset>
   </form>
   <div class="drawer__foot" data-step="checkout" hidden>
     <div class="sum"><span>Total</span><strong data-total>R$ 0,00</strong></div>
