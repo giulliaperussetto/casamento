@@ -89,12 +89,29 @@ try {
   r = await submit(grp.code, {
     status: 'attending',
     companions: [
-      { guestId: comps[0].id, status: 'attending' },
+      { guestId: comps[0].id, status: 'attending', fullName: 'Juliana Prado', phone: '' },
+      { guestId: comps[1].id, status: 'declined' },
+    ],
+  });
+  check('acompanhante que vai precisa de telefone', r.status === 409 && /telefone/i.test(r.data.error), r);
+  r = await submit(grp.code, {
+    status: 'attending',
+    companions: [
+      { guestId: comps[0].id, status: 'attending', fullName: 'Juliana', phone: '11911112222' },
+      { guestId: comps[1].id, status: 'declined' },
+    ],
+  });
+  check('acompanhante que vai precisa de nome completo', r.status === 409 && /nome completo/i.test(r.data.error), r);
+  r = await submit(grp.code, {
+    status: 'attending',
+    companions: [
+      { guestId: comps[0].id, status: 'attending', fullName: 'Juliana Prado Souza', phone: '(11) 91111-2222' },
       { guestId: comps[1].id, status: 'declined' },
     ],
   });
   rows = await guestsOf(grp.id);
-  check('salva a resposta de cada acompanhante', r.status === 200 && rows.length === 3 && rows.find((x) => x.full_name === 'Juliana Prado')?.attendance_status === 'attending' && rows.find((x) => x.full_name === 'Pedro Lima')?.attendance_status === 'declined', rows);
+  check('salva nome completo e telefone do acompanhante', rows.some((x) => x.full_name === 'Juliana Prado Souza' && x.phone === '11911112222'), rows);
+  check('salva a resposta de cada acompanhante', r.status === 200 && rows.length === 3 && rows.find((x) => x.full_name === 'Juliana Prado Souza')?.attendance_status === 'attending' && rows.find((x) => x.full_name === 'Pedro Lima')?.attendance_status === 'declined', rows);
   r = await submit(grp.code, {
     status: 'declined',
     companions: [

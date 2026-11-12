@@ -56,7 +56,14 @@ Nos títulos do arquivo de configuração, o trecho entre `*asteriscos*` aparece
 - Proteção contra força bruta: limite por IP (8 códigos inválidos/hora), limite global e limite geral de requisições, persistidos no banco; honeypot; verificação de origem.
 - O RSVP não depende da lista de presentes: os popups só aparecem **depois** que o servidor confirma o salvamento, uma vez por confirmação.
 
-## Painel administrativo (`/admin`)
+## Painel dos convidados (`/admin`)
+
+- **Início:** convites enviados e não enviados, confirmados, pendentes, recusados e total; alerta de capacidade (confirmados + 2 noivas + staff × meia/inteira) contra o número contratado; previsão de quantos ainda dá para convidar.
+- **Convites:** cada convite encolhido (nome, tag, código, bolinhas de status, WhatsApp — que marca o convite como enviado); clique para expandir e editar.
+- **Lista geral:** uma pessoa por linha, com tag, telefone (ligar ou abrir WhatsApp) e troca de status em um clique.
+- **Tags:** criar, renomear, mudar a cor e excluir. São internas e nunca aparecem no site.
+
+### Detalhes técnicos do painel
 
 Login com e-mail e senha (scrypt), sessão em cookie `httpOnly`/`Secure`/`SameSite=Strict` validada no banco em cada página, ação e exportação. Limite de tentativas de login.
 

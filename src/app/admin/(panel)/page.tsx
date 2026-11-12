@@ -1,238 +1,128 @@
 import Link from 'next/link';
-import { headers } from 'next/headers';
-import { wedding } from '@/config/wedding';
-import { getStats, listInvitations, type StatusFilter } from '@/lib/server/admin';
-import {
-  addCompanionAction,
-  createInvitationAction,
-  deleteInvitationAction,
-  regenerateCodeAction,
-  removeCompanionAction,
-  toggleActiveAction,
-  updateGuestAction,
-  updateInvitationAction,
-} from '../actions';
-import { formatPhone } from '@/lib/server/admin';
-import { CompanionFields, ConfirmSubmit, CopyButton } from './ClientBits';
+import { COUPLE, getDashboard, getSettings } from '@/lib/server/admin';
+import { saveSettingsAction } from '../actions';
+import { Flash } from './shared';
 
-const FILTERS: { key: StatusFilter; label: string }[] = [
-  { key: 'all', label: 'Todos' },
-  { key: 'attending', label: 'Confirmados' },
-  { key: 'declined', label: 'Recusas' },
-  { key: 'pending', label: 'Pendentes' },
-  { key: 'inactive', label: 'Inativos' },
-];
+const fmt = (n: number) => n.toLocaleString('pt-BR', { maximumFractionDigits: 1 });
 
-const STATUS_LABEL = { pending: 'Pendente', attending: 'Confirmado', declined: 'Não vai' } as const;
-
-function fmt(d: Date | string | null) {
-  return d ? new Date(d).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo', dateStyle: 'short', timeStyle: 'short' }) : '—';
-}
-
-export default async function AdminPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ status?: string; q?: string; ok?: string; error?: string; highlight?: string }>;
-}) {
+export default async function AdminHome({ searchParams }: { searchParams: Promise<{ ok?: string; error?: string }> }) {
   const sp = await searchParams;
-  const filter = (FILTERS.find((f) => f.key === sp.status)?.key ?? 'all') as StatusFilter;
-  const q = (sp.q ?? '').slice(0, 80);
-  const [stats, invitations] = await Promise.all([getStats(), listInvitations(filter, q)]);
-  const h = await headers();
-  const origin = `${h.get('x-forwarded-proto') ?? 'https'}://${h.get('x-forwarded-host') ?? h.get('host')}`;
-  const inviteLink = (code: string) => `${origin}/${code}`;
-  const whatsappHref = (code: string, name: string) =>
-    `https://wa.me/?text=${encodeURIComponent(
-      wedding.rsvp.whatsappMessage.replace('{nome}', name.split(' ')[0]).replace('{link}', inviteLink(code)),
-    )}`;
+  const [d, s] = await Promise.all([getDashboard(), getSettings()]);
+
+  const staffEquivalent = s.staffCount * s.staffWeight;
+  // Ocupação real: quem já confirmou + noivas + staff.
+  const occupied = d.attending + COUPLE + staffEquivalent;
+  const over = occupied - s.contractedGuests;
+  // Planejamento: pessoas em convites enviados (exceto recusas) + noivas + staff.
+  const committed = d.people_sent - (d.declined) + COUPLE + staffEquivalent;
+  const remainingToInvite = s.contractedGuests - committed;
+  const pct = Math.min(100, Math.round((occupied / s.contractedGuests) * 100));
+
+  const cards = [
+    { label: 'Convites enviados', value: d.sent, href: '/admin/convites?status=sent' },
+    { label: 'Convites não enviados', value: d.not_sent, href: '/admin/convites?status=not_sent' },
+    { label: 'Confirmados', value: d.attending, tone: 'green', href: '/admin/lista?status=attending' },
+    { label: 'Pendentes', value: d.pending_sent, tone: 'silver', hint: 'de convites enviados', href: '/admin/lista?status=pending' },
+    { label: 'Recusados', value: d.declined, tone: 'red', href: '/admin/lista?status=declined' },
+    { label: 'Total de convidados', value: d.people, hint: 'em todos os convites', href: '/admin/lista' },
+  ];
 
   return (
     <>
-      {sp.ok && <p className="adm-alert adm-alert--ok" role="status">{sp.ok}</p>}
-      {sp.error && <p className="adm-alert adm-alert--error" role="alert">{sp.error}</p>}
+      <Flash ok={sp.ok} error={sp.error} />
 
-      <section className="adm-stats" aria-label="Resumo">
-        <div><span>{stats.attending}</span>Confirmados</div>
-        <div><span>{stats.declined}</span>Recusas</div>
-        <div><span>{stats.pending}</span>Pendentes</div>
-        <div><span>{stats.guests}</span>Convidados</div>
-        <div><span>{stats.active}<small>/{stats.invitations}</small></span>Convites ativos</div>
-      </section>
-      <p className="adm-muted adm-small">Totais consideram apenas convites ativos.</p>
-
-      <div className="adm-grid">
-        <section className="adm-panel">
-          <h2>Novo convite</h2>
-          <form action={createInvitationAction} className="adm-form">
-            <label>
-              Nome do convidado principal
-              <input name="primaryName" required minLength={2} maxLength={120} />
-            </label>
-            <CompanionFields />
-            <label>
-              Identificação interna (opcional)
-              <input name="label" maxLength={120} placeholder="Ex.: Família Souza, colegas do trabalho" />
-            </label>
-            <button className="adm-btn adm-btn--primary">Criar convite e gerar código</button>
-          </form>
-          <p className="adm-muted adm-small">
-            O código é gerado automaticamente, é único e fica armazenado apenas como hash para validação. Para importar uma
-            lista completa, use <code>npm run guests:import</code>.
-          </p>
-        </section>
-
-        <section className="adm-panel adm-panel--list">
-          <div className="adm-toolbar">
-            <nav className="adm-tabs" aria-label="Filtrar por status">
-              {FILTERS.map((f) => (
-                <Link
-                  key={f.key}
-                  href={{ pathname: '/admin', query: { status: f.key, ...(q ? { q } : {}) } }}
-                  aria-current={filter === f.key ? 'page' : undefined}
-                >
-                  {f.label}
-                </Link>
-              ))}
-            </nav>
-            <form className="adm-search" role="search">
-              <input type="hidden" name="status" value={filter} />
-              <input name="q" defaultValue={q} placeholder="Buscar por nome" aria-label="Buscar por nome" />
-              <button className="adm-btn adm-btn--small">Buscar</button>
-            </form>
-            <a className="adm-btn adm-btn--small" href="/api/admin/export">Exportar CSV</a>
-          </div>
-
-          {invitations.length === 0 && <p className="adm-muted">Nenhum convite encontrado.</p>}
-
-          <ul className="adm-list">
-            {invitations.map((inv) => (
-              <li key={inv.id} id={inv.id} className={`adm-inv${inv.active ? '' : ' is-inactive'}${sp.highlight === inv.id ? ' is-highlight' : ''}`}>
-                <div className="adm-inv__head">
-                  <div>
-                    <span className="adm-badge">
-                      {(() => {
-                        const n = inv.guests.filter((g) => g.guest_role === 'companion').length;
-                        return n === 0 ? 'Individual' : `+${n} acompanhante${n > 1 ? 's' : ''}`;
-                      })()}
-                    </span>
-                    {!inv.active && <span className="adm-badge adm-badge--off">Inativo</span>}
-                    {inv.label && <strong className="adm-inv__label">{inv.label}</strong>}
-                  </div>
-                  <div className="adm-code">
-                    <code>{inv.code ?? '(código indisponível)'}</code>
-                    {inv.code && <CopyButton value={inv.code} label="Copiar código" />}
-                  </div>
-                </div>
-                {inv.code && (
-                  <div className="adm-link">
-                    <a href={inviteLink(inv.code)} target="_blank" rel="noopener noreferrer" className="adm-link__url">
-                      {inviteLink(inv.code).replace(/^https?:\/\//, '')}
-                    </a>
-                    <CopyButton value={inviteLink(inv.code)} label="Copiar link" />
-                    <a
-                      className="adm-btn adm-btn--small adm-btn--whats"
-                      href={whatsappHref(inv.code, inv.guests.find((g) => g.guest_role === 'primary')?.full_name ?? '')}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      Enviar no WhatsApp
-                    </a>
-                  </div>
-                )}
-
-                <table className="adm-table">
-                  <thead>
-                    <tr><th>Convidado</th><th>Status</th><th>Respondido</th><th><span className="sr-only">Ações</span></th></tr>
-                  </thead>
-                  <tbody>
-                    {inv.guests.map((g) => (
-                      <tr key={g.id}>
-                        <td colSpan={4}>
-                          <form action={updateGuestAction} className="adm-guest">
-                            <input type="hidden" name="guestId" value={g.id} />
-                            <input type="hidden" name="invitationId" value={inv.id} />
-                            <label className="adm-guest__name">
-                              <span className="adm-muted adm-small">{g.guest_role === 'primary' ? 'Principal' : 'Acompanhante'}</span>
-                              <input name="fullName" defaultValue={g.full_name} required minLength={2} maxLength={120} />
-                            </label>
-                            <label className="adm-guest__name">
-                              <span className="adm-muted adm-small">Telefone</span>
-                              <input name="phone" defaultValue={formatPhone(g.phone)} inputMode="tel" maxLength={20} placeholder="(11) 90000-0000" />
-                            </label>
-                            <select name="status" defaultValue={g.attendance_status} aria-label="Status">
-                              {(['pending', 'attending', 'declined'] as const).map((s) => (
-                                <option key={s} value={s}>{STATUS_LABEL[s]}</option>
-                              ))}
-                            </select>
-                            <span className={`adm-status adm-status--${g.attendance_status}`}>{fmt(g.responded_at)}</span>
-                            <span className="adm-guest__actions">
-                              <button className="adm-btn adm-btn--small">Salvar</button>
-                              {g.guest_role === 'companion' && (
-                                <ConfirmSubmit
-                                  message="Remover este acompanhante?"
-                                  className="adm-btn adm-btn--small adm-btn--danger"
-                                  formAction={removeCompanionAction}
-                                >
-                                  Remover
-                                </ConfirmSubmit>
-                              )}
-                            </span>
-                          </form>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-
-                {(inv.contact_email || inv.guest_message) && (
-                  <p className="adm-contact">
-                    {inv.contact_email && <span>✉ {inv.contact_email}</span>}
-                    {inv.guest_message && <span>“{inv.guest_message}”</span>}
-                  </p>
-                )}
-
-                {inv.guests.length < 21 && (
-                  <form action={addCompanionAction} className="adm-inline">
-                    <input type="hidden" name="invitationId" value={inv.id} />
-                    <input name="fullName" placeholder="Adicionar acompanhante (nome completo)" minLength={2} maxLength={120} required aria-label="Nome do acompanhante" />
-                    <input name="phone" placeholder="Telefone" inputMode="tel" maxLength={20} aria-label="Telefone do acompanhante" />
-                    <button className="adm-btn adm-btn--small">Adicionar</button>
-                  </form>
-                )}
-
-                <details className="adm-more">
-                  <summary>Mais opções</summary>
-                  <div className="adm-more__body">
-                    <form action={updateInvitationAction} className="adm-inline">
-                      <input type="hidden" name="id" value={inv.id} />
-                      <input name="label" defaultValue={inv.label ?? ''} placeholder="Identificação interna" maxLength={120} aria-label="Identificação interna" />
-                      <button className="adm-btn adm-btn--small">Salvar</button>
-                    </form>
-                    <div className="adm-inline">
-                      <form action={toggleActiveAction}>
-                        <input type="hidden" name="id" value={inv.id} />
-                        <input type="hidden" name="active" value={String(!inv.active)} />
-                        <button className="adm-btn adm-btn--small">{inv.active ? 'Desativar convite' : 'Ativar convite'}</button>
-                      </form>
-                      <form action={regenerateCodeAction}>
-                        <input type="hidden" name="id" value={inv.id} />
-                        <ConfirmSubmit message="Gerar um novo código? O código atual deixará de funcionar.">Gerar novo código</ConfirmSubmit>
-                      </form>
-                      <form action={deleteInvitationAction}>
-                        <input type="hidden" name="id" value={inv.id} />
-                        <ConfirmSubmit message="Excluir este convite e todas as respostas? Esta ação não pode ser desfeita." className="adm-btn adm-btn--small adm-btn--danger">
-                          Excluir
-                        </ConfirmSubmit>
-                      </form>
-                    </div>
-                    <p className="adm-muted adm-small">Criado em {fmt(inv.created_at)} · Atualizado em {fmt(inv.updated_at)}</p>
-                  </div>
-                </details>
-              </li>
-            ))}
-          </ul>
-        </section>
+      <div className="adm-hello">
+        <h1>Olá, noivas!</h1>
+        <p className="adm-muted">Um resumo de como estão os convites e as confirmações.</p>
       </div>
+
+      <section className="adm-cards" aria-label="Resumo">
+        {cards.map((c) => (
+          <Link key={c.label} href={c.href} className={`adm-card${c.tone ? ` adm-card--${c.tone}` : ''}`}>
+            <span className="adm-card__value">{c.value}</span>
+            <span className="adm-card__label">{c.label}</span>
+            {c.hint && <span className="adm-card__hint">{c.hint}</span>}
+          </Link>
+        ))}
+      </section>
+
+      <section className={`adm-capacity${over > 0 ? ' is-over' : over >= -5 ? ' is-near' : ''}`} aria-label="Capacidade">
+        <div className="adm-capacity__head">
+          <div>
+            <h2>
+              {over > 0
+                ? `Atenção: ${fmt(over)} acima do contratado`
+                : over >= -5
+                  ? `Quase lá: faltam ${fmt(-over)} para o limite`
+                  : 'Dentro do contratado'}
+            </h2>
+            <p className="adm-muted adm-small">
+              Confirmados ({d.attending}) + noivas ({COUPLE}) + staff ({fmt(staffEquivalent)}) = <strong>{fmt(occupied)}</strong> de{' '}
+              {s.contractedGuests} contratados
+            </p>
+          </div>
+          <span className="adm-capacity__pct">{pct}%</span>
+        </div>
+        <div className="adm-bar" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100}>
+          <span style={{ width: `${pct}%` }} />
+        </div>
+        <p className="adm-capacity__plan">
+          Considerando os convites já enviados (sem as recusas), noivas e staff: <strong>{fmt(committed)}</strong> lugares
+          comprometidos.{' '}
+          {remainingToInvite >= 0 ? (
+            <>
+              Ainda dá para chamar <strong>{fmt(remainingToInvite)}</strong> convidado{remainingToInvite === 1 ? '' : 's'}.
+            </>
+          ) : (
+            <>
+              Os convites enviados já passam <strong>{fmt(-remainingToInvite)}</strong> do contratado (o alerta acima só considera
+              quem confirmou).
+            </>
+          )}
+        </p>
+      </section>
+
+      <section className="adm-panel adm-settings">
+        <h2>Contrato e staff</h2>
+        <form action={saveSettingsAction} className="adm-settings__form">
+          <input type="hidden" name="returnTo" value="/admin" />
+          <label>
+            Convidados contratados
+            <input name="contractedGuests" type="number" min={1} defaultValue={s.contractedGuests} inputMode="numeric" />
+          </label>
+          <label>
+            Staff (fotógrafo, barman…)
+            <input name="staffCount" type="number" min={0} defaultValue={s.staffCount} inputMode="numeric" />
+          </label>
+          <label>
+            Cada staff conta como
+            <select name="staffWeight" defaultValue={String(s.staffWeight)}>
+              <option value="0.5">Meio convidado (meia)</option>
+              <option value="1">Um convidado (inteira)</option>
+            </select>
+          </label>
+          <button className="adm-btn adm-btn--primary">Salvar</button>
+        </form>
+        <p className="adm-muted adm-small">
+          {s.staffCount} staff × {s.staffWeight === 1 ? 'inteira' : 'meia'} = {fmt(staffEquivalent)} convidado
+          {staffEquivalent === 1 ? '' : 's'}. As noivas contam como {COUPLE}.
+        </p>
+      </section>
+
+      <section className="adm-shortcuts">
+        <Link href="/admin/lista" className="adm-shortcut">
+          <strong>Lista geral</strong>
+          <span>Todos os convidados, um por linha, com telefone e troca rápida de status.</span>
+        </Link>
+        <Link href="/admin/novo" className="adm-shortcut">
+          <strong>Novo convite</strong>
+          <span>Crie um convite, defina a tag e os acompanhantes.</span>
+        </Link>
+        <Link href="/admin/convites" className="adm-shortcut">
+          <strong>Convites</strong>
+          <span>Visão por convite: link, WhatsApp, dados e respostas.</span>
+        </Link>
+      </section>
     </>
   );
 }

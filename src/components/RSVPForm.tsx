@@ -4,7 +4,7 @@ import { useEffect, useId, useRef, useState, type FormEvent } from 'react';
 import { ConfirmationModal } from './ConfirmationModal';
 
 type Status = 'pending' | 'attending' | 'declined';
-type Companion = { id: string; fullName: string; status: Status };
+type Companion = { id: string; fullName: string; phone: string; status: Status };
 type Invitation = {
   primaryName: string;
   status: Status;
@@ -39,7 +39,6 @@ async function post<T>(url: string, body: unknown): Promise<T> {
   return data as T;
 }
 
-const LOCKED = 'Verifique seu código primeiro';
 const digits = (v: string) => v.replace(/\D/g, '');
 const validPhone = (v: string) => /^[0-9]{10,13}$/.test(digits(v));
 
@@ -66,6 +65,8 @@ export function RSVPForm({ successTitle, giftListUrl, popup, allowChanges, initi
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
   const [compAnswers, setCompAnswers] = useState<Record<string, Status>>({});
+  const [compNames, setCompNames] = useState<Record<string, string>>({});
+  const [compPhones, setCompPhones] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState<'verify' | 'submit' | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [popupOpen, setPopupOpen] = useState(false);
@@ -74,7 +75,7 @@ export function RSVPForm({ successTitle, giftListUrl, popup, allowChanges, initi
   const statusRef = useRef<HTMLSelectElement>(null);
 
   // Mensagem de erro some assim que a pessoa corrige o formulário.
-  useEffect(() => setError(null), [code, status, phone, email, compAnswers]);
+  useEffect(() => setError(null), [code, status, phone, email, compAnswers, compNames, compPhones]);
 
   useEffect(() => {
     if (step !== 'done') return;
@@ -92,6 +93,8 @@ export function RSVPForm({ successTitle, giftListUrl, popup, allowChanges, initi
     setEmail((e) => i.email || e);
     setMessage((m) => i.message || m);
     setCompAnswers(Object.fromEntries(i.companions.map((c) => [c.id, c.status])));
+    setCompNames(Object.fromEntries(i.companions.map((c) => [c.id, c.fullName])));
+    setCompPhones(Object.fromEntries(i.companions.map((c) => [c.id, maskPhone(c.phone)])));
   }
 
   // Link personalizado: verifica o código automaticamente ao abrir a página.
@@ -130,6 +133,14 @@ export function RSVPForm({ successTitle, giftListUrl, popup, allowChanges, initi
     if (status === 'attending' && inv.companions.some((c) => !compAnswers[c.id] || compAnswers[c.id] === 'pending')) {
       return 'Escolha se cada acompanhante vai ou não.';
     }
+    if (status === 'attending') {
+      for (const [i, c] of inv.companions.entries()) {
+        if (compAnswers[c.id] !== 'attending') continue;
+        const n = (compNames[c.id] ?? '').trim();
+        if (n.length < 5 || !n.includes(' ')) return `Confirme o nome completo (nome e sobrenome) do acompanhante ${i + 1}.`;
+        if (!validPhone(compPhones[c.id] ?? '')) return `Informe o telefone com DDD do acompanhante ${i + 1}.`;
+      }
+    }
     return null;
   }
 
@@ -152,10 +163,12 @@ export function RSVPForm({ successTitle, giftListUrl, popup, allowChanges, initi
         email: email.trim(),
         message: message.trim() || undefined,
         // Se o convidado principal não vai, os acompanhantes também não vão.
-        companions: inv.companions.map((c) => ({
-          guestId: c.id,
-          status: attending ? compAnswers[c.id] : 'declined',
-        })),
+        companions: inv.companions.map((c) => {
+          const st = attending ? compAnswers[c.id] : 'declined';
+          return st === 'attending'
+            ? { guestId: c.id, status: st, fullName: (compNames[c.id] ?? '').trim(), phone: digits(compPhones[c.id] ?? '') }
+            : { guestId: c.id, status: st };
+        }),
       });
       load(data.invitation);
       setStep('done');
@@ -179,6 +192,8 @@ export function RSVPForm({ successTitle, giftListUrl, popup, allowChanges, initi
     setCode('');
     setStatus('pending');
     setCompAnswers({});
+    setCompNames({});
+    setCompPhones({});
     setStep('form');
   }
 
@@ -258,159 +273,191 @@ export function RSVPForm({ successTitle, giftListUrl, popup, allowChanges, initi
           maxLength={32}
           readOnly={verified}
         />
-        {verified ? (
+        {verified && (
           <button type="button" className="link-btn" onClick={reset}>
             Usar outro código
-          </button>
-        ) : (
-          <button type="button" className="link-btn" onClick={() => verify()} disabled={loading === 'verify'}>
-            {loading === 'verify' ? 'Verificando…' : 'Verificar meu convite'}
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" aria-hidden="true">
-              <path d="M2 8h12M9 3l5 5-5 5" />
-            </svg>
           </button>
         )}
       </div>
 
       <input className="hp" tabIndex={-1} autoComplete="off" aria-hidden="true" name="website" value={honeypot} onChange={(e) => setHoneypot(e.target.value)} />
 
-      {inv && initialCode && code === initialCode && !inv.alreadyResponded && inv.canSubmit && (
-        <p className="rsvp-notice">
-          Olá, {inv.primaryName.split(' ')[0]}! Seu convite já está aqui. É só preencher os dados abaixo e enviar.
-        </p>
+      {!verified && (
+        <p className="rsvp-note">Digite o código que você recebeu no convite. Depois, é só preencher seus dados.</p>
       )}
-      {inv?.alreadyResponded && inv.canSubmit && (
-        <p className="rsvp-notice">Você já respondeu a este convite. Se quiser, pode alterar sua resposta abaixo.</p>
-      )}
-      {inv?.closedReason && <p className="rsvp-notice">{inv.closedReason}</p>}
 
-      <div className="field">
-        <label className="field__label" htmlFor={`${uid}-name`}>
-          Nome do convidado principal <span className="req">*</span>
-        </label>
-        <input id={`${uid}-name`} className="field__input" value={inv?.primaryName ?? ''} placeholder={LOCKED} readOnly disabled={!verified} />
-      </div>
+      {/* Os demais campos só aparecem depois que o código é verificado. */}
+      {verified && (
+        <>
+          {initialCode && code === initialCode && !inv.alreadyResponded && inv.canSubmit && (
+            <p className="rsvp-notice">
+              Olá, {inv.primaryName.split(' ')[0]}! Seu convite já está aqui. É só preencher os dados abaixo e enviar.
+            </p>
+          )}
+          {inv.alreadyResponded && inv.canSubmit && (
+            <p className="rsvp-notice">Você já respondeu a este convite. Se quiser, pode alterar sua resposta abaixo.</p>
+          )}
+          {inv.closedReason && <p className="rsvp-notice">{inv.closedReason}</p>}
 
-      <div className="field-row">
-        <div className="field">
-          <label className="field__label" htmlFor={`${uid}-status`}>
-            Você estará conosco? <span className="req">*</span>
-          </label>
-          <span className="select">
-            <select
-              ref={statusRef}
-              id={`${uid}-status`}
-              value={status === 'pending' ? '' : status}
-              onChange={(e) => setStatus((e.target.value || 'pending') as Status)}
-              disabled={!editable}
-            >
-              <option value="">Selecione</option>
-              <option value="attending">Sim, estarei lá</option>
-              <option value="declined">Não poderei comparecer</option>
-            </select>
-          </span>
-        </div>
-        <div className="field">
-          <label className="field__label" htmlFor={`${uid}-slots`}>
-            Seu convite inclui
-          </label>
-          <input id={`${uid}-slots`} className="field__input" readOnly disabled={!verified} value={slotsLabel} placeholder={LOCKED} />
-        </div>
-      </div>
+          <div className="field">
+            <label className="field__label" htmlFor={`${uid}-name`}>
+              Convidado(a) principal
+            </label>
+            <p className="companion__name" id={`${uid}-name`}>{inv.primaryName}</p>
+            <span className="rsvp-note">{slotsLabel}</span>
+          </div>
 
-      <div className="field-row">
-        <div className="field">
-          <label className="field__label" htmlFor={`${uid}-phone`}>
-            Seu telefone (WhatsApp) <span className="req">*</span>
-          </label>
-          <input
-            id={`${uid}-phone`}
-            className="field__input"
-            type="tel"
-            inputMode="tel"
-            autoComplete="tel-national"
-            value={phone}
-            onChange={(e) => setPhone(maskPhone(e.target.value))}
-            placeholder={verified ? '(11) 98765-4321' : LOCKED}
-            disabled={!editable}
-          />
-        </div>
-        <div className="field">
-          <label className="field__label" htmlFor={`${uid}-email`}>
-            Seu e-mail <span className="req">*</span>
-          </label>
-          <input
-            id={`${uid}-email`}
-            className="field__input"
-            type="email"
-            inputMode="email"
-            autoComplete="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder={verified ? 'voce@email.com' : LOCKED}
-            disabled={!editable}
-            maxLength={200}
-          />
-        </div>
-      </div>
+          <div className="field">
+            <label className="field__label" htmlFor={`${uid}-status`}>
+              Você estará conosco? <span className="req">*</span>
+            </label>
+            <span className="select">
+              <select
+                ref={statusRef}
+                id={`${uid}-status`}
+                value={status === 'pending' ? '' : status}
+                onChange={(e) => setStatus((e.target.value || 'pending') as Status)}
+                disabled={!editable}
+              >
+                <option value="">Selecione</option>
+                <option value="attending">Sim, estarei lá</option>
+                <option value="declined">Não poderei comparecer</option>
+              </select>
+            </span>
+          </div>
 
-      {showCompanions && (
-        <fieldset className="companions">
-          <legend className="companions__title">
-            Seus acompanhantes
-            <span>Estas pessoas estão incluídas no seu convite. Conte pra gente se cada uma vai ou não.</span>
-          </legend>
-
-          {inv.companions.map((c, i) => (
-            <div className="companion companion--fixed" key={c.id}>
-              <p className="companion__n" aria-hidden="true">
-                {i + 1}
-              </p>
-              <div className="field">
-                <span className="field__label" id={`${uid}-c${i}-label`}>
-                  Acompanhante {i + 1}
-                </span>
-                <p className="companion__name">{c.fullName}</p>
-              </div>
-              <div className="field">
-                <label className="field__label" htmlFor={`${uid}-c${i}`}>
-                  Vai comparecer? <span className="req">*</span>
-                </label>
-                <span className="select">
-                  <select
-                    id={`${uid}-c${i}`}
-                    aria-describedby={`${uid}-c${i}-label`}
-                    value={!compAnswers[c.id] || compAnswers[c.id] === 'pending' ? '' : compAnswers[c.id]}
-                    onChange={(e) => setCompAnswers((a) => ({ ...a, [c.id]: (e.target.value || 'pending') as Status }))}
-                  >
-                    <option value="">Selecione</option>
-                    <option value="attending">Sim, vai</option>
-                    <option value="declined">Não vai</option>
-                  </select>
-                </span>
-              </div>
+          <div className="field-row">
+            <div className="field">
+              <label className="field__label" htmlFor={`${uid}-phone`}>
+                Seu telefone (WhatsApp) <span className="req">*</span>
+              </label>
+              <input
+                id={`${uid}-phone`}
+                className="field__input"
+                type="tel"
+                inputMode="tel"
+                autoComplete="tel-national"
+                value={phone}
+                onChange={(e) => setPhone(maskPhone(e.target.value))}
+                placeholder="(11) 98765-4321"
+                disabled={!editable}
+              />
             </div>
-          ))}
-        </fieldset>
+            <div className="field">
+              <label className="field__label" htmlFor={`${uid}-email`}>
+                Seu e-mail <span className="req">*</span>
+              </label>
+              <input
+                id={`${uid}-email`}
+                className="field__input"
+                type="email"
+                inputMode="email"
+                autoComplete="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="voce@email.com"
+                disabled={!editable}
+                maxLength={200}
+              />
+            </div>
+          </div>
+
+          {showCompanions && (
+            <fieldset className="companions">
+              <legend className="companions__title">
+                Seus acompanhantes
+                <span>
+                  Estas pessoas estão incluídas no seu convite. Conte pra gente se cada uma vai e, para quem vai, confirme o nome
+                  completo e o telefone.
+                </span>
+              </legend>
+
+              {inv.companions.map((c, i) => {
+                const going = compAnswers[c.id] === 'attending';
+                return (
+                  <div className="companion companion--fixed" key={c.id}>
+                    <p className="companion__n" aria-hidden="true">
+                      {i + 1}
+                    </p>
+                    <div className="field">
+                      <span className="field__label" id={`${uid}-c${i}-label`}>
+                        Acompanhante {i + 1}
+                      </span>
+                      <p className="companion__name">{c.fullName}</p>
+                    </div>
+                    <div className="field">
+                      <label className="field__label" htmlFor={`${uid}-c${i}`}>
+                        Vai comparecer? <span className="req">*</span>
+                      </label>
+                      <span className="select">
+                        <select
+                          id={`${uid}-c${i}`}
+                          aria-describedby={`${uid}-c${i}-label`}
+                          value={!compAnswers[c.id] || compAnswers[c.id] === 'pending' ? '' : compAnswers[c.id]}
+                          onChange={(e) => setCompAnswers((a) => ({ ...a, [c.id]: (e.target.value || 'pending') as Status }))}
+                        >
+                          <option value="">Selecione</option>
+                          <option value="attending">Sim, vai</option>
+                          <option value="declined">Não vai</option>
+                        </select>
+                      </span>
+                    </div>
+                    {going && (
+                      <div className="companion__confirm">
+                        <div className="field">
+                          <label className="field__label" htmlFor={`${uid}-c${i}-name`}>
+                            Nome completo <span className="req">*</span>
+                          </label>
+                          <input
+                            id={`${uid}-c${i}-name`}
+                            className="field__input"
+                            value={compNames[c.id] ?? ''}
+                            onChange={(e) => setCompNames((n) => ({ ...n, [c.id]: e.target.value }))}
+                            placeholder="Nome e sobrenome"
+                            maxLength={120}
+                            autoComplete="off"
+                          />
+                        </div>
+                        <div className="field">
+                          <label className="field__label" htmlFor={`${uid}-c${i}-phone`}>
+                            Telefone <span className="req">*</span>
+                          </label>
+                          <input
+                            id={`${uid}-c${i}-phone`}
+                            className="field__input"
+                            type="tel"
+                            inputMode="tel"
+                            value={compPhones[c.id] ?? ''}
+                            onChange={(e) => setCompPhones((n) => ({ ...n, [c.id]: maskPhone(e.target.value) }))}
+                            placeholder="(11) 98765-4321"
+                            autoComplete="off"
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </fieldset>
+          )}
+
+          <div className="field">
+            <label className="field__label" htmlFor={`${uid}-msg`}>
+              Restrições alimentares ou recado <span className="opt">(opcional)</span>
+            </label>
+            <textarea
+              id={`${uid}-msg`}
+              className="field__input field__textarea"
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              placeholder="Conte para nós, se precisar"
+              rows={3}
+              maxLength={1000}
+              disabled={!editable}
+            />
+          </div>
+        </>
       )}
-
-      <div className="field">
-        <label className="field__label" htmlFor={`${uid}-msg`}>
-          Restrições alimentares ou recado <span className="opt">(opcional)</span>
-        </label>
-        <textarea
-          id={`${uid}-msg`}
-          className="field__input field__textarea"
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          placeholder="Conte para nós, se precisar"
-          rows={3}
-          maxLength={1000}
-          disabled={!editable}
-        />
-      </div>
-
-      <p className="rsvp-note">O código identifica o seu convite e mostra exatamente quem está incluído nele.</p>
 
       {error && (
         <p className="rsvp-error" role="alert">
@@ -419,7 +466,7 @@ export function RSVPForm({ successTitle, giftListUrl, popup, allowChanges, initi
       )}
 
       <button className="btn-solid btn-solid--block" type="submit" disabled={loading !== null || (verified && !editable)}>
-        {loading === 'submit' ? 'Enviando…' : verified ? 'Enviar confirmação' : 'Verificar e continuar'}
+        {loading === 'submit' ? 'Enviando…' : loading === 'verify' ? 'Verificando…' : verified ? 'Enviar confirmação' : 'Verificar meu convite'}
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" aria-hidden="true">
           <path d="M2 8h12M9 3l5 5-5 5" />
         </svg>

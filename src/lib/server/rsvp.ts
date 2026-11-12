@@ -14,7 +14,7 @@ const LIMITS = {
   failuresGlobal: { limit: 400, window: 60 * 60 },   // freio global contra ataques distribuídos
 };
 
-export type PublicCompanion = { id: string; fullName: string; status: 'pending' | 'attending' | 'declined' };
+export type PublicCompanion = { id: string; fullName: string; phone: string; status: 'pending' | 'attending' | 'declined' };
 
 export type PublicInvitation = {
   primaryName: string;
@@ -48,6 +48,8 @@ const MESSAGES: Record<string, string> = {
   CAPACITY_EXCEEDED: 'O número de acompanhantes ultrapassa as vagas do seu convite.',
   DUPLICATE_NAME: 'Cada acompanhante deve ter um nome diferente (e diferente do seu).',
   INVALID_NAME: 'Informe nome e sobrenome de cada acompanhante.',
+  INVALID_COMPANION_NAME: 'Informe o nome completo (nome e sobrenome) de cada acompanhante que vai comparecer.',
+  INVALID_COMPANION_PHONE: 'Informe o telefone com DDD de cada acompanhante que vai comparecer.',
   INVALID_PHONE: 'Informe um telefone válido com DDD, por exemplo (11) 98765-4321.',
   COMPANIONS_NOT_EXPECTED: 'Você marcou que não levará acompanhante. Remova os acompanhantes informados ou desmarque essa opção.',
   COMPANION_CHOICE_REQUIRED: 'Informe seus acompanhantes ou marque que não levará acompanhante.',
@@ -142,7 +144,7 @@ async function loadPublicInvitation(inv: InvitationRow): Promise<PublicInvitatio
     // Os ids só permitem responder por pessoas deste mesmo convite (validado no banco).
     companions: guests
       .filter((g) => g.guest_role === 'companion')
-      .map((g) => ({ id: g.id, fullName: g.full_name, status: g.attendance_status })),
+      .map((g) => ({ id: g.id, fullName: g.full_name, phone: g.phone ?? '', status: g.attendance_status })),
     alreadyResponded,
     canSubmit: closedReason === null,
     closedReason,
@@ -175,7 +177,14 @@ export const submitSchema = z.object({
   email: z.string().trim().email().max(200),
   message: z.string().trim().max(1000).optional(),
   companions: z
-    .array(z.object({ guestId: z.string().uuid(), status: z.enum(['attending', 'declined']) }))
+    .array(
+      z.object({
+        guestId: z.string().uuid(),
+        status: z.enum(['attending', 'declined']),
+        fullName: z.string().trim().max(120).optional(),
+        phone: z.string().max(30).optional().transform((v) => normalizePhone(v ?? '')),
+      }),
+    )
     .max(20)
     .default([]),
 });
@@ -189,11 +198,11 @@ export async function submitRsvp(input: SubmitInput) {
   const sql = db();
   try {
     const [row] = await sql<{ result: { event_id: string; updated: boolean } }[]>`
-      select wedding.submit_rsvp_v4(
+      select wedding.submit_rsvp_v5(
         ${inv.id}::uuid,
         ${input.status},
         ${input.phone},
-        ${sql.json(input.companions.map((c) => ({ guest_id: c.guestId, status: c.status })))}::jsonb,
+        ${sql.json(input.companions.map((c) => ({ guest_id: c.guestId, status: c.status, full_name: c.fullName ?? '', phone: c.phone })))}::jsonb,
         ${input.email},
         ${input.message ?? null},
         ${wedding.rsvp.allowChanges}

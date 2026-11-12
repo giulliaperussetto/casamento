@@ -620,3 +620,7 @@ h1, h2, h3 { margin: 0; font-weight: 400; }
 .mission .prose { max-width: 52em; margin-inline: auto; }
 .mission__request { max-width: 920px; }
 .mission__request p { max-width: 50em; margin-inline: auto; }
+
+/* Acompanhante que vai: confirma nome completo e telefone */
+.companion__confirm { display: grid; gap: .9rem; }
+@media (min-width: 640px) { .companion__confirm { grid-column: 2 / -1; grid-template-columns: 1.3fr 1fr; } }

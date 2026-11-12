@@ -11,7 +11,7 @@ export default async function LoginPage() {
   return (
     <main className="adm-login">
       <div className="adm-login__card">
-        <p className="adm-eyebrow">Painel das noivas</p>
+        <p className="adm-eyebrow">Painel dos convidados</p>
         <h1>Acesso administrativo</h1>
         <LoginForm />
       </div>

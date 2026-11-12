@@ -23,6 +23,10 @@ export type AdminInvitation = {
   contact_email: string | null;
   guest_message: string | null;
   companions_declined: boolean;
+  tag_id: string | null;
+  tag_name: string | null;
+  tag_color: string | null;
+  sent_at: Date | null;
   created_at: Date;
   updated_at: Date;
   guests: AdminGuest[];
@@ -35,14 +39,15 @@ export async function listInvitations(filter: StatusFilter = 'all', search = '')
   const term = `%${search.trim().toLowerCase()}%`;
   const rows = await sql<(Omit<AdminInvitation, 'code'> & { code_encrypted: string | null })[]>`
     select i.id, i.code_encrypted, i.label, i.invitation_type, i.max_guests, i.allow_unnamed_companion,
-           i.active, i.contact_email, i.guest_message, i.companions_declined, i.created_at, i.updated_at,
+           i.active, i.contact_email, i.guest_message, i.companions_declined, i.tag_id, t.name as tag_name, t.color as tag_color, i.sent_at, i.created_at, i.updated_at,
            coalesce(jsonb_agg(jsonb_build_object(
              'id', g.id, 'full_name', g.full_name, 'guest_role', g.guest_role, 'name_locked', g.name_locked,
              'attendance_status', g.attendance_status, 'responded_at', g.responded_at, 'phone', g.phone
            ) order by g.guest_role desc, g.created_at) filter (where g.id is not null), '[]') as guests
     from wedding.invitations i
     left join wedding.guests g on g.invitation_id = i.id
-    group by i.id
+    left join wedding.tags t on t.id = i.tag_id
+    group by i.id, t.id
     having (${search.trim() === ''} or bool_or(lower(g.full_name) like ${term}) or lower(coalesce(i.label, '')) like ${term})
        and (
          ${filter} = 'all'
@@ -71,6 +76,7 @@ export async function getStats() {
 export type CreateInvitationInput = {
   label?: string | null;
   primaryName: string;
+  tagId?: string | null;
   /** Nomes dos acompanhantes já definidos pelas noivas (pode ser vazio). */
   companions: string[];
   /** Opcional: usar um código já impresso (será armazenado apenas como hash). */
@@ -86,9 +92,9 @@ export async function createInvitation(input: CreateInvitationInput): Promise<{ 
     try {
       const id = await sql.begin(async (tx) => {
         const [inv] = await tx<{ id: string }[]>`
-          insert into wedding.invitations (code_hash, code_encrypted, label, invitation_type, max_guests, allow_unnamed_companion)
+          insert into wedding.invitations (code_hash, code_encrypted, label, invitation_type, max_guests, allow_unnamed_companion, tag_id)
           values (${hashInviteCode(code)}, ${encryptInviteCode(code)}, ${input.label?.trim() || null},
-                  ${slots > 0 ? 'group' : 'individual'}, ${1 + slots}, ${slots > 0})
+                  ${slots > 0 ? 'group' : 'individual'}, ${1 + slots}, ${slots > 0}, ${input.tagId || null})
           returning id`;
         const [primary] = await tx<{ id: string }[]>`
           insert into wedding.guests (invitation_id, full_name, guest_role)
@@ -122,8 +128,104 @@ export async function setInvitationActive(id: string, active: boolean) {
             values (${id}, ${active ? 'invitation_activated' : 'invitation_deactivated'})`;
 }
 
-export async function updateInvitation(id: string, data: { label: string | null }) {
-  await db()`update wedding.invitations set label = ${data.label} where id = ${id}`;
+export async function updateInvitation(id: string, data: { label: string | null; tagId: string | null }) {
+  await db()`update wedding.invitations set label = ${data.label}, tag_id = ${data.tagId} where id = ${id}`;
+}
+
+export async function setInvitationSent(id: string, sent: boolean) {
+  await db()`update wedding.invitations
+               set sent_at = case when ${sent} then coalesce(sent_at, now()) else null end
+             where id = ${id}`;
+}
+
+export async function setGuestStatus(guestId: string, status: 'pending' | 'attending' | 'declined') {
+  await db()`
+    update wedding.guests
+       set attendance_status = ${status},
+           responded_at = case when ${status} = 'pending' then null else now() end
+     where id = ${guestId}`;
+}
+
+// ---------------------------------------------------------------------------
+// Tags (internas; nunca aparecem no site)
+// ---------------------------------------------------------------------------
+export type Tag = { id: string; name: string; color: string; invitations: number };
+
+export async function listTags(): Promise<Tag[]> {
+  return db()<Tag[]>`
+    select t.id, t.name, t.color, count(i.id)::int as invitations
+      from wedding.tags t left join wedding.invitations i on i.tag_id = t.id
+     group by t.id order by lower(t.name)`;
+}
+
+export async function createTag(name: string, color: string) {
+  await db()`insert into wedding.tags (name, color) values (${name.trim()}, ${color})`;
+}
+
+export async function updateTag(id: string, name: string, color: string) {
+  await db()`update wedding.tags set name = ${name.trim()}, color = ${color} where id = ${id}`;
+}
+
+export async function deleteTag(id: string) {
+  await db()`delete from wedding.tags where id = ${id}`;
+}
+
+// ---------------------------------------------------------------------------
+// Configurações e números da home
+// ---------------------------------------------------------------------------
+export type Settings = { contractedGuests: number; staffCount: number; staffWeight: number };
+
+export async function getSettings(): Promise<Settings> {
+  const rows = await db()<{ key: string; value: unknown }[]>`select key, value from wedding.settings`;
+  const m = Object.fromEntries(rows.map((r) => [r.key, Number(r.value)]));
+  return {
+    contractedGuests: m.contracted_guests ?? 100,
+    staffCount: m.staff_count ?? 0,
+    staffWeight: m.staff_weight ?? 0.5,
+  };
+}
+
+export async function saveSettings(s: Settings) {
+  const sql = db();
+  await sql.begin(async (tx) => {
+    for (const [key, value] of [
+      ['contracted_guests', s.contractedGuests],
+      ['staff_count', s.staffCount],
+      ['staff_weight', s.staffWeight],
+    ] as const) {
+      await tx`insert into wedding.settings (key, value) values (${key}, ${sql.json(value)})
+               on conflict (key) do update set value = excluded.value, updated_at = now()`;
+    }
+  });
+}
+
+/** As duas noivas contam como convidadas no contrato do espaço. */
+export const COUPLE = 2;
+
+export async function getDashboard() {
+  const [r] = await db()<
+    {
+      sent: number;
+      not_sent: number;
+      people: number;
+      people_sent: number;
+      attending: number;
+      declined: number;
+      pending_sent: number;
+      pending_not_sent: number;
+    }[]
+  >`
+    select
+      (select count(*) from wedding.invitations where active and sent_at is not null)::int as sent,
+      (select count(*) from wedding.invitations where active and sent_at is null)::int as not_sent,
+      count(g.*)::int as people,
+      count(*) filter (where i.sent_at is not null)::int as people_sent,
+      count(*) filter (where g.attendance_status = 'attending')::int as attending,
+      count(*) filter (where g.attendance_status = 'declined')::int as declined,
+      count(*) filter (where g.attendance_status = 'pending' and i.sent_at is not null)::int as pending_sent,
+      count(*) filter (where g.attendance_status = 'pending' and i.sent_at is null)::int as pending_not_sent
+    from wedding.guests g join wedding.invitations i on i.id = g.invitation_id and i.active`;
+  return r;
 }
 
 export async function regenerateCode(id: string): Promise<string> {
@@ -133,6 +235,31 @@ export async function regenerateCode(id: string): Promise<string> {
             where id = ${id}`;
   await sql`insert into wedding.rsvp_events (invitation_id, event_type) values (${id}, 'code_regenerated')`;
   return code;
+}
+
+export async function listAllGuests() {
+  return db()<
+    {
+      id: string;
+      invitation_id: string;
+      full_name: string;
+      guest_role: 'primary' | 'companion';
+      phone: string | null;
+      attendance_status: 'pending' | 'attending' | 'declined';
+      primary_name: string;
+      tag_id: string | null;
+      tag_name: string | null;
+      tag_color: string | null;
+      sent_at: Date | null;
+    }[]
+  >`
+    select g.id, g.invitation_id, g.full_name, g.guest_role, g.phone, g.attendance_status,
+           p.full_name as primary_name, i.tag_id, t.name as tag_name, t.color as tag_color, i.sent_at
+      from wedding.guests g
+      join wedding.invitations i on i.id = g.invitation_id and i.active
+      left join wedding.guests p on p.invitation_id = i.id and p.guest_role = 'primary'
+      left join wedding.tags t on t.id = i.tag_id
+     order by lower(p.full_name), i.id, case g.guest_role when 'primary' then 0 else 1 end, g.created_at`;
 }
 
 export async function updateGuest(
@@ -201,12 +328,14 @@ function csvCell(value: unknown): string {
 
 export async function exportCsv(origin = ''): Promise<string> {
   const invitations = await listInvitations('all');
-  const header = ['Convite', 'Código', 'Link do convite', 'Acompanhantes no convite', 'Ativo', 'Convidado', 'Papel', 'Telefone', 'Status', 'Respondido em', 'E-mail', 'Recado / restrições'];
+  const header = ['Tag', 'Convite enviado', 'Convite', 'Código', 'Link do convite', 'Acompanhantes no convite', 'Ativo', 'Convidado', 'Papel', 'Telefone', 'Status', 'Respondido em', 'E-mail', 'Recado / restrições'];
   const lines = [header.join(';')];
   for (const inv of invitations) {
     for (const g of inv.guests) {
       lines.push(
         [
+          inv.tag_name ?? '',
+          inv.sent_at ? 'Sim' : 'Não',
           inv.label ?? '',
           inv.code ?? '',
           inv.code && origin ? `${origin}/${inv.code}` : '',

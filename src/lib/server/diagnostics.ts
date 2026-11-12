@@ -61,16 +61,18 @@ export async function runDiagnostics(): Promise<Check[]> {
   }
 
   try {
-    const [r] = await sql<{ t1: boolean; t2: boolean; t3: boolean; t4: boolean; admins: number }[]>`
+    const [r] = await sql<{ t1: boolean; t2: boolean; t3: boolean; t4: boolean; t5: boolean; admins: number }[]>`
       select to_regclass('wedding.invitations') is not null as t1,
              exists (select 1 from information_schema.columns where table_schema = 'wedding' and table_name = 'invitations' and column_name = 'contact_email') as t2,
              exists (select 1 from pg_proc where proname = 'submit_rsvp_v3') as t3,
              exists (select 1 from pg_proc where proname = 'submit_rsvp_v4') as t4,
+             exists (select 1 from pg_proc where proname = 'submit_rsvp_v5') as t5,
              0 as admins`;
     checks.push({ label: 'Arquivo 0001 rodado (tabelas criadas)', ok: r.t1, detail: r.t1 ? undefined : 'Rode o 0001_wedding_schema.sql no SQL Editor.' });
     checks.push({ label: 'Arquivo 0002 rodado', ok: r.t2, detail: r.t2 ? undefined : 'Rode o 0002_contact_and_message.sql no SQL Editor.' });
     checks.push({ label: 'Arquivo 0003 rodado', ok: r.t3, detail: r.t3 ? undefined : 'Rode o 0003_companion_slots.sql no SQL Editor.' });
     checks.push({ label: 'Arquivo 0004 rodado', ok: r.t4, detail: r.t4 ? undefined : 'Rode o 0004_prefilled_companions.sql no SQL Editor.' });
+    checks.push({ label: 'Arquivo 0005 rodado', ok: r.t5, detail: r.t5 ? undefined : 'Rode o 0005_panel_tags_settings.sql no SQL Editor.' });
     if (r.t1) {
       const [a] = await sql<{ n: number }[]>`select count(*)::int as n from wedding.admin_users`;
       checks.push({ label: 'Login do painel criado', ok: a.n > 0, detail: a.n > 0 ? undefined : 'Rode o trecho do item 3 do PASSO-A-PASSO-PRIVADO.txt no SQL Editor.' });
