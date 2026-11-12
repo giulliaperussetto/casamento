@@ -20,7 +20,6 @@ export type PublicInvitation = {
   primaryName: string;
   status: 'pending' | 'attending' | 'declined';
   phone: string;
-  email: string;
   message: string;
   companions: PublicCompanion[];
   alreadyResponded: boolean;
@@ -139,7 +138,6 @@ async function loadPublicInvitation(inv: InvitationRow): Promise<PublicInvitatio
     primaryName: primary?.full_name ?? '',
     status,
     phone: primary?.phone ?? '',
-    email: inv.contact_email ?? '',
     message: inv.guest_message ?? '',
     // Os ids só permitem responder por pessoas deste mesmo convite (validado no banco).
     companions: guests
@@ -174,7 +172,6 @@ export const submitSchema = z.object({
   code: z.string().min(1).max(64),
   status: z.enum(['attending', 'declined']),
   phone: phoneSchema,
-  email: z.string().trim().email().max(200),
   message: z.string().trim().max(1000).optional(),
   companions: z
     .array(
@@ -203,7 +200,7 @@ export async function submitRsvp(input: SubmitInput) {
         ${input.status},
         ${input.phone},
         ${sql.json(input.companions.map((c) => ({ guest_id: c.guestId, status: c.status, full_name: c.fullName ?? '', phone: c.phone })))}::jsonb,
-        ${input.email},
+        ${null},
         ${input.message ?? null},
         ${wedding.rsvp.allowChanges}
       ) as result`;

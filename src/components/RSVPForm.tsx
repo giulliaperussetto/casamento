@@ -9,7 +9,6 @@ type Invitation = {
   primaryName: string;
   status: Status;
   phone: string;
-  email: string;
   message: string;
   companions: Companion[];
   alreadyResponded: boolean;
@@ -62,7 +61,6 @@ export function RSVPForm({ successTitle, giftListUrl, popup, allowChanges, initi
   const [inv, setInv] = useState<Invitation | null>(null);
   const [status, setStatus] = useState<Status>('pending');
   const [phone, setPhone] = useState('');
-  const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
   const [compAnswers, setCompAnswers] = useState<Record<string, Status>>({});
   const [compNames, setCompNames] = useState<Record<string, string>>({});
@@ -75,7 +73,7 @@ export function RSVPForm({ successTitle, giftListUrl, popup, allowChanges, initi
   const statusRef = useRef<HTMLSelectElement>(null);
 
   // Mensagem de erro some assim que a pessoa corrige o formulário.
-  useEffect(() => setError(null), [code, status, phone, email, compAnswers, compNames, compPhones]);
+  useEffect(() => setError(null), [code, status, phone, compAnswers, compNames, compPhones]);
 
   useEffect(() => {
     if (step !== 'done') return;
@@ -90,7 +88,6 @@ export function RSVPForm({ successTitle, giftListUrl, popup, allowChanges, initi
     setInv(i);
     setStatus(i.status);
     setPhone(maskPhone(i.phone));
-    setEmail((e) => i.email || e);
     setMessage((m) => i.message || m);
     setCompAnswers(Object.fromEntries(i.companions.map((c) => [c.id, c.status])));
     setCompNames(Object.fromEntries(i.companions.map((c) => [c.id, c.fullName])));
@@ -129,7 +126,6 @@ export function RSVPForm({ successTitle, giftListUrl, popup, allowChanges, initi
     if (!inv) return null;
     if (status === 'pending') return 'Conte para nós se você estará conosco.';
     if (!validPhone(phone)) return 'Informe seu telefone com DDD, por exemplo (11) 98765-4321.';
-    if (!/^\S+@\S+\.\S+$/.test(email.trim())) return 'Informe um e-mail válido para que possamos falar com você.';
     if (status === 'attending' && inv.companions.some((c) => !compAnswers[c.id] || compAnswers[c.id] === 'pending')) {
       return 'Escolha se cada acompanhante vai ou não.';
     }
@@ -160,7 +156,6 @@ export function RSVPForm({ successTitle, giftListUrl, popup, allowChanges, initi
         website: honeypot,
         status,
         phone: digits(phone),
-        email: email.trim(),
         message: message.trim() || undefined,
         // Se o convidado principal não vai, os acompanhantes também não vão.
         companions: inv.companions.map((c) => {
@@ -326,40 +321,21 @@ export function RSVPForm({ successTitle, giftListUrl, popup, allowChanges, initi
             </span>
           </div>
 
-          <div className="field-row">
-            <div className="field">
-              <label className="field__label" htmlFor={`${uid}-phone`}>
-                Seu telefone (WhatsApp) <span className="req">*</span>
-              </label>
-              <input
-                id={`${uid}-phone`}
-                className="field__input"
-                type="tel"
-                inputMode="tel"
-                autoComplete="tel-national"
-                value={phone}
-                onChange={(e) => setPhone(maskPhone(e.target.value))}
-                placeholder="(11) 98765-4321"
-                disabled={!editable}
-              />
-            </div>
-            <div className="field">
-              <label className="field__label" htmlFor={`${uid}-email`}>
-                Seu e-mail <span className="req">*</span>
-              </label>
-              <input
-                id={`${uid}-email`}
-                className="field__input"
-                type="email"
-                inputMode="email"
-                autoComplete="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="voce@email.com"
-                disabled={!editable}
-                maxLength={200}
-              />
-            </div>
+          <div className="field">
+            <label className="field__label" htmlFor={`${uid}-phone`}>
+              Seu telefone (WhatsApp) <span className="req">*</span>
+            </label>
+            <input
+              id={`${uid}-phone`}
+              className="field__input"
+              type="tel"
+              inputMode="tel"
+              autoComplete="tel-national"
+              value={phone}
+              onChange={(e) => setPhone(maskPhone(e.target.value))}
+              placeholder="(11) 98765-4321"
+              disabled={!editable}
+            />
           </div>
 
           {showCompanions && (

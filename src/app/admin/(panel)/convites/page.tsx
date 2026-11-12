@@ -195,13 +195,8 @@ export default async function ConvitesPage({
                     <button className="adm-btn adm-btn--small">Adicionar</button>
                   </form>
 
-                  {(inv.contact_email || inv.guest_message) && (
+                  {inv.guest_message && (
                     <div className="adm-contact">
-                      {inv.contact_email && (
-                        <p>
-                          <span className="adm-muted">E-mail:</span> {inv.contact_email}
-                        </p>
-                      )}
                       {inv.guest_message && (
                         <p>
                           <span className="adm-muted">Recado:</span> “{inv.guest_message}”

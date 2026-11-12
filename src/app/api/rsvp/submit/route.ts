@@ -15,9 +15,7 @@ export async function POST(req: Request) {
     const issue = parsed.error.issues[0];
     const field = String(issue?.path[0] ?? '');
     const error =
-      field === 'email'
-        ? 'Informe um e-mail válido para que possamos falar com você.'
-        : issue?.message === 'INVALID_PHONE'
+      issue?.message === 'INVALID_PHONE'
           ? 'Informe um telefone válido com DDD, por exemplo (11) 98765-4321.'
           : field === 'companions'
             ? 'Informe nome e sobrenome de cada acompanhante.'

@@ -44,7 +44,7 @@ async function invite(primary: string, companions: string[] = [], active = true)
   return { id: inv.id, code };
 }
 
-const base = { email: 'convidado@example.com', phone: '(11) 98765-4321' };
+const base = { phone: '(11) 98765-4321' };
 const submit = (code: string, extra: any, fromIp?: string) => api('/api/rsvp/submit', { code, ...base, ...extra }, fromIp);
 const guestsOf = (id: string) => sql`select full_name, guest_role, attendance_status, phone from wedding.guests where invitation_id = ${id} order by guest_role desc, created_at`;
 
@@ -61,8 +61,6 @@ try {
   check('não expõe o id do convite', !JSON.stringify(r.data).includes(ind.id));
   r = await submit(ind.code, { status: 'attending', phone: '1234' });
   check('rejeita telefone inválido', r.status === 400 && /telefone/i.test(r.data.error), r);
-  r = await submit(ind.code, { status: 'attending', email: 'invalido' });
-  check('rejeita e-mail inválido', r.status === 400, r);
   r = await submit(ind.code, { status: 'attending' });
   check('salva confirmação', r.status === 200 && r.data.eventId, r);
   let rows = await guestsOf(ind.id);

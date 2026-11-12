@@ -328,7 +328,7 @@ function csvCell(value: unknown): string {
 
 export async function exportCsv(origin = ''): Promise<string> {
   const invitations = await listInvitations('all');
-  const header = ['Tag', 'Convite enviado', 'Convite', 'Código', 'Link do convite', 'Acompanhantes no convite', 'Ativo', 'Convidado', 'Papel', 'Telefone', 'Status', 'Respondido em', 'E-mail', 'Recado / restrições'];
+  const header = ['Tag', 'Convite enviado', 'Convite', 'Código', 'Link do convite', 'Acompanhantes no convite', 'Ativo', 'Convidado', 'Papel', 'Telefone', 'Status', 'Respondido em', 'Recado / restrições'];
   const lines = [header.join(';')];
   for (const inv of invitations) {
     for (const g of inv.guests) {
@@ -346,7 +346,6 @@ export async function exportCsv(origin = ''): Promise<string> {
           formatPhone(g.phone),
           STATUS_LABEL[g.attendance_status],
           g.responded_at ? new Date(g.responded_at).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' }) : '',
-          inv.contact_email ?? '',
           inv.guest_message ?? '',
         ]
           .map(csvCell)
