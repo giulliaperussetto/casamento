@@ -255,15 +255,15 @@ export const wedding = {
      * Se a lista ficar vazia, o carrossel não aparece — só o texto e o botão.
      */
     items: [
-      { name: 'Kit 6 taças de vidro para vinho e água', price: 'R$ 47,00', image: '/images/presentes/tacas.webp' },
-      { name: 'Conjunto de facas inox com suporte (8 peças)', price: 'R$ 188,90', image: '/images/presentes/facas.webp' },
-      { name: 'Processador de alimentos 3 em 1 Electrolux', price: 'R$ 299,97', image: '/images/presentes/processador.webp' },
-      { name: 'Kit furadeira e parafusadeira Bosch', price: 'R$ 332,41', image: '/images/presentes/furadeira.webp' },
-      { name: 'Batedeira planetária Electrolux 750W', price: 'R$ 445,72', image: '/images/presentes/batedeira.webp' },
-      { name: 'Air fryer Electrolux Rita Lobo 12L', price: 'R$ 599,89', image: '/images/presentes/air-fryer.webp' },
-      { name: 'Máquina de pão automática inox', price: 'R$ 739,90', image: '/images/presentes/panificadora.webp' },
-      { name: 'Smart TV 43" LG 4K', price: 'R$ 2.299,00', image: '/images/presentes/smart-tv.webp' },
-      { name: 'Geladeira Electrolux Frost Free 320L', price: 'R$ 2.599,00', image: '/images/presentes/geladeira.webp' },
+      { name: 'Kit 6 taças de vidro para vinho e água', price: 'R$ 47,00', image: '/images/presentes/tacas.webp', url: '/presentes?add=tacas' },
+      { name: 'Conjunto de facas inox com suporte (8 peças)', price: 'R$ 188,90', image: '/images/presentes/facas.webp', url: '/presentes?add=facas' },
+      { name: 'Processador de alimentos 3 em 1 Electrolux', price: 'R$ 299,97', image: '/images/presentes/processador.webp', url: '/presentes?add=processador' },
+      { name: 'Kit furadeira e parafusadeira Bosch', price: 'R$ 332,41', image: '/images/presentes/furadeira.webp', url: '/presentes?add=furadeira' },
+      { name: 'Batedeira planetária Electrolux 750W', price: 'R$ 445,72', image: '/images/presentes/batedeira.webp', url: '/presentes?add=batedeira' },
+      { name: 'Air fryer Electrolux Rita Lobo 12L', price: 'R$ 599,89', image: '/images/presentes/air-fryer.webp', url: '/presentes?add=airfryer' },
+      { name: 'Máquina de pão automática inox', price: 'R$ 739,90', image: '/images/presentes/panificadora.webp', url: '/presentes?add=pao' },
+      { name: 'Smart TV 43" LG 4K', price: 'R$ 2.299,00', image: '/images/presentes/smart-tv.webp', url: '/presentes?add=tv' },
+      { name: 'Geladeira Electrolux Frost Free 320L', price: 'R$ 2.599,00', image: '/images/presentes/geladeira.webp', url: '/presentes?add=geladeira' },
     ] as { name: string; price: string; image: string; url?: string }[],
   },
 

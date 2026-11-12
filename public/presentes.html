@@ -774,7 +774,9 @@ body.has-bar { padding-bottom: 86px; }
 .line__img { position: relative; width: 64px; aspect-ratio: 4 / 5; border-radius: var(--r-sm); overflow: hidden; background: #ebe2d8; }
 .line__img img { width: 100%; height: 100%; object-fit: cover; }
 .line__img .tile { padding: 4px; }
-.line__img .tile__word { font-size: .82rem; }
+.line__img .tile__word { font-size: .78rem; line-height: 1.1; }
+.line__img .tile__rule, .line__img .tile__sub { display: none; }
+.btn-ghost--block { width: 100%; margin-bottom: 10px; }
 .line__name { font-family: var(--font-serif), Georgia, serif; font-size: 1.15rem; line-height: 1.2; color: var(--ink); margin-bottom: .45rem; }
 .line__row { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
 .line__row .qty button { width: 32px; height: 32px; }
@@ -997,6 +999,7 @@ body.has-bar { padding-bottom: 86px; }
   </div>
   <div class="drawer__foot" data-step="cart" id="cart-foot">
     <div class="sum"><span>Total</span><strong data-total>R$ 0,00</strong></div>
+    <button type="button" class="btn-ghost btn-ghost--block" id="more-gifts">Escolher outros presentes</button>
     <button type="button" class="btn-solid btn-solid--block" id="to-checkout">Continuar</button>
   </div>
 
@@ -1288,7 +1291,25 @@ body.has-bar { padding-bottom: 86px; }
   burger.addEventListener('click', () => setMenu(burger.getAttribute('aria-expanded') !== 'true'));
   menu.addEventListener('click', (e) => { if (e.target.closest('a')) setMenu(false); });
   $('.cart-icon').addEventListener('click', () => setMenu(false));
+  $('#more-gifts').addEventListener('click', () => {
+    drawer.close();
+    const v = $('#vitrine');
+    if (v) v.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+
   renderShop(); renderCart();
+
+  // Vindo da página principal: /presentes?add=<id> já coloca o presente no carrinho e abre para pagar.
+  try {
+    const params = new URLSearchParams(location.search);
+    const addId = params.get('add');
+    if (addId && byId[addId]) {
+      if (!cart[addId]) cart[addId] = 1;
+      refresh();
+      openDrawer();
+    }
+    if (addId) history.replaceState(null, '', location.pathname + location.hash);
+  } catch (e) {}
 })();
 </script>
 
