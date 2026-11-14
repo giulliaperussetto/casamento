@@ -1065,24 +1065,54 @@ body.has-bar { padding-bottom: 86px; }
 <script src="/vendor/qrcode-generator-1.4.4.js"></script>
 <script>
 (() => {
-  const IMG = {"air-fryer": "/images/presentes/air-fryer.webp", "processador": "/images/presentes/processador.webp", "panificadora": "/images/presentes/panificadora.webp", "geladeira": "/images/presentes/geladeira.webp", "batedeira": "/images/presentes/batedeira.webp", "smart-tv": "/images/presentes/smart-tv.webp", "tacas": "/images/presentes/tacas.webp", "furadeira": "/images/presentes/furadeira.webp", "facas": "/images/presentes/facas.webp"};
+  const IMG = {"air-fryer": "/images/presentes/air-fryer.webp", "aspirador": "/images/presentes/aspirador.webp", "batedeira": "/images/presentes/batedeira.webp", "cafeteira": "/images/presentes/cafeteira.webp", "cama-box": "/images/presentes/cama-box.webp", "copos-cafe": "/images/presentes/copos-cafe.webp", "copos-versalhes": "/images/presentes/copos-versalhes.webp", "edredom-percal": "/images/presentes/edredom-percal.webp", "edredom-queen": "/images/presentes/edredom-queen.webp", "edredom-roma": "/images/presentes/edredom-roma.webp", "facas": "/images/presentes/facas.webp", "ferramentas-bosch": "/images/presentes/ferramentas-bosch.webp", "ferro": "/images/presentes/ferro.webp", "furadeira": "/images/presentes/furadeira.webp", "geladeira": "/images/presentes/geladeira.webp", "jogo-cama-cetim": "/images/presentes/jogo-cama-cetim.webp", "jogo-cama-verbena": "/images/presentes/jogo-cama-verbena.webp", "lava-e-seca": "/images/presentes/lava-e-seca.webp", "lava-loucas": "/images/presentes/lava-loucas.webp", "lencol-buddemeyer": "/images/presentes/lencol-buddemeyer.webp", "micro-ondas": "/images/presentes/micro-ondas.webp", "panela-pressao": "/images/presentes/panela-pressao.webp", "panelas-tramontina": "/images/presentes/panelas-tramontina.webp", "panificadora": "/images/presentes/panificadora.webp", "porta-tempero": "/images/presentes/porta-tempero.webp", "potes-15": "/images/presentes/potes-15.webp", "potes-electrolux": "/images/presentes/potes-electrolux.webp", "pratos-fundos": "/images/presentes/pratos-fundos.webp", "pratos-rasos": "/images/presentes/pratos-rasos.webp", "pratos-sobremesa": "/images/presentes/pratos-sobremesa.webp", "processador": "/images/presentes/processador.webp", "robo-aspirador": "/images/presentes/robo-aspirador.webp", "sanduicheira": "/images/presentes/sanduicheira.webp", "smart-tv": "/images/presentes/smart-tv.webp", "tacas": "/images/presentes/tacas.webp", "talheres": "/images/presentes/talheres.webp", "toalhas-banhao": "/images/presentes/toalhas-banhao.webp", "toalhas-premium": "/images/presentes/toalhas-premium.webp", "torradeira": "/images/presentes/torradeira.webp", "utensilios": "/images/presentes/utensilios.webp"};
   /* ----- Catálogo: edite aqui nomes, valores, fotos e categorias ----- */
   const PRODUCTS = [
-    { id: 'tacas', cat: 'casa', name: 'Kit 6 taças de vidro para vinho e água', price: 47, img: 'tacas' },
-    { id: 'facas', cat: 'casa', name: 'Conjunto de facas inox com suporte', price: 188.9, img: 'facas' },
+    { id: 'tacas', cat: 'casa', name: 'Kit 6 taças de vidro para vinho e água 385 ml Nadir', price: 47, img: 'tacas' },
+    { id: 'copos-cafe', cat: 'casa', name: 'Jogo de copos de café parede dupla 80 ml (4 peças)', price: 28.90, img: 'copos-cafe' },
+    { id: 'copos-versalhes', cat: 'casa', name: 'Jogo de 6 copos de vidro Versalhes canelado 420 ml', price: 32.24, img: 'copos-versalhes' },
+    { id: 'utensilios', cat: 'casa', name: 'Kit 12 utensílios de cozinha de silicone com cabo de madeira', price: 44.62, img: 'utensilios' },
+    { id: 'porta-tempero', cat: 'casa', name: 'Porta-tempero giratório inox com 12 potes', price: 69.99, img: 'porta-tempero' },
+    { id: 'talheres', cat: 'casa', name: 'Jogo de talheres Tramontina inox 24 peças', price: 78.99, img: 'talheres' },
+    { id: 'ferro', cat: 'casa', name: 'Ferro de passar a vapor e a seco Electrolux', price: 88.42, img: 'ferro' },
+    { id: 'potes-electrolux', cat: 'casa', name: 'Jogo de potes herméticos Electrolux', price: 94.90, img: 'potes-electrolux' },
+    { id: 'cafeteira', cat: 'casa', name: 'Cafeteira Electrolux Efficient ECM10', price: 125.26, img: 'cafeteira' },
+    { id: 'sanduicheira', cat: 'casa', name: 'Sanduicheira Electrolux Efficient inox', price: 132.41, img: 'sanduicheira' },
+    { id: 'potes-15', cat: 'casa', name: 'Kit 15 potes herméticos para mantimentos', price: 144.10, img: 'potes-15' },
+    { id: 'ferramentas-bosch', cat: 'casa', name: 'Jogo de ferramentas Bosch 41 peças', price: 155.60, img: 'ferramentas-bosch' },
+    { id: 'torradeira', cat: 'casa', name: 'Torradeira Electrolux Efficient Granite Gray', price: 156.84, img: 'torradeira' },
+    { id: 'aspirador', cat: 'casa', name: 'Aspirador de pó vertical e portátil Electrolux', price: 177.89, img: 'aspirador' },
+    { id: 'pratos-sobremesa', cat: 'casa', name: 'Jogo de 6 pratos de sobremesa Oxford Brisa 20 cm', price: 178.68, img: 'pratos-sobremesa' },
+    { id: 'facas', cat: 'casa', name: 'Conjunto de facas inox 8 peças com suporte e afiador', price: 199.90, img: 'facas' },
+    { id: 'pratos-fundos', cat: 'casa', name: 'Jogo de 6 pratos fundos Oxford Ryo Maresia 22 cm', price: 237.99, img: 'pratos-fundos' },
+    { id: 'pratos-rasos', cat: 'casa', name: 'Jogo de pratos rasos Oxford Ryo Maresia 27,5 cm', price: 272.90, img: 'pratos-rasos' },
     { id: 'processador', cat: 'casa', name: 'Processador de alimentos 3 em 1 Electrolux', price: 299.97, img: 'processador' },
-    { id: 'furadeira', cat: 'casa', name: 'Kit furadeira e parafusadeira Bosch', price: 332.41, img: 'furadeira' },
-    { id: 'batedeira', cat: 'casa', name: 'Batedeira planetária Electrolux 750W', price: 445.72, img: 'batedeira' },
-    { id: 'airfryer', cat: 'casa', name: 'Air fryer Electrolux Rita Lobo 12L', price: 599.89, img: 'air-fryer' },
-    { id: 'pao', cat: 'casa', name: 'Máquina de pão automática inox', price: 739.9, img: 'panificadora' },
-    { id: 'tv', cat: 'casa', name: 'Smart TV 43" LG 4K', price: 2299, img: 'smart-tv' },
-    { id: 'geladeira', cat: 'casa', name: 'Geladeira Electrolux Frost Free 320L', price: 2599, img: 'geladeira' },
+    { id: 'furadeira', cat: 'casa', name: 'Kit furadeira e parafusadeira Bosch GSB 450 com brocas', price: 409.90, img: 'furadeira' },
+    { id: 'batedeira', cat: 'casa', name: 'Batedeira planetária Electrolux Experience 750 W', price: 459, img: 'batedeira' },
+    { id: 'micro-ondas', cat: 'casa', name: 'Micro-ondas Electrolux 20 L inox espelhado', price: 499, img: 'micro-ondas' },
+    { id: 'panela-pressao', cat: 'casa', name: 'Panela de pressão elétrica Electrolux Rita Lobo 6 L', price: 525.26, img: 'panela-pressao' },
+    { id: 'panelas-tramontina', cat: 'casa', name: 'Jogo de panelas Tramontina Allegra inox 5 peças', price: 544, img: 'panelas-tramontina' },
+    { id: 'airfryer', cat: 'casa', name: 'Air fryer Electrolux Rita Lobo 12 L', price: 556.84, img: 'air-fryer' },
+    { id: 'pao', cat: 'casa', name: 'Máquina de pão automática inox', price: 739.90, img: 'panificadora' },
+    { id: 'robo-aspirador', cat: 'casa', name: 'Robô aspirador 4 em 1 Electrolux Experience', price: 1020, img: 'robo-aspirador' },
+    { id: 'cama-box', cat: 'casa', name: 'Cama box baú casal com colchão de molas ensacadas', price: 1528.24, img: 'cama-box' },
+    { id: 'tv', cat: 'casa', name: 'Smart TV 43" LG 4K Nano LED', price: 2299, img: 'smart-tv' },
+    { id: 'geladeira', cat: 'casa', name: 'Geladeira Electrolux Frost Free 320 L inox', price: 2449, img: 'geladeira' },
+    { id: 'lava-loucas', cat: 'casa', name: 'Lava-louças Electrolux 10 serviços inox', price: 3099, img: 'lava-loucas' },
+    { id: 'lava-e-seca', cat: 'casa', name: 'Lava e seca Electrolux 12 kg Inverter', price: 3999, img: 'lava-e-seca' },
+    { id: 'edredom-percal', cat: 'cama', name: 'Edredom casal queen micro percal 400 fios dupla face', price: 110.11, img: 'edredom-percal' },
+    { id: 'edredom-roma', cat: 'cama', name: 'Kit edredom branco com fronhas casal king Roma', price: 139.90, img: 'edredom-roma' },
+    { id: 'edredom-queen', cat: 'cama', name: 'Kit edredom queen 100% algodão dupla face (3 peças)', price: 144, img: 'edredom-queen' },
+    { id: 'toalhas-premium', cat: 'cama', name: 'Kit 4 toalhas de banho algodão premium 500 g/m²', price: 165.59, img: 'toalhas-premium' },
+    { id: 'toalhas-banhao', cat: 'cama', name: 'Jogo de toalhas banhão gigante 6 peças (3 banho e 3 rosto)', price: 174.39, img: 'toalhas-banhao' },
+    { id: 'jogo-cama-verbena', cat: 'cama', name: 'Jogo de cama casal Buddemeyer percal 180 fios', price: 379.90, img: 'jogo-cama-verbena' },
+    { id: 'lencol-buddemeyer', cat: 'cama', name: 'Jogo de lençol queen Buddemeyer percal 200 fios (4 peças)', price: 479, img: 'lencol-buddemeyer' },
+    { id: 'jogo-cama-cetim', cat: 'cama', name: 'Jogo de cama casal Buddemeyer cetim 300 fios branco', price: 499.99, img: 'jogo-cama-cetim' },
 
     { id: 'cafe', cat: 'lua', name: 'Café da manhã na cama no primeiro domingo de casadas', price: 90, tile: ['Café na cama', 'Lua de mel', 'gold'] },
     { id: 'jantar', cat: 'lua', name: 'Jantar romântico na lua de mel', price: 280, tile: ['Jantar a dois', 'Lua de mel', 'wine'] },
     { id: 'barco', cat: 'lua', name: 'Passeio de barco na lua de mel', price: 450, tile: ['Um dia no mar', 'Lua de mel', 'rose'] },
     { id: 'diaria', cat: 'lua', name: 'Uma diária de hotel na lua de mel', price: 600, tile: ['Mais uma noite', 'Lua de mel', 'wine'] },
-
     { id: 'filme', cat: 'rir', name: 'Vale "hoje eu escolho o filme"', note: 'Encerra a discussão de meia hora antes de dar o play.', price: 45, tile: ['Eu escolho o filme', 'Para rir', 'gold'] },
     { id: 'ressaca', cat: 'rir', name: 'Kit ressaca do dia seguinte', note: 'Água de coco, Engov e muito silêncio.', price: 60, tile: ['Kit ressaca', 'Para rir', 'rose'] },
     { id: 'pizza', cat: 'rir', name: 'A primeira pizza depois da festa', note: 'Porque noiva não come no próprio casamento.', price: 75, tile: ['Pizza das 4h', 'Para rir', 'wine'] },
@@ -1114,7 +1144,7 @@ body.has-bar { padding-bottom: 86px; }
   const media = (p) => p.img
     ? `<img src="${IMG[p.img]}" alt="" loading="lazy">`
     : `<div class="tile tile--${p.tile[2]}" aria-hidden="true"><span class="tile__word">${esc(p.tile[0])}</span><span class="tile__rule"></span><span class="tile__sub">${esc(p.tile[1])}</span></div>`;
-  const tagLabel = { casa: 'Para a casa', lua: 'Lua de mel', rir: 'Para rir' };
+  const tagLabel = { casa: 'Para a casa', cama: 'Cama e banho', lua: 'Lua de mel', rir: 'Para rir' };
   let filter = 'todos';
   function control(p) {
     const q = cart[p.id] || 0;

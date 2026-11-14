@@ -256,14 +256,14 @@ export const wedding = {
      */
     items: [
       { name: 'Kit 6 taças de vidro para vinho e água', price: 'R$ 47,00', image: '/images/presentes/tacas.webp', url: '/presentes?add=tacas' },
-      { name: 'Conjunto de facas inox com suporte (8 peças)', price: 'R$ 188,90', image: '/images/presentes/facas.webp', url: '/presentes?add=facas' },
+      { name: 'Conjunto de facas inox com suporte e afiador', price: 'R$ 199,90', image: '/images/presentes/facas.webp', url: '/presentes?add=facas' },
       { name: 'Processador de alimentos 3 em 1 Electrolux', price: 'R$ 299,97', image: '/images/presentes/processador.webp', url: '/presentes?add=processador' },
-      { name: 'Kit furadeira e parafusadeira Bosch', price: 'R$ 332,41', image: '/images/presentes/furadeira.webp', url: '/presentes?add=furadeira' },
-      { name: 'Batedeira planetária Electrolux 750W', price: 'R$ 445,72', image: '/images/presentes/batedeira.webp', url: '/presentes?add=batedeira' },
-      { name: 'Air fryer Electrolux Rita Lobo 12L', price: 'R$ 599,89', image: '/images/presentes/air-fryer.webp', url: '/presentes?add=airfryer' },
+      { name: 'Jogo de cama casal Buddemeyer percal 180 fios', price: 'R$ 379,90', image: '/images/presentes/jogo-cama-verbena.webp', url: '/presentes?add=jogo-cama-verbena' },
+      { name: 'Batedeira planetária Electrolux 750 W', price: 'R$ 459,00', image: '/images/presentes/batedeira.webp', url: '/presentes?add=batedeira' },
+      { name: 'Air fryer Electrolux Rita Lobo 12 L', price: 'R$ 556,84', image: '/images/presentes/air-fryer.webp', url: '/presentes?add=airfryer' },
       { name: 'Máquina de pão automática inox', price: 'R$ 739,90', image: '/images/presentes/panificadora.webp', url: '/presentes?add=pao' },
       { name: 'Smart TV 43" LG 4K', price: 'R$ 2.299,00', image: '/images/presentes/smart-tv.webp', url: '/presentes?add=tv' },
-      { name: 'Geladeira Electrolux Frost Free 320L', price: 'R$ 2.599,00', image: '/images/presentes/geladeira.webp', url: '/presentes?add=geladeira' },
+      { name: 'Geladeira Electrolux Frost Free 320 L', price: 'R$ 2.449,00', image: '/images/presentes/geladeira.webp', url: '/presentes?add=geladeira' },
     ] as { name: string; price: string; image: string; url?: string }[],
   },
 

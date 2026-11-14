@@ -1,6 +1,5 @@
 import { wedding } from '@/config/wedding';
 import { GiftCarousel } from './GiftCarousel';
-import { PixGift } from './PixGift';
 import { Arrow, Emph, Eyebrow } from './Emph';
 
 export function GiftsSection() {
@@ -25,7 +24,6 @@ export function GiftsSection() {
             {gifts.button} <Arrow dir="out" />
           </a>
         </div>
-        <PixGift />
       </div>
     </section>
   );
