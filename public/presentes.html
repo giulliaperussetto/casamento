@@ -681,6 +681,8 @@ body { background: var(--warm); color: var(--text); font-family: var(--font-sans
   border: 1px solid color-mix(in srgb, var(--marsala) 30%, transparent); background: transparent; color: var(--marsala);
   font: 500 .74rem/1 var(--font-sans), system-ui, sans-serif; letter-spacing: .14em; text-transform: uppercase;
 }
+.sortbar { align-items: center; }
+.sortbar__label { font-size: .74rem; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin-right: 4px; }
 .chip[aria-pressed="true"] { background: var(--marsala); border-color: var(--marsala); color: var(--white); }
 @media (hover: hover) { .chip:not([aria-pressed="true"]):hover { background: color-mix(in srgb, var(--marsala) 8%, transparent); } }
 
@@ -941,7 +943,7 @@ body.has-bar { padding-bottom: 86px; }
           <p class="kicker"><svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M7 0v14M0 7h14M2 2l10 10M12 2 2 12" stroke="currentColor" stroke-width="1"/></svg>Escolha com carinho</p>
           <h2 class="display" id="presentes-titulo">O amor a gente já tem. <em class="emph">Agora falta o resto!</em></h2>
         </div>
-        <p class="section-head__text">Sua presença já é o nosso maior presente! Mas, se quiser fazer parte dessa nova fase, escolha um ou mais itens, deixe um recado e pague com Pix. Tem presente para a casa, para a lua de mel e alguns só para a gente rir.</p>
+        <p class="section-head__text">Sua presença já é o nosso maior presente! Mas, se quiser fazer parte dessa nova fase, escolha um ou mais itens, deixe um recado e pague com Pix.</p>
       </header>
 
       <ol class="steps">
@@ -953,6 +955,11 @@ body.has-bar { padding-bottom: 86px; }
         <a class="btn-solid" href="#vitrine">Escolher seu presente <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M8 2v12M3 9l5 5 5-5"/></svg></a>
       </div>
 
+      <div class="chips sortbar" role="group" aria-label="Ordenar por preço">
+        <span class="sortbar__label">Ordenar por</span>
+        <button type="button" class="chip" data-sort="asc" aria-pressed="true">Menor preço</button>
+        <button type="button" class="chip" data-sort="desc" aria-pressed="false">Maior preço</button>
+      </div>
       <ul class="shop" id="vitrine" role="list" aria-label="Presentes"></ul>
 
       <p class="honest">Cada presente vira um valor para a nossa nova vida juntas. A geladeira não vai sair da sua casa, prometemos!
@@ -1108,17 +1115,6 @@ body.has-bar { padding-bottom: 86px; }
     { id: 'jogo-cama-verbena', cat: 'cama', name: 'Jogo de cama casal Buddemeyer percal 180 fios', price: 379.90, img: 'jogo-cama-verbena' },
     { id: 'lencol-buddemeyer', cat: 'cama', name: 'Jogo de lençol queen Buddemeyer percal 200 fios (4 peças)', price: 479, img: 'lencol-buddemeyer' },
     { id: 'jogo-cama-cetim', cat: 'cama', name: 'Jogo de cama casal Buddemeyer cetim 300 fios branco', price: 499.99, img: 'jogo-cama-cetim' },
-
-    { id: 'cafe', cat: 'lua', name: 'Café da manhã na cama no primeiro domingo de casadas', price: 90, tile: ['Café na cama', 'Lua de mel', 'gold'] },
-    { id: 'jantar', cat: 'lua', name: 'Jantar romântico na lua de mel', price: 280, tile: ['Jantar a dois', 'Lua de mel', 'wine'] },
-    { id: 'barco', cat: 'lua', name: 'Passeio de barco na lua de mel', price: 450, tile: ['Um dia no mar', 'Lua de mel', 'rose'] },
-    { id: 'diaria', cat: 'lua', name: 'Uma diária de hotel na lua de mel', price: 600, tile: ['Mais uma noite', 'Lua de mel', 'wine'] },
-    { id: 'filme', cat: 'rir', name: 'Vale "hoje eu escolho o filme"', note: 'Encerra a discussão de meia hora antes de dar o play.', price: 45, tile: ['Eu escolho o filme', 'Para rir', 'gold'] },
-    { id: 'ressaca', cat: 'rir', name: 'Kit ressaca do dia seguinte', note: 'Água de coco, Engov e muito silêncio.', price: 60, tile: ['Kit ressaca', 'Para rir', 'rose'] },
-    { id: 'pizza', cat: 'rir', name: 'A primeira pizza depois da festa', note: 'Porque noiva não come no próprio casamento.', price: 75, tile: ['Pizza das 4h', 'Para rir', 'wine'] },
-    { id: 'louca', cat: 'rir', name: 'Patrocínio da louça por um mês', note: 'Para acabar com o "quem lava hoje?".', price: 120, tile: ['Quem lava hoje?', 'Para rir', 'gold'] },
-    { id: 'night', cat: 'rir', name: 'Vale night com as garotas', note: 'Uma noite livre, com aprovação prévia da esposa.', price: 150, tile: ['Vale night', 'Com as garotas', 'rose'] },
-    { id: 'ar', cat: 'rir', name: 'Ajuda na conta de luz do ar-condicionado', note: 'Uma quer 18 graus, a outra quer 25.', price: 200, tile: ['18° ou 25°?', 'Para rir', 'wine'] },
   ];
   const brl = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
   const fmt = (v) => brl.format(v).replace(/ /g, ' ');
@@ -1146,13 +1142,14 @@ body.has-bar { padding-bottom: 86px; }
     : `<div class="tile tile--${p.tile[2]}" aria-hidden="true"><span class="tile__word">${esc(p.tile[0])}</span><span class="tile__rule"></span><span class="tile__sub">${esc(p.tile[1])}</span></div>`;
   const tagLabel = { casa: 'Para a casa', cama: 'Cama e banho', lua: 'Lua de mel', rir: 'Para rir' };
   let filter = 'todos';
+  let sortDir = 'asc';
   function control(p) {
     const q = cart[p.id] || 0;
     if (!q) return `<button type="button" class="add" data-add="${p.id}">Presentear<span class="sr-only">: ${esc(p.name)}</span></button>`;
     return `<span class="qty" role="group" aria-label="Quantidade de ${esc(p.name)}"><button type="button" data-dec="${p.id}" aria-label="Tirar um">−</button><output>${q}</output><button type="button" data-inc="${p.id}" aria-label="Adicionar mais um">+</button></span>`;
   }
   function renderShop() {
-    const list = PRODUCTS.filter((p) => filter === 'todos' || p.cat === filter).sort((a, b) => a.price - b.price);
+    const list = PRODUCTS.filter((p) => filter === 'todos' || p.cat === filter).sort((a, b) => (sortDir === 'asc' ? a.price - b.price : b.price - a.price));
     let html = list.map((p) => `
       <li><article class="card">
         <div class="card__img">${media(p)}${p.img ? `<span class="card__tag">${tagLabel[p.cat]}</span>` : ''}</div>
@@ -1209,6 +1206,7 @@ body.has-bar { padding-bottom: 86px; }
     else if (b.dataset.inc) { cart[b.dataset.inc] = (cart[b.dataset.inc] || 0) + 1; refresh(); }
     else if (b.dataset.dec) { cart[b.dataset.dec] = Math.max(0, (cart[b.dataset.dec] || 0) - 1); if (!cart[b.dataset.dec]) delete cart[b.dataset.dec]; refresh(); }
     else if (b.dataset.removeFree) { freeValues = freeValues.filter((f) => f.id !== b.dataset.removeFree); refresh(); }
+    else if (b.dataset.sort) { sortDir = b.dataset.sort; $$('[data-sort]').forEach((c) => c.setAttribute('aria-pressed', String(c === b))); renderShop(); }
     else if (b.dataset.filter) { filter = b.dataset.filter; $$('.chip').forEach((c) => c.setAttribute('aria-pressed', String(c === b))); renderShop(); }
     else if ('openCart' in b.dataset) openDrawer();
   });
