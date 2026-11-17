@@ -33,6 +33,14 @@ export async function runDiagnostics(): Promise<Check[]> {
     const value = process.env[name];
     checks.push({ label: `Variável ${name} configurada na Vercel`, ok: !!value && value.trim().length > 0 });
   }
+  checks.push({
+    label: 'Mercado Pago configurado (cartão na lista de presentes)',
+    ok: !!process.env.MP_PUBLIC_KEY && !!process.env.MP_ACCESS_TOKEN,
+    detail:
+      process.env.MP_PUBLIC_KEY && process.env.MP_ACCESS_TOKEN
+        ? undefined
+        : 'Opcional: cadastre MP_PUBLIC_KEY e MP_ACCESS_TOKEN na Vercel. Sem elas, a lista aceita só Pix.',
+  });
   const key = process.env.INVITE_CODE_ENCRYPTION_KEY;
   if (key) {
     const len = Buffer.from(key, 'base64').length;
@@ -61,13 +69,14 @@ export async function runDiagnostics(): Promise<Check[]> {
   }
 
   try {
-    const [r] = await sql<{ t1: boolean; t2: boolean; t3: boolean; t4: boolean; t5: boolean; t6: boolean; admins: number }[]>`
+    const [r] = await sql<{ t1: boolean; t2: boolean; t3: boolean; t4: boolean; t5: boolean; t6: boolean; t7: boolean; admins: number }[]>`
       select to_regclass('wedding.invitations') is not null as t1,
              exists (select 1 from information_schema.columns where table_schema = 'wedding' and table_name = 'invitations' and column_name = 'contact_email') as t2,
              exists (select 1 from pg_proc where proname = 'submit_rsvp_v3') as t3,
              exists (select 1 from pg_proc where proname = 'submit_rsvp_v4') as t4,
              exists (select 1 from pg_proc where proname = 'submit_rsvp_v5') as t5,
              to_regclass('wedding.gift_orders') is not null as t6,
+             exists (select 1 from information_schema.columns where table_schema = 'wedding' and table_name = 'gift_orders' and column_name = 'mp_payment_id') as t7,
              0 as admins`;
     checks.push({ label: 'Arquivo 0001 rodado (tabelas criadas)', ok: r.t1, detail: r.t1 ? undefined : 'Rode o 0001_wedding_schema.sql no SQL Editor.' });
     checks.push({ label: 'Arquivo 0002 rodado', ok: r.t2, detail: r.t2 ? undefined : 'Rode o 0002_contact_and_message.sql no SQL Editor.' });
@@ -75,6 +84,7 @@ export async function runDiagnostics(): Promise<Check[]> {
     checks.push({ label: 'Arquivo 0004 rodado', ok: r.t4, detail: r.t4 ? undefined : 'Rode o 0004_prefilled_companions.sql no SQL Editor.' });
     checks.push({ label: 'Arquivo 0005 rodado', ok: r.t5, detail: r.t5 ? undefined : 'Rode o 0005_panel_tags_settings.sql no SQL Editor.' });
     checks.push({ label: 'Arquivo 0006 rodado (lista de presentes)', ok: r.t6, detail: r.t6 ? undefined : 'Rode o 0006_gift_orders.sql no SQL Editor.' });
+    checks.push({ label: 'Arquivo 0007 rodado (cartão)', ok: r.t7, detail: r.t7 ? undefined : 'Rode o 0007_card_payments.sql no SQL Editor.' });
     if (r.t1) {
       const [a] = await sql<{ n: number }[]>`select count(*)::int as n from wedding.admin_users`;
       checks.push({ label: 'Login do painel criado', ok: a.n > 0, detail: a.n > 0 ? undefined : 'Rode o trecho do item 3 do PASSO-A-PASSO-PRIVADO.txt no SQL Editor.' });

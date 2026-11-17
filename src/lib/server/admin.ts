@@ -366,12 +366,17 @@ export type GiftOrder = {
   items: { id: string; name: string; price: number; qty: number }[];
   total: string;
   received: boolean;
+  method: 'pix' | 'card';
+  status: string;
+  installments: number | null;
+  paid_amount: string | null;
+  mp_payment_id: string | null;
   created_at: Date;
 };
 
 export async function listGiftOrders(): Promise<GiftOrder[]> {
   return db()<GiftOrder[]>`
-    select id, giver_name, message, items, total::text as total, received, created_at
+    select id, giver_name, message, items, total::text as total, received, method, status, installments, paid_amount::text as paid_amount, mp_payment_id, created_at
       from wedding.gift_orders order by created_at desc`;
 }
 

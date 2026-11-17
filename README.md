@@ -92,3 +92,10 @@ BASE_URL=http://localhost:3000 npm run test:rsvp
 Recomendado: **Vercel + Supabase**. Configure as variáveis de ambiente no projeto, rode `npm run db:migrate` apontando para o banco de produção e crie o administrador. A Vercel fornece HTTPS e define o IP real do cliente (usado nos limites de tentativas). Em servidor próprio, coloque a aplicação atrás de um proxy reverso com HTTPS que sobrescreva `X-Forwarded-For`.
 
 O schema `wedding` não é exposto pela API pública do Supabase (RLS ativo, permissões revogadas de `anon`/`authenticated`).
+
+## Lista de presentes (`/presentes`)
+
+- Página própria (`public/presentes.html`). O catálogo fica em `src/data/presentes.json` e é o mesmo usado pelo servidor para conferir os valores.
+- **Pix:** vai direto para a conta das noivas. "Já fiz o Pix" registra o presente (aba **Presentes** do painel), que as noivas marcam como recebido ao conferir o extrato.
+- **Cartão:** Mercado Pago (Card Payment Brick). Os dados do cartão nunca passam pelo site; o servidor cobra o total recalculado do catálogo. Até 12x, com os juros do parcelamento pagos por quem compra. Aprovado = marcado como pago automaticamente. Notificações em `/api/presentes/webhook`.
+- Variáveis: `MP_PUBLIC_KEY` e `MP_ACCESS_TOKEN` (somente na Vercel). Migrações: `0006_gift_orders.sql` e `0007_card_payments.sql`.

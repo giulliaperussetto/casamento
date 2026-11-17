@@ -255,3 +255,6 @@
 .adm-gift__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; }
 .adm-pill { font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 999px; background: #f6efe2; color: #8c6a3c; }
 .adm-pill--ok { background: #edf6ef; color: #245a36; }
+.adm-pill--wait { background: #f6efe2; color: #8c6a3c; }
+.adm-pill--bad { background: #fbeef0; color: #842532; }
+.adm-gift.is-failed { border-left-color: var(--a-red); opacity: .75; }
