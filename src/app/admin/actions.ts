@@ -5,6 +5,7 @@ import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { login, logout, requireAdmin } from '@/lib/server/auth';
 import * as admin from '@/lib/server/admin';
+import * as reminders from '@/lib/server/reminders';
 
 // Server Actions do Next.js já validam a origem (proteção CSRF) e cada ação
 // verifica a sessão administrativa no servidor antes de qualquer operação.
@@ -39,7 +40,7 @@ export async function logoutAction() {
 function back(formData: FormData, params: Record<string, string>, fallback = '/admin/convites'): never {
   revalidatePath('/admin', 'layout');
   const raw = String(formData.get('returnTo') ?? '');
-  const base = /^\/admin(\/[a-z-]*)?(\?.*)?$/.test(raw) ? raw : fallback;
+  const base = /^\/admin(\/[a-z-]+){0,2}\/?(\?.*)?$/.test(raw) ? raw : fallback;
   const url = new URL(base, 'http://x');
   for (const k of ['ok', 'error', 'open']) url.searchParams.delete(k);
   for (const [k, v] of Object.entries(params)) url.searchParams.set(k, v);
@@ -275,4 +276,46 @@ export async function deleteGiftOrderAction(formData: FormData) {
   await requireAdmin();
   await admin.deleteGiftOrder(uuid.parse(formData.get('id')));
   back(formData, { ok: 'Registro excluído.' }, '/admin/presentes');
+}
+
+// ---------------------------------------------------------------------------
+// Lembretes
+// ---------------------------------------------------------------------------
+const kindEnum = z.enum(['prazo', 'semana', 'vespera']);
+const templateEnum = z.enum(['prazo', 'semana_geral', 'semana_padrinhos', 'vespera_geral', 'vespera_padrinhos']);
+
+/** Chamado pelo botão do WhatsApp: marca o lembrete como enviado sem sair da página. */
+export async function markReminderSentQuickAction(invitationId: string, kind: string) {
+  await requireAdmin();
+  await reminders.setReminderSent(uuid.parse(invitationId), kindEnum.parse(kind), true);
+  revalidatePath('/admin', 'layout');
+}
+
+export async function setReminderSentAction(formData: FormData) {
+  await requireAdmin();
+  const kind = kindEnum.parse(formData.get('kind'));
+  const sent = formData.get('sent') === 'true';
+  await reminders.setReminderSent(uuid.parse(formData.get('id')), kind, sent);
+  back(formData, { ok: sent ? 'Lembrete marcado como enviado.' : 'Lembrete marcado como não enviado.' }, `/admin/lembretes/${kind}`);
+}
+
+export async function saveTemplateAction(formData: FormData) {
+  await requireAdmin();
+  const key = templateEnum.parse(formData.get('key'));
+  const reset = formData.get('reset') === 'true';
+  const text = reset ? '' : String(formData.get('text') ?? '').replace(/\r\n/g, '\n').slice(0, 3000);
+  await reminders.saveTemplate(key, text);
+  back(formData, { ok: reset ? 'Mensagem padrão restaurada.' : 'Mensagem salva.' }, '/admin/lembretes');
+}
+
+export async function saveReminderInfoAction(formData: FormData) {
+  await requireAdmin();
+  const field = (k: string, max = 200) => String(formData.get(k) ?? '').trim().slice(0, max);
+  await reminders.saveReminderInfo({
+    padrinhosArrival: field('padrinhosArrival', 80),
+    assessoria: field('assessoria'),
+    trajeMadrinha: field('trajeMadrinha') || 'vestido longo marsala',
+    trajePadrinho: field('trajePadrinho') || 'terno cinza claro, camisa branca e tênis branco',
+  });
+  back(formData, { ok: 'Informações salvas.' }, '/admin/lembretes');
 }

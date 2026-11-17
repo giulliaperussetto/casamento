@@ -2,12 +2,17 @@ import Link from 'next/link';
 import { COUPLE, getDashboard, getSettings } from '@/lib/server/admin';
 import { saveSettingsAction } from '../actions';
 import { Flash } from './shared';
+import { REMINDERS, getReminderSummaries } from '@/lib/server/reminders';
+import { whenText } from './lembretes/shared';
 
 const fmt = (n: number) => n.toLocaleString('pt-BR', { maximumFractionDigits: 1 });
 
 export default async function AdminHome({ searchParams }: { searchParams: Promise<{ ok?: string; error?: string }> }) {
   const sp = await searchParams;
-  const [d, s] = await Promise.all([getDashboard(), getSettings()]);
+  const [d, s, rems] = await Promise.all([getDashboard(), getSettings(), getReminderSummaries()]);
+  // Lembretes que precisam de atenção: faltam 7 dias ou menos e ainda há gente para lembrar.
+  const dueRems = (rems ?? []).filter((r) => r.open && r.toSend > 0 && r.days <= 7);
+  const nextRem = (rems ?? []).filter((r) => r.open && r.toSend > 0 && r.days > 7).sort((a, b) => a.days - b.days)[0];
 
   const staffEquivalent = s.staffCount * s.staffWeight;
   // Ocupação real: quem já confirmou + noivas + staff.
@@ -45,6 +50,36 @@ export default async function AdminHome({ searchParams }: { searchParams: Promis
           </Link>
         ))}
       </section>
+
+      {rems === null && (
+        <p className="adm-alert adm-alert--warn">
+          Para usar os lembretes, rode o arquivo <strong>0008_reminders.sql</strong> no SQL Editor do Supabase.
+        </p>
+      )}
+      {dueRems.map((r) => (
+        <Link key={r.kind} href={`/admin/lembretes/${r.kind}`} className={`adm-remalert${r.days <= 0 ? ' is-now' : ''}`}>
+          <span className="adm-remalert__icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+              <path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
+              <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
+            </svg>
+          </span>
+          <span>
+            <strong>
+              {REMINDERS[r.kind].title}: {whenText(r).toLowerCase()}
+            </strong>
+            <span className="adm-small">
+              {r.toSend} convite{r.toSend === 1 ? '' : 's'} para lembrar{r.sent > 0 ? ` · ${r.sent} já enviado${r.sent === 1 ? '' : 's'}` : ''}. Abrir lista →
+            </span>
+          </span>
+        </Link>
+      ))}
+      {dueRems.length === 0 && nextRem && (
+        <p className="adm-small adm-muted adm-nextrem">
+          Próximo lembrete: <Link href={`/admin/lembretes/${nextRem.kind}`}>{REMINDERS[nextRem.kind].short}</Link>,{' '}
+          {whenText(nextRem).replace('Disparar', 'disparar')}.
+        </p>
+      )}
 
       <section className={`adm-capacity${over > 0 ? ' is-over' : over >= -5 ? ' is-near' : ''}`} aria-label="Capacidade">
         <div className="adm-capacity__head">
